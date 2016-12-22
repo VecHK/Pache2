@@ -25,6 +25,8 @@ body {
 
 	> *{
 		margin: 8px 0;
+		transition-property: all;
+		transition-duration: .618s;
 	}
 	[name="pass"] {
 		font-size: 2em;
@@ -57,5 +59,11 @@ body {
 	}
 	[name="pass"] {
 		display: none;
+	}
+}
+.auth-logined {
+	> * {
+		margin-top: 100px;
+		opacity: 0;
 	}
 }
