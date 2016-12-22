@@ -68,16 +68,40 @@ describe('auth', () => {
 		})
 	})
 
-	it('login out', (done) => {
+	it('getRandom after need login', (done) => {
 		request(app)
-		.get('/admin/logout')
-		.set('Cookie', cookie)
+		.get('/admin/auth')
+		.set('cookie', cookie)
 		.end((err, res) => {
 			res.status.should.equal(200);
+			res.text.should.length(16);
+			randomCode = res.text;
 
-			globalReq.session.should.not.have.property('user');
-			('user' in globalReq.session).should.equal(false);
-			done();
+			request(app).get('/admin/authed').set('cookie', cookie).end((err, res) => {
+				res.status.should.equal(200);
+				JSON.parse(res.text).should.equal(false);
+				done();
+			})
 		})
-	})
+	});
+	it('login out', (done) => {
+		request(app)
+		.post('/admin/auth')
+		.set('Cookie', cookie)
+		.send({ pass: utils.md5(randomCode + envir.pass) })
+		.end(function (err, res) {
+			res.status.should.equal(200);
+
+			request(app)
+			.get('/admin/logout')
+			.set('Cookie', cookie)
+			.end((err, res) => {
+				res.status.should.equal(200);
+
+				globalReq.session.should.not.have.property('user');
+				('user' in globalReq.session).should.equal(false);
+				done();
+			});
+		});
+	});
 })
