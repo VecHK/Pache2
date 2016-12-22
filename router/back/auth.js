@@ -15,6 +15,7 @@ const auth = (randomString, truePw, authCode) => {
 
 /* 获取随机码 */
 router.get('/auth', (req, res, next) => {
+	delete req.session.user;
 	req.session.random = randomString(16);
 	res.end(req.session.random);
 });
