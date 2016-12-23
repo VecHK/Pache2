@@ -61,7 +61,7 @@ class PamEditorTagManager {
 		return ele;
 	}
 	tagChange(){
-		console.warn(this);
+		this.emit('tag-change', this.tags);
 	}
 	tagStart(){
 		this.tags = [];
@@ -86,7 +86,7 @@ class PamEditorTagManager {
 			this.actionElement[actName] = ele;
 			this.actionStatus[actName] = status;
 			ele.onclick = e => {
-				this.emit(`action-${actName}`, e);
+				this.emit(`action-${actName}`, status, e);
 			};
 		});
 	}
@@ -100,7 +100,7 @@ class PamEditorTagManager {
 class PamPlugin extends PamEditorTagManager {
 	plugin(){
 		this.extendsArticleProperty = {
-			content(artile){ return $$('[name="content"]', this.contain).value },
+			content(article){ return $$('[name="content"]', this.contain).value },
 			title(article){ return $$('[name="title"]', this.contain).value },
 			tags(article){ return [...this.tags] },
 		};

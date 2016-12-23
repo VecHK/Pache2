@@ -2,6 +2,9 @@ const auth = new PamAuth;
 const panel = new PamPanel;
 const list = new PamList;
 const editor = new PamEditor;
+const articleProfile = new PamArticleProfile;
+articleProfile.start();
+articleProfile.use(editor);
 
 panel.bind($$('.panel'));
 panel.on('command-new', function (){

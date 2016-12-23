@@ -1,0 +1,49 @@
+@import "base.less";
+
+.article-profile {
+	position: absolute;
+	bottom: 1em;
+	left: 1em;
+
+	width: 320px;
+	background: rgba(255, 255, 255, 0.9);
+
+	border: 1px solid #bbb;
+	transition-property: all;
+	transition-duration: .382s;
+
+	@profile-ok-padding-height: 4px;
+	@profile-ok-height: 32px - @profile-ok-padding-height;
+
+	form {
+		width: 320px;
+		margin: 2em 0;
+		font-family: @small-font-family;
+		text-align: center;
+
+		select {
+			outline: none;
+			margin: 0px 4px;
+		}
+	}
+	.profile-ok {
+		position: relative;
+		cursor: pointer;
+		padding: 2px 4px;
+		font-family: @small-font-family;
+		margin: auto;
+		display: flex;
+		justify-content: center;
+		transform: scale(0.5);
+		embed {
+			cursor: pointer;
+		}
+		.click-able {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+		}
+	}
+}
