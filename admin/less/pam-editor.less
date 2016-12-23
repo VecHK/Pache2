@@ -1,0 +1,124 @@
+@import "./base.less";
+
+.editor {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: rgba(255, 255, 255, 0.95);
+	width: 100%;
+	height: 100%;
+
+	.editor-panel {
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		bottom: 1em;
+		left: 1em;
+		.icon(@icon-url) {
+			width: 48px;
+			height: 48px;
+			background: url(@icon-url);
+			background-repeat: space;
+			background-size: cover;
+		}
+		.help {
+			.icon("../resource/help.png");
+			cursor: help;
+		}
+		.submit {
+			.icon("../resource/submit.png");
+			cursor: pointer;
+		}
+	}
+
+	.tag-item {
+		padding: 2px 8px;
+		background: rgb(241, 241, 241);
+		color: hsl(201, 47%, 35%);
+		font-size: 1.25em;
+		font-family: ISOCPEUR, "Lucida Sans", "Hiragino Sans GB", "Microsoft JhengHei", "WenQuanYi Microhei", "黑体";
+		margin: 0px 4px;
+		outline: none;
+	}
+	.tag {
+		display: inline-flex;
+		display: -webkit-inline-flex;
+
+		padding: 2em 1em;
+		.tag-list {
+			> * {
+				.tag-item;
+				cursor: pointer;
+			}
+		}
+		> * {
+			display: inline-flex;
+
+			display: -webkit-inline-flex;
+		}
+		.tag-new {
+			[name="tag"] {
+				.tag-item;
+				background: rgb(240, 240, 240);
+				border: 0;
+			}
+		}
+	}
+
+
+	.input-frame {
+		display: block;
+		margin: auto;
+		outline: none;
+		resize: none;
+		border: 0;
+	}
+	[name="title"] {
+		.input-frame;
+
+		width: 100%;
+
+		font-size: 3em;
+		text-align: center;
+		font-family: @big-font-family;
+		font-weight: 100;
+		color: @torzo-blue;
+		margin-bottom: 1em;
+	}
+
+	.text-frame {
+		position: relative;
+	}
+	.editor-content {
+		display: block;
+		width: 640px;
+		font-family: @normal-font-family;
+		font-size: 1.25em;
+		color: #344;
+	}
+	.height-fill {
+		min-height: 2em;
+		overflow: hidden;
+		margin: 0;
+		padding: 1em 0;
+
+		word-wrap: break-word;
+		word-break: break-all;
+		white-space: pre-wrap;
+
+		.editor-content;
+	}
+	[name="content"] {
+		.input-frame;
+		position: absolute;
+		top: 0;
+		left: 0;
+		overflow: hidden;
+
+		.editor-content;
+		width: 640px;
+		padding: ~"0 calc(50% - 320px)";
+
+		//background: rgb(245, 245, 245);
+	}
+}

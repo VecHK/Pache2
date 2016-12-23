@@ -1,5 +1,9 @@
 class PamPanel extends PamEventEmitter {
 	bind(ele){
+		if (!this.contain) {
+			CORE.setStyle('style/pam-panel.css');
+		}
+
 		ele.classList.add('panel');
 
 		let commands = $('.panel > [p-command]', ele.parentNode).filter(commandEle => commandEle.parentNode === ele);

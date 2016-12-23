@@ -18,7 +18,10 @@ class PamAuth extends PamEventEmitter {
 	loginSuccess(){
 		let authFadeOut = cb => {
 			this.container.classList.add('auth-logined');
-			setTimeout(cb, 618);
+			setTimeout(() => {
+				this.container.style.display = 'none';
+				cb();
+			}, 618);
 		};
 		this.emit('success', authFadeOut);
 	}

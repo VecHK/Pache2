@@ -94,13 +94,47 @@
 		return doms;
 	};
 
+	const stringifyRequest = (() => {
+		const backValueKey = (key, value) => `${key}=` + encodeURIComponent(value);
+		const stringifyArray = (key, arr) => arr.length ? arr.map(item => backValueKey(key, item)).join('&') : backValueKey(key, '');
+		const fetcher = (data, key) => Array.isArray(data[key]) ? stringifyArray(key, data[key]) : backValueKey(key, data[key]);
+		return data => Object.keys(data).map(key => fetcher(data, key)).join('&');
+	})();
+	vools.pjax = function (url, args) {
+		const xhr = new XMLHttpRequest;
+		if (args.method === undefined) {
+			throw new Error('请求方法未指定');
+		}
+		return new Promise((resolve, reject) => {
+			xhr.onloadend = () => {
+				if (xhr.status === 200) {
+					resolve(xhr.responseText, xhr.status, xhr);
+				} else {
+					const err = new Error('status is not 200');
+					err.status = xhr.status;
+					err.responseText = xhr.responseText;
+					reject(err);
+				}
+			};
+
+			xhr.open(args.method.toUpperCase(), url, true);
+			if (args.data !== undefined) {
+				xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+				if (typeof args.data === 'object') {
+					let formated = stringifyRequest(args.data);
+					xhr.send(formated);
+				} else {
+					xhr.send(args.data);
+				}
+			} else {
+				xhr.send();
+			}
+		});
+	};
+	vools.get = function (url) {
+		return vools.pjax(url, { method: 'GET' });
+	};
 	vools.rjax = (() => {
-		const stringifyRequest = (() => {
-			const backValueKey = (key, value) => `${key}=` + encodeURIComponent(value);
-			const stringifyArray = (key, arr) => arr.length ? arr.map(item => backValueKey(key, item)).join('&') : backValueKey(key, '');
-			const fetcher = (data, key) => Array.isArray(data[key]) ? stringifyArray(key, data[key]) : backValueKey(key, data[key]);
-			return data => Object.keys(data).map(key => fetcher(data, key)).join('&');
-		})();
 		return (url, args) => {
 			var xhr = new XMLHttpRequest;
 
