@@ -118,16 +118,36 @@ class PamPlugin extends PamEditorTagManager {
 	}
 }
 class PamEditor extends PamPlugin {
+	show(){
+		this.contain.style.display = '';
+		setTimeout(() => {
+			this.contain.style.opacity = 1;
+			this.contain.style.top = '0px';
+		}, 32);
+		this.opened = true;
+	}
+	hide(){
+		this.contain.style.top = '16px';
+		this.contain.style.opacity = 0;
+		setTimeout(() => this.contain.style.display = 'none', 618);
+		this.opened = false;
+	}
+
 	collect(){ return this.fetchGetPlugin() }
 	apply(article){
 		return this.applyArticleProperty.map(processor => processor(article))
 	}
-	start(ele = $$('.editor'), hide = false){
+	start(ele = $$('.editor'), hide = true){
 		this.contain = ele;
 		CORE.setStyle('style/pam-editor.css');
-		if (hide) {
-			ele.style.display = 'none'
-		}
+
+		hide && this.hide();
+
+		window.addEventListener('keydown', e => {
+			if (e.keyCode === 27 && this.opened) {
+				this.hide();
+			}
+		})
 
 		textareaAutoHeight(
 			$$('[name="content"]', ele),

@@ -8,7 +8,11 @@
 	width: 100%;
 	height: 100%;
 
+	transition-property: all;
+	transition-duration: .618s;
+
 	.editor-panel {
+		@side-icon-size: 48px;
 		display: flex;
 		flex-direction: column;
 		position: absolute;
@@ -16,10 +20,10 @@
 		left: 1em;
 		* > {
 			margin: 8px 0;
+			width: @side-icon-size;
+			height: @side-icon-size;
 		}
 		.icon(@icon-url) {
-			width: 48px;
-			height: 48px;
 			background: url(@icon-url);
 			background-repeat: space;
 			background-size: cover;
