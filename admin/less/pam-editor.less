@@ -14,6 +14,9 @@
 		position: absolute;
 		bottom: 1em;
 		left: 1em;
+		* > {
+			margin: 8px 0;
+		}
 		.icon(@icon-url) {
 			width: 48px;
 			height: 48px;
@@ -24,6 +27,10 @@
 		.help {
 			.icon("../resource/help.png");
 			cursor: help;
+		}
+		.profile {
+			.icon("../resource/profile.png");
+			cursor: pointer;
 		}
 		.submit {
 			.icon("../resource/submit.png");

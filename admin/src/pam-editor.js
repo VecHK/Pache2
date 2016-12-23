@@ -20,10 +20,16 @@ var textareaAutoHeight = function (textarea, fill) {
 };
 
 class PamEditorTagManager {
+	clearTag(){
+		this.tags.splice(0);
+		$$('.tag-list', this.tagContain).innerHTML = '';
+	}
 	loadTag(tagArray){
 		this.hasOwnProperty('tagContain') || this.setTagContain();
 
-		$$('.tag-list', this.tagContain).innerHTML = '';
+		this.clearTag();
+
+		tagArray.forEach(this.addTag.bind(this));
 	}
 	addTag(tag){
 		if (this.tags.includes(tag)) {
@@ -88,13 +94,38 @@ class PamEditorTagManager {
 		this.start();
 		this.tagStart();
 		this.setButton();
+		this.plugin();
 	}
 }
-class PamEditor extends PamEditorTagManager {
-	start(ele = $$('.editor'), hide = true){
+class PamPlugin extends PamEditorTagManager {
+	plugin(){
+		this.extendsArticleProperty = {
+			content(artile){ return $$('[name="content"]', this.contain).value },
+			title(article){ return $$('[name="title"]', this.contain).value },
+			tags(article){ return [...this.tags] },
+		};
+		this.applyArticleProperty = [
+			article => { $$('[name="content"]', this.contain).value = article.content },
+			article => { $$('[name="title"]', this.contain).value = article.title },
+			article => { this.loadTag(article.tags) }
+		];
+	}
+	fetchGetPlugin(obj = {}){
+		Object.keys(this.extendsArticleProperty).forEach(key => {
+			obj[key] = this.extendsArticleProperty[key].call(this, obj)
+		});
+		return obj;
+	}
+}
+class PamEditor extends PamPlugin {
+	collect(){ return this.fetchGetPlugin() }
+	apply(article){
+		return this.applyArticleProperty.map(processor => processor(article))
+	}
+	start(ele = $$('.editor'), hide = false){
 		this.contain = ele;
 		CORE.setStyle('style/pam-editor.css');
-		if (!hide) {
+		if (hide) {
 			ele.style.display = 'none'
 		}
 
