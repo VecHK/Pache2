@@ -1,5 +1,5 @@
 const cluster = require('cluster');
-const envir = {};
+const envir = require('./envir');
 
 
 process.on('message', (message) => {
@@ -19,13 +19,7 @@ process.on('message', (message) => {
 const getPool = [];
 Object.assign(envir, {
 	get(propertyName, cb){
-		if (envir._setup) {
-			cb(envir[propertyName]);
-		} else {
-			getPool.push(() => {
-				cb(envir[propertyName])
-			});
-		}
+		cb(envir[propertyName]);
 	}
 });
 

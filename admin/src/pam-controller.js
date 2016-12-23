@@ -1,9 +1,10 @@
 const auth = new PamAuth;
+const panel = new PamPanel;
+const list = new PamList;
 
-auth.on('success', function (randomCode, authFadeOut) {
-	CORE.randomCode = randomCode;
+auth.on('success', function (authFadeOut) {
 	authFadeOut(function () {
-		alert('登陆成功！');
+		
 	})
 })
 

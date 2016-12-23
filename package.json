@@ -1,6 +1,6 @@
 {
   "name": "pache2",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Simple & 装逼 blog",
   "main": "master.js",
   "scripts": {
@@ -20,6 +20,8 @@
     "express": "^4.14.0",
     "express-session": "^1.14.2",
     "html-entities": "^1.2.0",
+    "markdown-it": "^8.2.2",
+    "markdown-it-footnote": "^3.0.1",
     "mongoose": "^4.7.4",
     "morgan": "^1.7.0",
     "node-suc": "^0.1.3",

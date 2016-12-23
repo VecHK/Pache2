@@ -15,6 +15,13 @@ class PamAuth extends PamEventEmitter {
 
 		this.container = container;
 	}
+	loginSuccess(){
+		let authFadeOut = cb => {
+			this.container.classList.add('auth-logined');
+			setTimeout(cb, 618);
+		};
+		this.emit('success', authFadeOut);
+	}
 	setSubmit(randomCode){
 		const lthis = this;
 		$$('.auth-form', this.container).onsubmit = function () {
@@ -24,20 +31,44 @@ class PamAuth extends PamEventEmitter {
 					pass: md5(randomCode + this.pass.value),
 				},
 				success(){
-					let authFadeOut = function (cb){
-						lthis.container.classList.add('auth-logined');
-						setTimeout(cb, 618);
-					};
-					lthis.emit('success', randomCode, authFadeOut);
+					CORE.randomCode = randomCode;
+					lthis.loginSuccess();
 				},
 				fail(errText){
-					lthis.emmit('error', ...arguments);
+					lthis.emit('pass-error', ...arguments);
 					$$('.description', lthis.container).innerText = errText;
 					console.warn(errText);
 				},
 			});
 			return false;
 		};
+	}
+	isAuthed(){
+		return new Promise((resolve, reject) => {
+			$.rjax('authed', {
+				method: 'GET',
+				success(text){
+					try {
+						let result = JSON.parse(text);
+						console.warn(result);
+						if (result) {
+							console.log('authed');
+							resolve(result);
+						} else {
+							throw new Error('Authed is not true');
+						}
+					} catch (e) {
+						console.log('not authed');
+						reject(e);
+					}
+				},
+				fail(){
+					console.warn('authed fail');
+					console.warn(...arguments);
+					reject(...arguments);
+				},
+			})
+		});
 	}
 	getRandom(){
 		return new Promise((resolve, reject) => {
@@ -54,13 +85,15 @@ class PamAuth extends PamEventEmitter {
 
 	start(){
 		CORE.setStyle('style/pam-auth.css');
-		this.getRandom()
-			.then((randomCode) => {
-				this.setHtml();
-				this.setSubmit(randomCode);
-			})
-			.catch((err) => {
-				this.getRandomFail(err);
-			})
+		this.setHtml();
+
+		this.isAuthed()
+		.then(
+			() => this.loginSuccess(),
+			() =>
+				this.getRandom()
+				.then((randomCode) => this.setSubmit(randomCode) )
+				.catch((err) => this.getRandomFail(err) )
+		)
 	}
 }

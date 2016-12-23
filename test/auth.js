@@ -99,7 +99,6 @@ describe('auth', () => {
 				res.status.should.equal(200);
 
 				globalReq.session.should.not.have.property('user');
-				('user' in globalReq.session).should.equal(false);
 				done();
 			});
 		});
