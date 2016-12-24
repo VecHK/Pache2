@@ -29,16 +29,42 @@ const ArticleSchema = new Schema({
 
 });
 
-ArticleSchema.pre('save', function (next) {
+const contentFormat = function () {
 	if (this.contentType === 'markdown') {
 		this.format = md.render(this.content);
 	} else {
 		/* 转 Text */
 		this.format = `<pre><code>${entities.encode(this.content)}</code></pre>`;
 	}
+};
+
+ArticleSchema.pre('save', function (next) {
+	contentFormat.apply(this);
+
+	if (!this.title.length) {
+		this.title = '(无标题)';
+	}
 
 	let now = new Date;
 	this.mod = now;
+
+	next();
+});
+
+ArticleSchema.pre('update', function (next) {
+	let set = this._update.$set;
+
+	if (set.tags && !Array.isArray(set.tags)) {
+		set.tags = [];
+	}
+	set.mod = new Date;
+
+	if (set.contentType && set.content) {
+		contentFormat.apply(this._update.$set);
+	} else {
+		delete set.contentType;
+		delete set.content;
+	}
 
 	next();
 });

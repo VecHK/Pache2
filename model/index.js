@@ -11,6 +11,7 @@ mongoose.connect(envir.db, {
 			setTimeout(process.exit, 9, -1);
 			throw err;
 		}
+		console.info('mongodb connected: ', envir.db);
 	}
 });
 

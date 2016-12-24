@@ -79,6 +79,7 @@ describe('getArticles', () => {
 		})
 	});
 
+	let inserted = null;
 	it('insert article', done => {
 		request(app)
 			.post('/admin/api/article')
@@ -98,8 +99,33 @@ describe('getArticles', () => {
 				obj.should
 					.has.property('msg').is.an.String();
 
+				inserted = obj.result;
+
 				done();
 			});
+	});
+
+	it('mod Article', done => {
+		request(app)
+			.patch(`/admin/api/article/${inserted._id}`)
+			.send({
+				title: 'new Title',
+				content: 'TEXT',
+				contentType: 'text',
+			})
+			.expect(200)
+			.set('Cookie', cookie)
+			.end((err, res) => {
+				if (err) throw err;
+				console.log(res.text);
+				let obj = JSON.parse(res.text);
+
+				obj.should.has.property('code').equal(0);
+				obj.should.has.property('msg').is.an.String();
+				obj.should.has.property('result').is.an.Object();
+
+				done();
+			})
 	});
 
 	it('topic', done => {
@@ -115,8 +141,22 @@ describe('getArticles', () => {
 				obj.should.has.property('msg').is.an.String();
 				obj.should.has.property('result').is.an.Object();
 
-				// console.log(obj);
+				obj.result.should.has.property('_id')
+				obj.result.should.has.property('title')
+				obj.result.should.has.property('content')
+				obj.result.should.has.property('contentType')
+				obj.result.should.has.property('tags')
+				obj.result.should.has.property('date')
+				obj.result.should.has.property('mod')
+
+				let topic = obj.result;
+
+				topic.date.should.equal(inserted.date)
+				topic.mod.should.not.equal(inserted.mod)
+
+				topic.title.should.equal('new Title')
+
 				done();
 			})
-	})
+	});
 })

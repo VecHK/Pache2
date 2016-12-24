@@ -36,6 +36,22 @@ router.post('/article', (req, res) => {
 		}))
 });
 
+router.patch('/article/:id', (req, res) => {
+	article.mod(req.params.id, req.body)
+		.then(result => res.json({
+			code: 0,
+			msg: 'ok',
+			result,
+		}))
+		.catch(err => res.json({
+			code: 1,
+			msg: 'fail',
+			err: {
+				message: err.message,
+			}
+		}))
+})
+
 router.use('/articles/:pagecode', (req, res, next) => {
 	let pagecode = Number(req.params.pagecode);
 	if (isNaN(pagecode)) {
