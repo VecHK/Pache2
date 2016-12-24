@@ -128,6 +128,7 @@ describe('getArticles', () => {
 			})
 	});
 
+	let topic = null;
 	it('topic', done => {
 		request(app)
 			.get('/admin/api/topic')
@@ -149,7 +150,7 @@ describe('getArticles', () => {
 				obj.result.should.has.property('date')
 				obj.result.should.has.property('mod')
 
-				let topic = obj.result;
+				topic = obj.result;
 
 				topic.date.should.equal(inserted.date)
 				topic.mod.should.not.equal(inserted.mod)
@@ -159,4 +160,30 @@ describe('getArticles', () => {
 				done();
 			})
 	});
+
+	it('remove', done => {
+		request(app)
+			.delete('/admin/api/articles')
+			.send({ids: [topic._id]})
+			.set('Cookie', cookie)
+			.end((err, res) => {
+				if (err) { throw err }
+
+				console.log(res.text);
+
+				let obj = JSON.parse(res.text);
+
+				obj.should.has.property('code').equal(0);
+				obj.should.has.property('msg').is.an.String();
+				obj.should.has.property('result').is.an.Object();
+
+				request(app).get('/admin/api/topic').set('Cookie', cookie).end((err, res) => {
+					if (err) {throw err};
+					let newTopic = JSON.parse(res.text).result;
+
+					newTopic._id.should.not.equal(topic._id);
+					done();
+				})
+			})
+	})
 })

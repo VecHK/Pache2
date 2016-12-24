@@ -36,6 +36,23 @@ router.post('/article', (req, res) => {
 		}))
 });
 
+router.delete('/articles', (req, res) => {
+	let idArr = Array.isArray(req.body.ids) ? req.body.ids : [req.body.ids];
+	article.del(idArr)
+		.then(result => res.json({
+			code: 0,
+			msg: 'ok',
+			result,
+		}))
+		.catch(err => res.json({
+			code: 1,
+			msg: 'fail',
+			err: {
+				message: err.message,
+			}
+		}))
+});
+
 router.patch('/article/:id', (req, res) => {
 	article.mod(req.params.id, req.body)
 		.then(result => res.json({
