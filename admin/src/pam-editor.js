@@ -145,6 +145,7 @@ class PamEditor extends PamPlugin {
 
 		window.addEventListener('keydown', e => {
 			if (e.keyCode === 27 && this.opened) {
+				this.emit('editor-hide');
 				this.hide();
 			}
 		})

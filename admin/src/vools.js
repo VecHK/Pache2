@@ -132,7 +132,13 @@
 		});
 	};
 	vools.get = function (url) {
-		return vools.pjax(url, { method: 'GET' });
+		return vools.pjax(url, { method: 'GET' })
+	};
+	vools.post = function (url, data = {}) {
+		return vools.pjax(url, { method: 'POST', data })
+	};
+	vools.patch = function (url, data = {}) {
+		return vools.pjax(url, { method: 'PATCH', data });
 	};
 	vools.rjax = (() => {
 		return (url, args) => {

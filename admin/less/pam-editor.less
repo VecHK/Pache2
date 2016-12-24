@@ -15,7 +15,7 @@
 		@side-icon-size: 48px;
 		display: flex;
 		flex-direction: column;
-		position: absolute;
+		position: fixed;
 		bottom: 1em;
 		left: 1em;
 		* > {
@@ -102,10 +102,11 @@
 	}
 	.editor-content {
 		display: block;
-		width: 640px;
 		font-family: @normal-font-family;
 		font-size: 1.25em;
 		color: #344;
+		width: 800px;
+		padding: ~"0 calc(50% - 400px)";
 	}
 	.height-fill {
 		min-height: 2em;
@@ -127,9 +128,6 @@
 		overflow: hidden;
 
 		.editor-content;
-		width: 640px;
-		padding: ~"0 calc(50% - 320px)";
-
 		//background: rgb(245, 245, 245);
 	}
 }

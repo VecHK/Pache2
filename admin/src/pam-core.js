@@ -7,7 +7,27 @@ class PamModel extends PamEventEmitter {
 		return obj;
 	}
 	auth(){
-		
+
+	}
+	modArticle(id, article){
+		return $.patch(`api/article/${id}`, article)
+			.then(res => {
+				this.emit('article-modified', this.JsonRouter(res));
+			})
+			.catch(err => {
+				this.emit('error', err)
+				throw err
+			})
+	}
+	insertArticle(article){
+		return $.post(`api/article`, article)
+			.then(res => {
+				this.emit('article-created', this.JsonRouter(res));
+			})
+			.catch(err => {
+				this.emit('error', err)
+				throw err
+			})
 	}
 	getArticles(page=1){
 		return $.get(`api/articles/${page}`)
@@ -44,6 +64,3 @@ Object.assign(Pam.prototype, {
 	},
 	page: 0,
 });
-
-const CORE = new Pam;
-CORE.start();
