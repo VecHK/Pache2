@@ -36,11 +36,38 @@ CORE.on('article-modified', obj => {
 	console.info('已修改');
 });
 
-/* 核心的 createed 事件 */
+/* 核心的 created 事件 */
 CORE.on('article-created', obj => {
 	CORE.insertedResult = obj.result;
 
 	CORE.current = Object.assign({}, obj.result, editor.collect());
+});
+
+/* 核心的 deleted 事件 */
+CORE.on(['articles-deleted', 'article-created', 'article-modified'], () => {
+	CORE.getArticles(1);
+});
+
+list.on('title-click', articleObj => {
+	console.info('title-click', articleObj);
+	editor.apply(articleObj);
+	CORE.current = articleObj;
+	editor.show();
+});
+list.on('tag-click', tagName => {
+	console.info('tag-click', tagName);
+});
+
+panel.on('command-del', () => {
+	const ids = list.collectCheckedItem().map(item => item._id);
+	CORE.removeArticle(ids);
+})
+
+list.on('has-checked', () => {
+	panel.cmdElement.del.style.display = '';
+});
+list.on('no-checked', () => {
+	panel.cmdElement.del.style.display = 'none';
 });
 
 /* 编辑器关闭事件 */
@@ -48,7 +75,7 @@ editor.on('editor-hide', () => {
 	CORE.current = null;
 });
 
-auth.on('success', function (authFadeOut) {
+auth.on('success', (authFadeOut) => {
 	authFadeOut(function () {
 		CORE.getArticles(1);
 	})

@@ -34,14 +34,13 @@ class PamList extends Array {
 		};
 	}
 	/* 获取已选项目 */
-	getCheckedItem(){
+	collectCheckedItem(){
 		return $('[type="checkbox"]', this.contain)
 			.map((check, cursor) => check.checked && this[cursor])
 			.filter((item, cursor) => item);
 	}
 	/* 部署 checkbox 系列事件 */
 	setCheckbox(checkboxEle, ev){
-		console.log(checkboxEle);
 		let changeOffset = -1;
 		const checkedMap = $('[type="checkbox"]', this.contain).map((check, cursor) => {
 			if (check === checkboxEle) { changeOffset = cursor }

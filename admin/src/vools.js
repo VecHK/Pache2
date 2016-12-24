@@ -140,6 +140,9 @@
 	vools.patch = function (url, data = {}) {
 		return vools.pjax(url, { method: 'PATCH', data });
 	};
+	vools.delete = function (url, data = {}) {
+		return vools.pjax(url, { method: 'DELETE', data });
+	};
 	vools.rjax = (() => {
 		return (url, args) => {
 			var xhr = new XMLHttpRequest;

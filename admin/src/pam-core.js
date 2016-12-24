@@ -9,6 +9,17 @@ class PamModel extends PamEventEmitter {
 	auth(){
 
 	}
+	/* 批量删除文章 */
+	removeArticle(ids){
+		return $.delete(`api/articles`, {ids})
+			.then(res => {
+				this.emit('articles-deleted', this.JsonRouter(res));
+			})
+			.catch(err => {
+				this.emit('error', err)
+				throw err
+			})
+	}
 	modArticle(id, article){
 		return $.patch(`api/article/${id}`, article)
 			.then(res => {

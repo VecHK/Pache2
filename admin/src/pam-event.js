@@ -1,30 +1,33 @@
 class PamEventEmitter {
-	checkPool(name){
+	$checkPool(name){
 		if (typeof(this._evpool) !== 'object') {
 			this._evpool = {};
-			return this.checkPool(...arguments);
+			return this.$checkPool(...arguments);
 		}
 
 		if (!Array.isArray(this._evpool[name])) {
 			this._evpool[name] = [];
-			return this.checkPool(...arguments);
+			return this.$checkPool(...arguments);
 		}
 
 		return this._evpool[name];
 	}
 	emit(name, ...args){
-		this.checkPool(name).forEach(cb => cb(...args));
+		this.$checkPool(name).forEach(cb => cb(...args));
 		return this;
 	}
 	on(name, ...args){
-		this.checkPool(name).push(...args);
+		if (!Array.isArray(name)) {
+			name = [ name ];
+		}
+		name.forEach(nameItem => this.$checkPool(nameItem).push(...args));
 		return this;
 	}
 	remove(name, ...args){
-		this._evpool[name] = this.checkPool(name).filter(cb => !args.includes(cb));
+		this._evpool[name] = this.$checkPool(name).filter(cb => !args.includes(cb));
 	}
 	clear(name){
-		this.checkPool(name).splice(0);
+		this.$checkPool(name).splice(0);
 	}
 }
 PamEventEmitter.bind = function (obj) {
@@ -33,7 +36,7 @@ PamEventEmitter.bind = function (obj) {
 		emit: this.prototype.emit,
 		clear: this.prototype.clear,
 		remove: this.prototype.remove,
-		checkPool: this.prototype.checkPool,
+		$checkPool: this.prototype.$checkPool,
 	});
 };
 
