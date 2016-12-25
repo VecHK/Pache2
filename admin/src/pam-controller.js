@@ -4,6 +4,8 @@ CORE.start();
 const auth = new PamAuth;
 const panel = new PamPanel;
 const list = new PamList;
+const page = new PamPage;
+page.start();
 const editor = new PamEditor;
 const articleProfile = new PamArticleProfile;
 articleProfile.start();
@@ -72,8 +74,13 @@ list.on('no-checked', () => {
 
 /* 编辑器关闭事件 */
 editor.on('editor-hide', () => {
+	$$('main').style.opacity = 1;
 	CORE.current = null;
 });
+/* 编辑器打开事件 */
+editor.on('editor-show', () => {
+	$$('main').style.opacity = 0;
+})
 
 auth.on('success', (authFadeOut) => {
 	authFadeOut(function () {
@@ -86,7 +93,12 @@ list.start();
 list.on('create', e => {
 	panel.trigger('new');
 });
-
+page.on('click', pageCode => {
+	CORE.getArticles(pageCode);
+});
 CORE.on('get-articles', obj => {
+	console.info(obj);
+	page.maxPage = Math.ceil(obj.count / obj.limit);
+	page.set(obj.page);
 	list.render(obj.list);
 });

@@ -135,6 +135,8 @@ class PamPlugin extends PamEditorTagManager {
 }
 class PamEditor extends PamPlugin {
 	show(){
+		this.emit('editor-show');
+
 		this.contain.style.display = '';
 		setTimeout(() => {
 			this.contain.style.opacity = 1;
@@ -143,6 +145,8 @@ class PamEditor extends PamPlugin {
 		this.opened = true;
 	}
 	hide(){
+		this.emit('editor-hide');
+
 		this.contain.style.top = '16px';
 		this.contain.style.opacity = 0;
 		setTimeout(() => this.contain.style.display = 'none', 618);
@@ -163,7 +167,6 @@ class PamEditor extends PamPlugin {
 
 		window.addEventListener('keydown', e => {
 			if (e.keyCode === 27 && this.opened) {
-				this.emit('editor-hide');
 				this.hide();
 			}
 		})
@@ -175,4 +178,4 @@ class PamEditor extends PamPlugin {
 		)
 	}
 }
-PamEventEmitter.bind(PamEditor.prototype);
+PamEventEmitter.use(PamEditor.prototype);

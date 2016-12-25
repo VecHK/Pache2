@@ -1,6 +1,54 @@
-class PamPage {
+class PamPage extends PamEventEmitter {
+	/* 当前页码，总页码 */
+	set(page){
+		let countPage = this.maxPage;
+		const toCenter = Math.floor(this.length / 2);
+		let cursor = page - toCenter,
+			right = page + toCenter;
+
+		if (cursor <= 0){
+			right += Math.abs(cursor) + 1;
+			cursor = 1;
+		}
+
+		if (right > countPage){
+			cursor -= Math.abs(right - countPage);
+			if (cursor <= 0){
+				cursor = 1;
+			}
+			right = countPage;
+		}
+
+		let codeEle = $('div', this.contain);
+		let eleCursor = 0;
+
+		for (; cursor<=right; ++cursor){
+			if (page === cursor){
+				codeEle[eleCursor].classList.add('current-pagecode');
+			} else {
+				codeEle[eleCursor].classList.remove('current-pagecode');
+			}
+			codeEle[eleCursor].innerText = cursor;
+			++eleCursor;
+		}
+	}
+	initCodeElement(){
+		this.length = 5;
+		this.contain.innerHTML = '';
+		for (let i=0; i<this.length; i++) {
+			this.contain.innerHTML += `<div></div>`;
+		}
+		$('div', this.contain).forEach((ele, cursor) => {
+			ele.addEventListener('click', e => {
+				let page = Number(ele.innerText);
+				this.set(page)
+				this.emit('click', page);
+			});
+		});
+	}
 	setContain(){
-		this.cotain($$('.page'));
+		this.contain = $$('.page');
+		this.initCodeElement();
 	}
 	setProperty(){
 		/* 定义当前页 */
@@ -9,8 +57,17 @@ class PamPage {
 			set(){}
 		});
 
-		/* 定义最大页 */
-		this.maxPage = 0;
+		let maxPage;
+		Object.defineProperty(this, 'maxPage', {
+			get(){ return maxPage },
+			set(value){
+				$('div', this.contain).forEach((ele, cursor) => {
+					ele.innerText = '';
+				});
+				maxPage = value;
+			}
+		});
+		this.maxPage = 50;
 	}
 	start(){
 		this.setContain();
@@ -113,4 +170,4 @@ class PamList extends Array {
 		this.setContain();
 	}
 }
-PamEventEmitter.bind(PamList.prototype);
+PamEventEmitter.use(PamList.prototype);

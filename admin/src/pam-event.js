@@ -30,7 +30,7 @@ class PamEventEmitter {
 		this.$checkPool(name).splice(0);
 	}
 }
-PamEventEmitter.bind = function (obj) {
+PamEventEmitter.use = function (obj) {
 	Object.assign(obj, {
 		on: this.prototype.on,
 		emit: this.prototype.emit,
