@@ -55,7 +55,8 @@ describe('getArticles', () => {
 
 			obj.should.has.property('page').equal(1);
 			obj.should.has.property('count').is.an.Number();
-			obj.should.has.property('list').is.an.Array().length(envir.limit);
+			obj.should.has.property('limit').equal(envir.limit);
+			obj.should.has.property('list').is.an.Array();
 
 			ArticleCount = obj.count;
 			done();
@@ -180,7 +181,7 @@ describe('getArticles', () => {
 				request(app).get('/admin/api/topic').set('Cookie', cookie).end((err, res) => {
 					if (err) {throw err};
 					let newTopic = JSON.parse(res.text).result;
-
+					console.log('newTopic', newTopic._id);
 					newTopic._id.should.not.equal(modId._id);
 					done();
 				})
