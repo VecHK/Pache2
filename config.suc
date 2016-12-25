@@ -1,0 +1,33 @@
+# Pache 配置
+# 采用的是 Suc 配置文件的语法
+#
+# propertyName >*
+# 这上面形式的是要求输入【字符串】，大于号右边开始接受输入的字符串，左侧的propertyName
+# 则是属性名
+#
+# [propertyName] 9
+# 这上面形式的是要求输入【数字】或者【布尔值】，由中括号[]括起来的则是属性名
+# 右侧的数值为数字，注意，如果输入的不是【数字】或者【布尔值】，Suc 则会报警
+
+# HTTP 监听端口
+[port] 3382
+
+# MongoDB URL
+db >mongodb://127.0.0.1:27017/pache
+
+# 用户密码
+pass >7355608
+
+# 单页最大文章数
+[limit] 3
+
+# 是否启用 Page Action Extends
+# Page Action Extends 可以使 Pache 页面达到单页的效果
+# 代价就是页面加载量增多
+[ENABLE_PAE] true
+
+# cluster 线程数
+# 通常多线程的性能会比单线程要好
+# 0 为当前 CPU 数量，CPU 数量应该说是操作系统核心数
+# 线程数不是越多越好，通常最佳值是当前的 CPU 数量
+[cluster_fork_num] 0
