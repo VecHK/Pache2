@@ -3,9 +3,6 @@ const model = require('../../model');
 const router = express.Router();
 module.exports = router;
 
-const ObjectId = function (id) {
-  return mongoose.Types.ObjectId(id);
-};
 const has = (obj, ...keys) => keys.every(checkey => Object.keys(obj).some(objkey => objkey === checkey));
 
 router.use('/article/', (req, res, next) => {

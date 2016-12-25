@@ -1,4 +1,5 @@
 const express = require('express');
+const envir = require('../../envir');
 const article = require('../../lib/article');
 
 const router = express.Router();
@@ -96,6 +97,7 @@ router.get(['/articles/*', '/articles/'], (req, res, next) => {
 				code: 0,
 				page: req.pagecode,
 				count,
+				limit: envir.limit,
 				list,
 			})
 		}, err => {
