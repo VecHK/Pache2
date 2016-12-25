@@ -181,7 +181,7 @@ describe('getArticles', () => {
 				request(app).get('/admin/api/topic').set('Cookie', cookie).end((err, res) => {
 					if (err) {throw err};
 					let newTopic = JSON.parse(res.text).result;
-					console.log('newTopic', newTopic._id);
+					console.log('newTopic', newTopic);
 					newTopic._id.should.not.equal(modId._id);
 					done();
 				})
