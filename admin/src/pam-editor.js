@@ -1,34 +1,39 @@
-var textAreaResize = function (textarea, fill, e={}) {
-	/* pre 有个奇怪的问题，它的 textContent 末尾如果只有个 \n 话它是不会增高的，故要加个空格进去 */
-	if (textarea.value[textarea.value.length - 1] === '\n') {
-		fill.textContent = textarea.value + ' ';
-	} else {
-		fill.innerText = textarea.value;
+class AutoTextArea extends PamEventEmitter {
+	resizeHandle(textarea, fill, e={}) {
+		/* pre 有个奇怪的问题，它的 textContent 末尾如果只有个 \n 话它是不会增高的，故要加个空格进去 */
+		if (textarea.value[textarea.value.length - 1] === '\n') {
+			fill.textContent = textarea.value + ' ';
+		} else {
+			fill.innerText = textarea.value;
+		}
+
+		textarea.style.height = fill.offsetHeight + 'px';
+
+		/* 如果按下回车，并且编辑器高度比 body 大的时候，跳到底部 */
+		if (e.keyCode === 13 && fill.offsetHeight > document.body.offsetHeight) {
+			window.scrollTo(document.body, document.body.scrollHeight)
+		}
 	}
-
-	textarea.style.height = fill.offsetHeight + 'px';
-
-	/* 如果按下回车，并且编辑器高度比 body 大的时候，跳到底部 */
-	if (e.keyCode === 13 && fill.offsetHeight > document.body.offsetHeight) {
-		window.scrollTo(document.body, document.body.scrollHeight)
+	resize(e={}){
+		this.emit('resize', e, this);
+		setTimeout(() => {
+			this.resizeHandle(this.textAreaContain, this.fillContain, e)
+		}, 17);
 	}
-};
+	use(textarea, fill){
+		this.textAreaContain = textarea;
+		this.fillContain = fill;
 
-var textareaAutoHeight = function (textarea, fill) {
-	var tThis = this;
-	var resize = function (e) {
-		textAreaResize(textarea, fill, e);
-	};
+		this.eventList.forEach(eventName => {
+			textarea.addEventListener(eventName, e => {
+				setTimeout(this.resize.bind(this), 17, e)
+			}, true)
+		});
 
-	[/*'keypress',*/ 'keydown', 'focus', 'click'].forEach(function (eventName) {
-		textarea.addEventListener(eventName, function (e) {
-			setTimeout(resize, 32, e);
-			return true;
-		}, true);
-	});
-	setTimeout(resize, 100);
-	return resize;
-};
+		setTimeout(this.resize.bind(this), 100)
+	}
+}
+AutoTextArea.prototype.eventList = [/*'keypress',*/ 'keydown', 'focus', 'click', 'change'];
 
 class PamEditorTagManager {
 	clearTag(){
@@ -146,7 +151,9 @@ class PamEditor extends PamPlugin {
 
 	collect(){ return this.fetchGetPlugin() }
 	apply(article){
-		return this.applyArticleProperty.map(processor => processor(article))
+		const result = this.applyArticleProperty.map(processor => processor(article))
+		this.autoText.resize();
+		return result;
 	}
 	start(ele = $$('.editor'), hide = true){
 		this.contain = ele;
@@ -161,10 +168,11 @@ class PamEditor extends PamPlugin {
 			}
 		})
 
-		textareaAutoHeight(
+		this.autoText = new AutoTextArea;
+		this.autoText.use(
 			$$('[name="content"]', ele),
 			$$('.height-fill', ele)
-		);
+		)
 	}
 }
 PamEventEmitter.bind(PamEditor.prototype);
