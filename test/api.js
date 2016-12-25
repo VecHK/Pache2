@@ -178,6 +178,8 @@ describe('getArticles', () => {
 				obj.should.has.property('msg').is.an.String();
 				obj.should.has.property('result').is.an.Object();
 
+				return done();
+				
 				request(app).get('/admin/api/topic').set('Cookie', cookie).end((err, res) => {
 					if (err) {throw err};
 					let newTopic = JSON.parse(res.text).result;
