@@ -8,8 +8,16 @@ install:
   - npm install -g istanbul
 
 services:
-  - mongodb
   - redis
+
+addons:
+  apt:
+    sources:
+      - mongodb-upstart
+      - mongodb-3.0-precise
+    packages:
+      - mongodb-org-server
+      - mongodb-org-shell
 
 script:
   - npm install
