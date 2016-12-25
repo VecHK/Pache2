@@ -6,8 +6,8 @@ class AutoTextArea extends PamEventEmitter {
 		} else {
 			fill.innerText = textarea.value;
 		}
-
-		textarea.style.height = fill.offsetHeight + 'px';
+		/* 多加 32，这样不会在末行按回车的时候闪烁了 */
+		textarea.style.height = fill.offsetHeight + 32 + 'px';
 
 		/* 如果按下回车，并且编辑器高度比 body 大的时候，跳到底部 */
 		if (e.keyCode === 13 && fill.offsetHeight > document.body.offsetHeight) {
