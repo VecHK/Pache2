@@ -5,7 +5,6 @@ const path = require('path');
 const router = express.Router();
 
 const staticDir = path.join(__dirname, '../../admin');
-console.log(staticDir);
 router.use('/', express.static(staticDir));
 
 const auth = require('./auth');
