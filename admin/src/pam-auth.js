@@ -10,10 +10,14 @@ class PamAuth extends PamEventEmitter {
 		<div class="description">${description}</div>
 
 		<form class="auth-form">
-			<input name="pass" placeholder="PASSWORD" type="password" />
+			<input name="pass" placeholder="获取随机码中……" type="password" />
 		</form>`;
 
 		this.container = container;
+
+		$$('[name="pass"]', this.container).oninput = function () {
+			$$('.description').textContent = '　';
+		};
 	}
 	show(cb){
 		this.container.style.display = '';
@@ -33,9 +37,10 @@ class PamAuth extends PamEventEmitter {
 	loginSuccess(){
 		this.emit('success', this.hide.bind(this));
 	}
-	setSubmit(randomCode){
+	setSubmit(){
 		const lthis = this;
 		$$('.auth-form', this.container).onsubmit = function () {
+			let randomCode = lthis.randomCode;
 			const fthis = this;
 			$.rjax('auth', {
 				method: 'POST',
@@ -49,7 +54,8 @@ class PamAuth extends PamEventEmitter {
 				},
 				fail(errText){
 					lthis.emit('pass-error', ...arguments);
-					$$('.description', lthis.container).innerText = errText;
+					$$('.description', lthis.container).textContent = errText;
+					fthis.pass.value = '';
 					console.warn(errText);
 				},
 			});
@@ -99,14 +105,17 @@ class PamAuth extends PamEventEmitter {
 	start(){
 		CORE.setStyle('style/pam-auth.css');
 		this.setHtml();
-
+		this.setSubmit();
 		this.isAuthed()
 		.then(
 			() => this.loginSuccess(),
 			() =>
 				this.getRandom()
-				.then((randomCode) => this.setSubmit(randomCode) )
-				.catch((err) => this.getRandomFail(err) )
+					.then(randomCode => {
+						this.randomCode = randomCode;
+						$$('[name="pass"]', this.container).setAttribute('placeholder', 'PASSWORD');
+					})
+					.catch(err => this.getRandomFail(err) )
 		)
 	}
 }
