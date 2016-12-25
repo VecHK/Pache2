@@ -32,7 +32,7 @@ router.get('/logout', (req, res, next) => {
 	delete req.session.user;
 
 	res.status(200);
-	res.end('ok');
+	res.end('true');
 });
 
 /* 登陆认证 */
