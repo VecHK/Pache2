@@ -15,19 +15,28 @@ class PamAuth extends PamEventEmitter {
 
 		this.container = container;
 	}
+	show(cb){
+		this.container.style.display = '';
+		setTimeout(() => {
+			this.container.classList.remove('auth-logined');
+
+			cb && cb();
+		}, 20);
+	}
+	hide(cb){
+		this.container.classList.add('auth-logined');
+		setTimeout(() => {
+			this.container.style.display = 'none';
+			cb && cb();
+		}, 618);
+	}
 	loginSuccess(){
-		let authFadeOut = cb => {
-			this.container.classList.add('auth-logined');
-			setTimeout(() => {
-				this.container.style.display = 'none';
-				cb();
-			}, 618);
-		};
-		this.emit('success', authFadeOut);
+		this.emit('success', this.hide.bind(this));
 	}
 	setSubmit(randomCode){
 		const lthis = this;
 		$$('.auth-form', this.container).onsubmit = function () {
+			const fthis = this;
 			$.rjax('auth', {
 				method: 'POST',
 				data: {
@@ -35,6 +44,7 @@ class PamAuth extends PamEventEmitter {
 				},
 				success(){
 					CORE.randomCode = randomCode;
+					fthis.pass.value = '';
 					lthis.loginSuccess();
 				},
 				fail(errText){

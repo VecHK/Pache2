@@ -102,3 +102,10 @@ CORE.on('get-articles', obj => {
 	page.set(obj.page);
 	list.render(obj.list);
 });
+
+CORE.on('logout', e => {
+	auth.show();
+})
+panel.on('command-logout', e => {
+	CORE.logout();
+})

@@ -1,5 +1,11 @@
 @import "./base.less";
 
+.icon(@icon-url) {
+	background: url(@icon-url);
+	background-repeat: space;
+	background-size: cover;
+}
+
 .editor {
 	position: absolute;
 	top: 0;
@@ -24,11 +30,6 @@
 			margin: 8px 0;
 			width: @side-icon-size;
 			height: @side-icon-size;
-		}
-		.icon(@icon-url) {
-			background: url(@icon-url);
-			background-repeat: space;
-			background-size: cover;
 		}
 		.help {
 			.icon("../resource/help.png");

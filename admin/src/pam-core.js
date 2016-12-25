@@ -9,6 +9,19 @@ class PamModel extends PamEventEmitter {
 	auth(){
 
 	}
+
+	/* 登出 */
+	logout(){
+		return $.get('logout')
+			.then(res => {
+				this.emit('logout', this.JsonRouter(res));
+			})
+			.catch(err => {
+				this.emit('error', err)
+				throw err
+			})
+	}
+
 	/* 批量删除文章 */
 	removeArticle(ids){
 		return $.delete(`api/articles`, {ids})
