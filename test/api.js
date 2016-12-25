@@ -182,7 +182,7 @@ describe('getArticles', () => {
 					if (err) {throw err};
 					let newTopic = JSON.parse(res.text).result;
 					console.log('newTopic', newTopic);
-					newTopic._id.should.not.equal(modId._id);
+					newTopic._id.should.not.equal(modId);
 					done();
 				})
 			})
