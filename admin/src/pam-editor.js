@@ -1,17 +1,28 @@
-var textAreaResize = function (textarea, fill) {
-	fill.innerText = textarea.value;
+var textAreaResize = function (textarea, fill, e={}) {
+	/* pre 有个奇怪的问题，它的 textContent 末尾如果只有个 \n 话它是不会增高的，故要加个空格进去 */
+	if (textarea.value[textarea.value.length - 1] === '\n') {
+		fill.textContent = textarea.value + ' ';
+	} else {
+		fill.innerText = textarea.value;
+	}
+
 	textarea.style.height = fill.offsetHeight + 'px';
+
+	/* 如果按下回车，并且编辑器高度比 body 大的时候，跳到底部 */
+	if (e.keyCode === 13 && fill.offsetHeight > document.body.offsetHeight) {
+		window.scrollTo(document.body, document.body.scrollHeight)
+	}
 };
 
 var textareaAutoHeight = function (textarea, fill) {
 	var tThis = this;
 	var resize = function (e) {
-		textAreaResize(textarea, fill);
+		textAreaResize(textarea, fill, e);
 	};
 
 	[/*'keypress',*/ 'keydown', 'focus', 'click'].forEach(function (eventName) {
 		textarea.addEventListener(eventName, function (e) {
-			setTimeout(resize, 32);
+			setTimeout(resize, 32, e);
 			return true;
 		}, true);
 	});
