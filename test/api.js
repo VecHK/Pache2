@@ -55,7 +55,7 @@ describe('getArticles', () => {
 
 			obj.should.has.property('page').equal(1);
 			obj.should.has.property('count').is.an.Number();
-			obj.should.has.property('list').is.an.Array();
+			obj.should.has.property('list').is.an.Array().length(envir.limit);
 
 			ArticleCount = obj.count;
 			done();
@@ -67,7 +67,7 @@ describe('getArticles', () => {
 		.set('Cookie', cookie)
 		.end((err, res) => {
 			if (err) { throw err }
-			console.log(res.text);
+			// console.log(res.text);
 			let obj = JSON.parse(res.text);
 
 			obj.should.has.property('page').equal(2);
@@ -111,6 +111,7 @@ describe('getArticles', () => {
 			.send({
 				title: 'new Title',
 				content: 'TEXT',
+				tags: 'testTag',
 				contentType: 'text',
 			})
 			.expect(200)
@@ -128,7 +129,8 @@ describe('getArticles', () => {
 			})
 	});
 
-	let topic = null;
+	var topic;
+	var modId;
 	it('topic', done => {
 		request(app)
 			.get('/admin/api/topic')
@@ -146,31 +148,29 @@ describe('getArticles', () => {
 				obj.result.should.has.property('title')
 				obj.result.should.has.property('content')
 				obj.result.should.has.property('contentType')
-				obj.result.should.has.property('tags')
+				obj.result.should.has.property('tags').is.an.Array().containEql('testTag').length(1);
 				obj.result.should.has.property('date')
 				obj.result.should.has.property('mod')
 
 				topic = obj.result;
+				modId = obj.result._id;
 
 				topic.date.should.equal(inserted.date)
 				topic.mod.should.not.equal(inserted.mod)
 
 				topic.title.should.equal('new Title')
-
+				console.log(topic, modId);
 				done();
 			})
 	});
 
-	it('remove', done => {
+	it('remove article', done => {
 		request(app)
 			.delete('/admin/api/articles')
-			.send({ids: [topic._id]})
+			.send({ids: [modId]})
 			.set('Cookie', cookie)
 			.end((err, res) => {
 				if (err) { throw err }
-
-				console.log(res.text);
-
 				let obj = JSON.parse(res.text);
 
 				obj.should.has.property('code').equal(0);
@@ -181,7 +181,7 @@ describe('getArticles', () => {
 					if (err) {throw err};
 					let newTopic = JSON.parse(res.text).result;
 
-					newTopic._id.should.not.equal(topic._id);
+					newTopic._id.should.not.equal(modId._id);
 					done();
 				})
 			})
