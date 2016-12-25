@@ -1,7 +1,7 @@
 {
-  "name": "pache2",
-  "version": "0.1.0",
-  "description": "Simple & 装逼 blog",
+  "name": "node-pache",
+  "version": "0.2.0",
+  "description": "vec 自家用 blog",
   "main": "master.js",
   "scripts": {
     "test": "istanbul cover C:\\Users\\vec\\AppData\\Roaming\\npm\\node_modules\\mocha\\bin\\_mocha"
@@ -40,6 +40,8 @@
     "gulp-plumber": "^1.1.0",
     "gulp-sourcemaps": "^1.9.1",
     "should": "^11.1.2",
+		"istanbul": "0.4.5",
+		"mocha": "3.0.2",
     "superagent": "^3.3.1",
     "supertest": "^2.0.1"
   }
