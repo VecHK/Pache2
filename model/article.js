@@ -55,7 +55,7 @@ ArticleSchema.pre('update', function (next) {
 	let set = this._update.$set;
 
 	if (set.tags && !Array.isArray(set.tags)) {
-		set.tags = [];
+		set.tags = [ set.tags ];
 	}
 	set.mod = new Date;
 
