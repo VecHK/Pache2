@@ -6,9 +6,17 @@ node_js:
 install:
   - npm install -g codecov
   - npm install -g istanbul
+
+services:
+  - mongodb
+  - redis
+
 script:
+  - npm install
   - istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec
   - codecov
+
+after_success: npm i codecov && codecov
 
 branches:
   only:
