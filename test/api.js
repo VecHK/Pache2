@@ -88,7 +88,7 @@ describe('getArticles', () => {
 				title: '标题',
 				content: '内容',
 				contentType: 'markdown',
-				tags: [ 'a', 'b', 'c' ],
+				tags: 'a',
 			})
 			.set('Cookie', cookie)
 			.end((err, res) => {
@@ -102,7 +102,13 @@ describe('getArticles', () => {
 
 				inserted = obj.result;
 
-				done();
+				request(app).get('/admin/api/topic').set('Cookie', cookie).end((err, res) => {
+					if (err) {throw err};
+					let topic = JSON.parse(res.text).result;
+					topic.tags.should.is.an.Array().containEql('a').length(1);
+
+					done();
+				})
 			});
 	});
 
@@ -179,7 +185,7 @@ describe('getArticles', () => {
 				obj.should.has.property('result').is.an.Object();
 
 				return done();
-				
+
 				request(app).get('/admin/api/topic').set('Cookie', cookie).end((err, res) => {
 					if (err) {throw err};
 					let newTopic = JSON.parse(res.text).result;

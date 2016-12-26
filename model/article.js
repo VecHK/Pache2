@@ -40,6 +40,11 @@ const contentFormat = function () {
 
 ArticleSchema.pre('save', function (next) {
 	contentFormat.apply(this);
+	
+	if (this.hasOwnProperty('tags') && !Array.isArray(this.tags)) {
+		this.tags = [ set.tags ];
+	}
+	this.tags = this.tags.filter(tag => tag.length)
 
 	if (!this.title.length) {
 		this.title = '(无标题)';
@@ -53,10 +58,12 @@ ArticleSchema.pre('save', function (next) {
 
 ArticleSchema.pre('update', function (next) {
 	let set = this._update.$set;
-
-	if (set.tags && !Array.isArray(set.tags)) {
+	if (set.hasOwnProperty('tags') && !Array.isArray(set.tags)) {
 		set.tags = [ set.tags ];
 	}
+
+	set.tags = set.tags.filter(tag => tag.length)
+
 	set.mod = new Date;
 
 	if (set.contentType && set.content) {
