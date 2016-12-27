@@ -24,7 +24,7 @@ gulp.task('es6toes5', () => {
 		.pipe(gulp.dest("admin/script/"));
 });
 
-gulp.task('less', () => {
+gulp.task('admin-less', () => {
 	return gulp.src('admin/less/*.less')
 		.pipe(plumber({
 			errorHandler: function (err) {
@@ -36,11 +36,25 @@ gulp.task('less', () => {
 			paths: [ 'admin/less/' ],
 		}))
 		.pipe(gulp.dest('admin/style/'));
-})
+});
+gulp.task('front-less', () => {
+	return gulp.src('static/less/*.less')
+		.pipe(plumber({
+			errorHandler: function (err) {
+				beep('*-*-');
+				notify.onError('Error: <%= error.message %>').apply(this, arguments);
+			}}
+		))
+		.pipe(less({
+			paths: [ 'static/less/' ],
+		}))
+		.pipe(gulp.dest('static/style/'));
+});
 
 gulp.task('watch', () => {
 	gulp.watch('admin/src/*.js', ['es6toes5']);
-	gulp.watch('admin/less/*.less', ['less']);
+	gulp.watch('static/less/*.less', ['front-less']);
+	gulp.watch('admin/less/*.less', ['admin-less']);
 });
 
 gulp.task('default', ['es6toes5', 'minify', 'watch']);
