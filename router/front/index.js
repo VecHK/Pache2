@@ -1,5 +1,6 @@
 const express = require('express');
-const model = require('../../model');
+const envir = require('../../envir');
+const article = require('../../lib/article');
 const router = express.Router();
 module.exports = router;
 
@@ -40,9 +41,36 @@ router.use('/:pagecode', (req, res, next) => {
 	next();
 });
 
-let render = (req, res, next) => {
-	res.end('page: ' + req.pagecode);
-}
+const render = (req, res, next) => {
+	let list;
+	article.getlist(req.pagecode)
+		.then(listResult => {
+			list = listResult;
+			return article.count();
+		})
+		.then(count => {
+		res.render('home', {
+				code: 0,
+				tags: req.tags,
+				limit: envir.limit,
+				page: req.pagecode,
+				count,
+				list,
+			});
+		}, err => {
+			console.error(err);
+			res.json({
+				code: 2
+			})
+		})
+		.catch(err => {
+			console.error(err);
+			res.json({
+				code: 1
+			})
+		});
+};
+
 router.get('/', (req, res, next) => {
 	req.pagecode = 1;
 	render(req, res, next);
@@ -53,4 +81,4 @@ router.get('/*', (req, res, next) => {
 	} else {
 		next();
 	}
-})
+});
