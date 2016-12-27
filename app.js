@@ -23,7 +23,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use('/', router_front);
 
-//-----------------后端-----------------
+//-----------------后台-----------------
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -34,10 +34,11 @@ let redisHandle = new RedisStore({
 	db: 2,
 	prefix: 'pache-session:',
 });
+
 let sessinHandle = session({
-	secret: '困惑的人不清醒',
-	cookie: {domain: 'localhost'},
-	key: 'express-session',
+	secret: envir.session_secret,
+	cookie: { domain: 'localhost' },
+	key: 'pache-session',
 	resave: false,
 	saveUninitialized: false,
 	store: redisHandle,
