@@ -11,7 +11,7 @@ const mongoose = require('mongoose');
 
 const should = require('should');
 
-describe('getArticles', () => {
+describe('libArticle', () => {
 	const app = express();
 	let globalReq = null;
 	app.use('/', (req, res, next) => {
@@ -171,6 +171,47 @@ describe('getArticles', () => {
 			})
 	});
 
+	it('getArticle', done => {
+		request(app)
+			.get(`/admin/api/article/${topic._id}`)
+			.set('Cookie', cookie)
+			.end((err, res) => {
+				if (err) { throw err }
+				let obj = JSON.parse(res.text);
+
+				obj.code.should.equal(0);
+				obj.msg.should.is.an.String();
+				obj.result.should.is.an.Object();
+
+				const result = obj.result;
+				result._id.should.equal(topic._id);
+				result.title.should.equal(topic.title);
+				result.content.should.equal(topic.content);
+				result.contentType.should.equal(topic.contentType);
+				result.date.should.equal(topic.date);
+				result.mod.should.equal(topic.mod);
+				done();
+			})
+	})
+	it('getArticle fail', done => {
+		request(app)
+			.get(`/admin/api/article`)
+			.set('Cookie', cookie)
+			.expect(404, (err, res) => {
+				if (err) { throw err }
+				done();
+			})
+	})
+	it('getArticle nofound', done => {
+		request(app)
+			.get(`/admin/api/article/${utils.md5((new Date).toString())}`)
+			.set('Cookie', cookie)
+			.expect(404, (err, res) => {
+				if (err) { throw err }
+				done();
+			})
+	})
+
 	it('remove article', done => {
 		request(app)
 			.delete('/admin/api/articles')
@@ -195,4 +236,8 @@ describe('getArticles', () => {
 				})
 			})
 	})
+})
+
+describe('getArticle', () => {
+
 })

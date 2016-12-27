@@ -112,6 +112,29 @@ router.get(['/articles/*', '/articles/'], (req, res, next) => {
 				code: 1
 			})
 		})
-})
+});
+
+router.get('/article/:articleid', (req, res, next) => {
+	req.articleid = req.params.articleid;
+	next();
+});
+router.get('/article/*', (req, res, next) => {
+	article.get(req.articleid)
+		.then(result => res.json({
+			code: 0,
+			msg: 'ok',
+			result,
+		}))
+		.catch(err => {
+			res.status(404)
+			res.json({
+				code: 1,
+				msg: 'fail',
+				err: {
+					message: err.message,
+				},
+			})
+		})
+});
 
 module.exports = router;
