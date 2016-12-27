@@ -1,0 +1,74 @@
+body, html {
+	padding: 0;
+	margin: 0;
+}
+header {
+	margin: 1em .5em;
+}
+.tags {
+	> * {
+		color: grey;
+		background: transparent;
+		text-decoration: none;
+		/* margin: 0 .382em 0 .382em; */
+		padding: 1px .5em 1px .5em;
+		font-family: ISOCPEUR, "Lucida Sans", "Hiragino Sans GB", "Microsoft JhengHei", "WenQuanYi Microhei", "黑体";
+	}
+	.current {
+		background: #f1f1f1;
+	}
+}
+
+.title a {
+	font-size: 1.5em;
+	font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+	text-decoration: blink;
+	color: hsl(201, 47%, 35%);
+}
+
+body > .list {
+	list-style: none;
+	list-style-type: none;
+	padding: 0;
+	margin: 0 0 0 .5em;
+}
+
+
+.list > li {
+	margin: 1.5em 0;
+}
+body > .list:first-child {
+	margin-top: 0;
+}
+.list > li:first-child {
+	margin-top: 0;
+}
+.list > li:last-child {
+	margin-bottom: 0;
+}
+
+.time {
+	font-family: ISOCTEUR, consolas, courier;
+	font-size: medium;
+	color: rgba(121, 86, 73, 0.618);
+}
+
+.pagecode {
+	margin: 2em 0.5em;
+	> * {
+		margin: 0px 4px;
+		width: 20px;
+		cursor: pointer;
+		text-align: center;
+		font-family: ISOCPEUR, Arial;
+		text-decoration: none;
+		color: rgba(121, 86, 73, 0.618);
+	}
+	.current {
+		color: #607D8B;
+	}
+}
+footer {
+	font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+	margin: 1em 0.5em;
+}

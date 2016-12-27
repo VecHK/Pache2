@@ -1,0 +1,33 @@
+<!doctype HTML>
+<html>
+<head>
+	<title>Pache</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<meta http-equiv="content-type" content="text/html" charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1;" />
+	<meta name="HandheldFriendly" content="true" />
+	<link rel="stylesheet" href="/style/global.css" />
+</head>
+<body>
+	<header class="tags">
+		<a href="tag/Node.js">Home</a>
+		<a href="tag/JavaScript" class="current">Program</a>
+		<a href="tag/MongoDB">Life</a>
+	</header>
+	<%= tags %>
+	<ul class="list">
+		<% list.forEach(item => {  %>
+			<li>
+				<div class="title">
+					<a href="article/<%= item._id %>"><%= item.title %></a>
+				</div>
+				<time class="time"><%= item.date.toLocaleDateString() %></time>
+			</li>
+		<% }) %>
+	</ul>
+	<% include public/pagecode %>
+	<footer>
+		至童装之致，执同装之志
+	</footer>
+</body>
+</html>

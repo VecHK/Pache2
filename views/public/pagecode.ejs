@@ -1,0 +1,36 @@
+<div class="pagecode">
+<%
+let countPage = Math.ceil(count / limit),
+	cursor = page - 2,
+	right = page + 2;
+
+if (cursor <= 0){
+	right += Math.abs(cursor) + 1;
+	cursor = 1;
+}
+
+if (right > countPage){
+	cursor -= Math.abs(right-countPage);
+	if (cursor <= 0){
+		cursor = 1;
+	}
+	right = countPage;
+}
+
+
+for (; cursor<=right; ++cursor){
+	if ( page === cursor ){
+		%>
+		<a class="current"><%= cursor %></a><%
+	} else {
+		if (tags.length){
+			var tagHref = 'tags/' + tags.join(',') + '/';
+		} else {
+			var tagHref = '';
+		}
+		%>
+		<a href="<%= tagHref %><%= cursor %>"><%= cursor %></a><%
+	}
+}
+%>
+</div>
