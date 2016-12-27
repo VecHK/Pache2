@@ -18,8 +18,13 @@ db >mongodb://127.0.0.1:27017/pache
 # 用户密码
 pass >7355608
 
+# session 密钥
+# 开发测试的时候似乎没那么重要了
+# 正式使用时请务必修改，因为它与用户密码同等重要
+session_secret >reimu_marisa
+
 # 单页最大文章数
-[limit] 3
+[limit] 10
 
 # 是否启用 Page Action Extends
 # Page Action Extends 可以使 Pache 页面达到单页的效果
