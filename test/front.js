@@ -1,3 +1,7 @@
+const envir = require('../envir');
+const TEST_DB = 'pache_test';
+envir.db = `mongodb://127.0.0.1:27017/${TEST_DB}`;
+
 const express = require('express');
 const http = require('http');
 const libArticle = require('../lib/article');
