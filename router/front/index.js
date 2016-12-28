@@ -6,17 +6,24 @@ module.exports = router;
 
 const has = (obj, ...keys) => keys.every(checkey => Object.keys(obj).some(objkey => objkey === checkey));
 
-router.use('/article/', (req, res, next) => {
-	req.articleid = '???';
-	next();
-});
 router.get('/article/:articleid', (req, res, next) => {
 	req.articleid = req.params.articleid;
 	next();
 });
 router.get('/article/*', (req, res, next) => {
 	res.status(404);
-	res.end('articleid: ' + req.articleid);
+	article.get(req.articleid)
+		.then(article => {
+			res.render('article', {
+				article,
+				recommandTags: envir.recommand_tags,
+			})
+		})
+		.catch(err => {
+			res.render('article-nofound', {
+				err,
+			})
+		})
 });
 
 
@@ -43,15 +50,16 @@ router.use('/:pagecode', (req, res, next) => {
 
 const render = (req, res, next) => {
 	let list;
-	article.getlist(req.pagecode)
+	article.getlist(req.pagecode, req.tags)
 		.then(listResult => {
 			list = listResult;
-			return article.count();
+			return article.count(req.tags);
 		})
 		.then(count => {
 		res.render('home', {
 				code: 0,
 				tags: req.tags,
+				recommandTags: envir.recommand_tags,
 				limit: envir.limit,
 				page: req.pagecode,
 				count,
