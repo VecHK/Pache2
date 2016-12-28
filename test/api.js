@@ -4,8 +4,8 @@ const request = require('supertest');
 
 
 const envir = require('../envir');
-const TEST_COLLECTION = 'pache_test';
-envir.db = `mongodb://127.0.0.1:27017/${TEST_COLLECTION}`;
+const TEST_DB = 'pache_test';
+envir.db = `mongodb://127.0.0.1:27017/${TEST_DB}`;
 
 const mongoose = require('mongoose');
 
@@ -236,8 +236,4 @@ describe('libArticle', () => {
 				})
 			})
 	})
-})
-
-describe('getArticle', () => {
-
 })
