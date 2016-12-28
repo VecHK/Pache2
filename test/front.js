@@ -21,12 +21,22 @@ describe('front-list', function () {
 	app.use('/', require('../app'));
 
 	it('default pagecode', (done) => {
-		request(app).get('/').end(function (err, res) {
-			res.status.should.equal(200);
-			globalReq.pagecode.should.equal(1);
-			globalReq.tags.should.length(0);
-			done();
-		});
+		libArticle.insert({
+			title: '首页的测试',
+			content: '# title',
+			contentType: 'markdown',
+			tags: ['Life'],
+		}).then(result => {
+			request(app).get('/').end(function (err, res) {
+				res.status.should.equal(200);
+				should(res.text).containEql('首页的测试');
+				globalReq.pagecode.should.equal(1);
+				globalReq.tags.should.length(0);
+				done();
+			})
+		}).catch(err => {
+			throw err;
+		})
 	});
 
 	it('pagecode', (done) => {
