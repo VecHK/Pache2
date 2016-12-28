@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const libArticle = require('../lib/article');
 
 const request = require('supertest');
 const cheerio = require('cheerio');
@@ -13,7 +14,7 @@ describe('front-list', function () {
 		globalReq = req;
 		next();
 	});
-	app.use('/', require('../router/front'));
+	app.use('/', require('../app'));
 
 	it('default pagecode', (done) => {
 		request(app).get('/').end(function (err, res) {
@@ -45,6 +46,7 @@ describe('front-list', function () {
 			done();
 		});
 	})
+
 	it('has pagecode taglist', (done) => {
 		request(app).get('/8/tag/vec, apple, original, java script').end(function (err, res) {
 			res.status.should.equal(200);
@@ -58,6 +60,23 @@ describe('front-list', function () {
 			done();
 		});
 	})
+
+	it('has tag taglist', done => {
+		libArticle.insert({
+			title: 'testing',
+			content: '# title',
+			contentType: 'markdown',
+			tags: ['Programming'],
+		}).then(result => {
+			request(app).get('/tag/Programming').expect(200, (err, res) => {
+				if (err) { throw err }
+				res.text.should.containEql(result.title)
+				done()
+			})
+		}).catch(err => {
+			throw err;
+		})
+	})
 });
 
 describe('front-article', () => {
@@ -67,7 +86,7 @@ describe('front-article', () => {
 		globalReq = req;
 		next();
 	});
-	app.use('/', require('../router/front'));
+	app.use('/', require('../app'));
 
 	it('article nofound', done => {
 		request(app).get('/article/ahghiajgoija89396hnsg89h98h').end(function (err, res) {
@@ -75,4 +94,5 @@ describe('front-article', () => {
 			done();
 		});
 	})
+
 });
