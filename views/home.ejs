@@ -9,17 +9,24 @@
 	<link rel="stylesheet" href="/style/global.css" />
 </head>
 <body>
-	<header class="tags">
-		<a href="tag/Node.js">Home</a>
-		<a href="tag/JavaScript" class="current">Program</a>
-		<a href="tag/MongoDB">Life</a>
+	<header>
+		<div class="local">P</div>
+		<div class="tags">
+			<% recommendTags.forEach(tag => { %>
+				<% let result = tags.indexOf(tag) %>
+				<% if (result !== -1) { %>
+					<a href="/tag/<%= tag %>" class="current"><%= tag %></a>
+				<% } else { %>
+					<a href="/tag/<%= tag %>"><%= tag %></a>
+				<% } %>
+			<% }) %>
+		</div>
 	</header>
-	<%= tags %>
 	<ul class="list">
 		<% list.forEach(item => {  %>
 			<li>
 				<div class="title">
-					<a href="article/<%= item._id %>"><%= item.title %></a>
+					<a href="/article/<%= item._id %>"><%= item.title %></a>
 				</div>
 				<time class="time"><%= item.date.toLocaleDateString() %></time>
 			</li>

@@ -16,7 +16,7 @@ router.get('/article/*', (req, res, next) => {
 		.then(article => {
 			res.render('article', {
 				article,
-				recommandTags: envir.recommand_tags,
+				recommendTags: envir.recommend_tags,
 			})
 		})
 		.catch(err => {
@@ -59,7 +59,7 @@ const render = (req, res, next) => {
 		res.render('home', {
 				code: 0,
 				tags: req.tags,
-				recommandTags: envir.recommand_tags,
+				recommendTags: envir.recommend_tags,
 				limit: envir.limit,
 				page: req.pagecode,
 				count,

@@ -9,10 +9,19 @@
 	<link rel="stylesheet" href="/style/article.css" />
 </head>
 <body>
-	<header class="tags">
-		<a href="/tag/Node.js">Home</a>
-		<a href="/tag/JavaScript" class="current">Program</a>
-		<a href="/tag/MongoDB">Life</a>
+	<header>
+		<div class="local">A</div>
+		<div class="tags">
+			<% recommendTags.forEach(tag => { %>
+				<% let result = article.tags.indexOf(tag); %>
+				<% if (result !== -1) {%>
+					<a href="/tag/<%= tag %>" class="current"><%= tag %></a>
+				<% } else { %>
+					<a href="/tag/<%= tag %>"><%= tag %></a>
+				<% } %>
+			<% }) %>
+		</div>
+		</div>
 	</header>
 	<div class="title"><%= article.title %></div>
 	<article>
