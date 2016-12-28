@@ -4,13 +4,16 @@ body, html {
 	padding: 0;
 	margin: 0;
 }
+body {
+	margin-bottom: 38.2vh;
+}
 
 .title {
 	margin: 2em 0;
 	font-size: 2.5em;
 	text-align: center;
 	color: @torzo-blue;
-	font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+	font-family: @title-font;
 }
 
 article {
@@ -22,10 +25,22 @@ article {
 }
 
 article {
+	hr {
+		border: 0;
+		height: 1px;
+		background: linear-gradient(to right, #AAA, @torzo-blue, transparent);
+	}
+
 	h1, h2, h3, h4, h5, h6 {
 		margin-top: 2em;
 		color: @torzo-blue;
 	}
+
+	blockquote {
+		margin-right: 0;
+		padding-right: 0;
+	}
+
 	code {
 		font-family: ISOCPEUR, Consolas, courier, "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
 		background: #f1f1f1;
