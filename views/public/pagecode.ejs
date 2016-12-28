@@ -24,12 +24,12 @@ for (; cursor<=right; ++cursor){
 		<a class="current"><%= cursor %></a><%
 	} else {
 		if (tags.length){
-			var tagHref = 'tags/' + tags.join(',') + '/';
+			var tagHref = '/tag/' + tags.join(',') + '/';
 		} else {
 			var tagHref = '';
 		}
 		%>
-		<a href="<%= tagHref %><%= cursor %>"><%= cursor %></a><%
+		<a href="/<%= cursor %><%= tagHref %>"><%= cursor %></a><%
 	}
 }
 %>
