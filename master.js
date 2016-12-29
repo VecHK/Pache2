@@ -11,13 +11,13 @@ if (cluster.isMaster) {
 	console.log(`Pache ${envir.version}\n------`);
 
 	cluster.on('listening', (worker, address) => {
-		console.log(`listening: pid[${worker.process.pid}], address[${address.address}:${address.port}]`);
+		console.log(`端口已应用: pid[${worker.process.pid}], address[${address.address}:${address.port}]`);
 	});
 	cluster.on('online', (worker) => {
-		console.log(`worker[${worker.id}] was online`);
+		console.log(`cluster线程[${worker.id}]已在线`);
 	});
 	cluster.on('exit', (worker, code, signal) => {
-		console.log(`worker ${worker.process.pid} died.`);
+		console.log(`cluster线程${worker.process.pid}已离线`);
 	});
 
 	if (envir.cluster_fork_num) {

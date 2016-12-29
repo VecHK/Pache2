@@ -25,6 +25,13 @@ Pache 2
 npm install node-pache
 ```
 
+## 配置
+
+你可能还需要配置其它的一些东西
+
+ - Redis
+ - mongoDB
+
 ## 运行
 
 ```bash
@@ -34,3 +41,13 @@ node .
 ## 配置文件
 
 打开项目目录中的 `config.suc` 你应该就知道如何操作了。。。
+
+## 覆盖率测试
+
+```
+node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha
+```
+
+## License
+
+MIT

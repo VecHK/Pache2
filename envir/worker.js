@@ -5,13 +5,8 @@ const envir = require('./envir');
 process.on('message', (message) => {
 	if (message.type === 'envir') {
 		Object.assign(envir, message.envir);
-		envir._setup = true;
-		getPool.forEach(function (cb) {
-			cb();
-		});
-		getPool.splice(0);
 
-		console.log(`worker[${cluster.worker.id}] Envir was set`);
+		console.log(`线程[${cluster.worker.id}] Envir 对象已设置`);
 	}
 });
 
