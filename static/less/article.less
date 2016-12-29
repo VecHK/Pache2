@@ -16,12 +16,26 @@ body {
 	font-family: @title-font;
 }
 
-article {
+article, .info {
 	margin: auto;
 	color: #344;
 	width: 760px;
 	font-size: 1.1em;
 	font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+}
+
+.error-message {
+}
+
+.info {
+	pre code {
+		display: block;
+		margin: auto;
+		padding: 0;
+		width: 760px;
+		color: #566;
+		font-family: ISOCPEUR, courier, consolas;
+	}
 }
 
 article {
@@ -53,5 +67,13 @@ article {
 		border-radius: 4px;
 		font-family: Consolas, courier;
 		background: hsla(201, 47%, 35%, 0.1);
+	}
+
+	img {
+		display: block;
+		margin: auto;
+		max-width: 100%;
+		max-height: 80vh;
+		box-shadow: 0px 0px 4px #bbb;
 	}
 }

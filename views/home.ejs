@@ -10,14 +10,27 @@
 </head>
 <body>
 	<header>
-		<div class="local">P</div>
+		<div class="local">PAE</div>
 		<div class="tags">
+			<% if (!Array.isArray(tags)) { tags = [] } %>
 			<% recommendTags.forEach(tag => { %>
 				<% let result = tags.indexOf(tag) %>
 				<% if (result !== -1) { %>
-					<a href="/tag/<%= tag %>" class="current"><%= tag %></a>
+				<%	let tagHref = [...tags, tag]; %>
+				<%	if (tags.length === 1) { %>
+					<a href="/" class="current"><%= tag %></a>
+				<%	} else { %>
+				<% let newTags = Array.from(tags); let cursor = newTags.indexOf(tag);
+					if (cursor !== -1) {
+						newTags.splice(cursor, 1);%>
+						<a href="/tag/<%= newTags.join(', ') %>" class="current"><%= tag %></a>
+				<%} else { %>
+
+				<% } %>
+
+				<%	} %>
 				<% } else { %>
-					<a href="/tag/<%= tag %>"><%= tag %></a>
+					<a href="/tag/<%= [...tags, tag].join(', ') %>"><%= tag %></a>
 				<% } %>
 			<% }) %>
 		</div>

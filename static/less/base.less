@@ -13,8 +13,9 @@ header {
 	margin: 1em .5em;
 }
 
-.local:hover {
-	text-shadow: 0px 0px 16px;
+.local:not(.error):hover {
+	text-shadow: 0px 0px 16px grey;
+	color: @torzo-blue;
 }
 .local {
 	display: inline-flex;
@@ -30,7 +31,7 @@ header {
 	margin: 0 .382em 0 .382em;
 	padding: 1px .5em 1px .5em;
 
-	width: 1.2em;
+	width: 2.5em;
 
 	font-family: ISOCPEUR,  "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "黑体";
 	color: grey;
@@ -38,8 +39,13 @@ header {
 
 	cursor: pointer;
 
-	transition-property: text-shadow;
+	transition-property: text-shadow, color;
 	transition-duration: .618s;
+}
+
+.error {
+	background: hsl(0, 50%, 50%);
+	color: #f1f1f1;
 }
 
 .tags {
