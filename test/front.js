@@ -31,7 +31,7 @@ describe('front-list', function () {
 				res.status.should.equal(200);
 				should(res.text).containEql('首页的测试');
 				globalReq.pagecode.should.equal(1);
-				globalReq.tags.should.length(0);
+				should(globalReq.tags).equal(null);
 				done();
 			})
 		}).catch(err => {
@@ -43,7 +43,7 @@ describe('front-list', function () {
 		request(app).get('/4').end(function (err, res) {
 			res.status.should.equal(200);
 			globalReq.pagecode.should.equal(4);
-			globalReq.tags.should.length(0);
+			should(globalReq.tags).equal(null);
 			done();
 		});
 	});

@@ -14,21 +14,29 @@ router.get('/article/*', (req, res, next) => {
 	res.status(404);
 	article.get(req.articleid)
 		.then(article => {
+			if (article === null) {
+				throw new Error('article nofound');
+			}
 			res.render('article', {
 				article,
 				recommendTags: envir.recommend_tags,
 			})
 		})
 		.catch(err => {
-			res.render('article-nofound', {
+			res.status(404);
+			res.render('pache-error', {
 				err,
+				title: 'Pache 404',
+				articleTitle: '404',
+				message: '文章或许不存在，或许请求的 id 是一个未知数，Pache 无法提供',
+				recommendTags: envir.recommend_tags
 			})
 		})
 });
 
 
 router.use('/', (req, res, next) => {
-	req.tags = [];
+	req.tags = null;
 	next();
 })
 
@@ -49,14 +57,17 @@ router.use('/:pagecode', (req, res, next) => {
 });
 
 const render = (req, res, next) => {
-	let list;
-	article.getlist(req.pagecode, req.tags)
+	let tagCon;
+	if (Array.isArray(req.tags)) {
+		tagCon = req.tags;
+	}
+	article.getlist(req.pagecode, tagCon)
 		.then(listResult => {
 			list = listResult;
-			return article.count(req.tags);
+			return article.count(tagCon);
 		})
 		.then(count => {
-		res.render('home', {
+			res.render('home', {
 				code: 0,
 				tags: req.tags,
 				recommendTags: envir.recommend_tags,
@@ -65,10 +76,10 @@ const render = (req, res, next) => {
 				count,
 				list,
 			});
-		}, err => {
-			console.error(err);
-			res.json({
-				code: 2
+			}, err => {
+				console.error(err);
+				res.json({
+					code: 2
 			})
 		})
 		.catch(err => {
