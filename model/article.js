@@ -40,7 +40,7 @@ const contentFormat = function () {
 
 ArticleSchema.pre('save', function (next) {
 	contentFormat.apply(this);
-	
+
 	if (this.hasOwnProperty('tags') && !Array.isArray(this.tags)) {
 		this.tags = [ set.tags ];
 	}
@@ -61,19 +61,29 @@ ArticleSchema.pre('update', function (next) {
 	if (set.hasOwnProperty('tags') && !Array.isArray(set.tags)) {
 		set.tags = [ set.tags ];
 	}
-
-	set.tags = set.tags.filter(tag => tag.length)
+	if (Array.isArray(set.tags)) {
+		set.tags = set.tags.filter(tag => tag.length)
+	}
 
 	set.mod = new Date;
 
-	if (set.contentType && set.content) {
-		contentFormat.apply(this._update.$set);
+	/* 如果有 content 项，则同时需要显式地声明了 contentType 项 */
+	if (set.hasOwnProperty('content') && set.hasOwnProperty('contentType')) {
+		contentFormat.apply(set);
+		next();
+	} else if (set.hasOwnProperty('contentType')) {
+		this.findOne({_id: this._conditions._id}).exec()
+			.then(result => {
+				set.content = result.content;
+				contentFormat.apply(set);
+				next();
+			})
+			.catch(err => { throw err });
 	} else {
 		delete set.contentType;
 		delete set.content;
+		next();
 	}
-
-	next();
 });
 
 mongoose.model('Article', ArticleSchema);
