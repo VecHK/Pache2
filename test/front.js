@@ -102,8 +102,22 @@ describe('front-article', () => {
 	});
 	app.use('/', require('../app'));
 
+	let inserted = null;
+	it('get article', done => {
+		libArticle.insert({
+			title: '测试的标题',
+		}).then(result => new Promise((resolve, reject) => {
+			request(app).get(`/article/${result._id.toString()}`).end((err, res) => {
+				if (err) { throw err }
+				res.text.should.containEql('测试的标题');
+				inserted = result;
+				done()
+			})
+		})).catch(err => { throw err })
+	});
+
 	it('article nofound', done => {
-		request(app).get('/article/ahghiajgoija89396hnsg89h98h').end(function (err, res) {
+		request(app).get('/article/585fff4ac93d301dbc39732c').end(function (err, res) {
 			res.status.should.equal(404);
 			done();
 		});
