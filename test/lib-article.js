@@ -318,7 +318,8 @@ describe('del article', function () {
 			.then(() => libArticle.insert({}))
 			.then(result => ids.push(result._id.toString()) && libArticle.insert({}))
 			.then(result => ids.push(result._id.toString()) && libArticle.insert({}))
-			.then(result => ids.push(result._id.toString()) && libArticle.del(ids))
+			.then(result => ids.push(result._id.toString()))
+			.then(() => libArticle.del(ids))
 			.then(result => libArticle.count())
 			.then(count => {
 				count.should.equal(initalCount);
