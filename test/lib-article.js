@@ -7,7 +7,7 @@ const libArticle = require('../lib/article');
 
 const should = require('should');
 
-describe('get articles list', done => {
+describe('get articles list', allDone => {
 	envir.limit = 2;
 	it('page 必须是整数，并且 page 不能小于 0', () => {
 		const values = [0, 9.3, true, false, null, {}, [], NaN, 'string', '1', '2', undefined];
@@ -25,9 +25,9 @@ describe('get articles list', done => {
 	});
 
 	let history = [];
-	it('无条件的列表', done => {
-		model.removeCollection('articles')
-			.then(() => libArticle.insert({ title: 'A'}))
+	it('无条件的列表', function (done) {
+		this.timeout(5000);
+		libArticle.insert({ title: 'A'})
 			.then(result => history.push(result) && libArticle.insert({ title: 'B'}))
 			.then(result => history.push(result) && libArticle.insert({ title: 'C', tags: ['233']}))
 			.then(result => history.push(result) && libArticle.getlist(1))
@@ -42,19 +42,23 @@ describe('get articles list', done => {
 			})
 			.catch(err => { throw err })
 	})
-	it('无条件的列表（反序）', done => {
-		libArticle.getlist(1, null, 1)
+	it('无条件的列表（反序）', function (done) {
+		this.timeout(5000);
+		model.removeCollection('articles')
+			.then(result => should(result).equal(true) && libArticle.insert({ title: 'AAA'}))
+			.then(() => libArticle.insert({ title: 'BBB', tags: ['tesTTT']}))
+			.then(() => libArticle.insert({ title: 'CCC'}) && libArticle.getlist(1, null, 1))
 			.then(list => {
-				list[0].title.should.equal('A');
-				list[1].title.should.equal('B');
+				list[0].title.should.equal('AAA');
+				list[1].title.should.equal('BBB');
+				list[1].tags.should.containEql('tesTTT');
 				return libArticle.getlist(2, null, 1);
 			})
 			.then(list => {
-				list[0].title.should.equal('C');
-				return libArticle.del(history.map(article => article._id.toString()))
+				list[0].title.should.equal('CCC');
+				done();
 			})
-			.then(delResult => done())
-			.catch(err => { throw err })
+			.catch(err => { console.error(err); throw err })
 	})
 
 	it('空标签的列表', done => {
@@ -70,15 +74,21 @@ describe('get articles list', done => {
 			})
 			.catch(err => { throw err })
 	})
-	it('空标签的列表（反序）', done => {
-		libArticle.getlist(1, [], 1)
+	it('空标签的列表（反序）', function (done) {
+		this.timeout(5000);
+		model.removeCollection('articles')
+			.then(result => should(result).equal(true))
+			.then(() => libArticle.insert({ title: '111', tags: ['我是有标签的'] }))
+			.then(() => libArticle.insert({ title: '222' }))
+			.then(() => libArticle.insert({ title: '333' }))
+
+			.then(() => libArticle.getlist(1, [], 1))
 			.then(list => {
 				list[0].tags.should.length(0);
-				list[0].title.should.equal('10');
+				list[0].title.should.equal('222');
 			})
-			.then(() => libArticle.del(history.map(article => article._id.toString())))
-			.then(delResult => done())
-			.catch(err => { throw err })
+			.then(() => done())
+			.catch(err => { console.error(err); throw err })
 	})
 
 	it('有标签的列表', done => {
@@ -116,7 +126,6 @@ describe('get articles list', done => {
 			.catch(err => { throw err })
 	})
 });
-
 let insertedId;
 let defaultArticleId;
 describe('insertArticle', function () {
@@ -145,108 +154,148 @@ describe('insertArticle', function () {
 describe('topic', function () {
 	it('topic article', done => {
 		libArticle.topic()
-		.then(result => {
-			insertedId.should.equal(result._id.toString());
-			done();
-		})
-		.catch(err => { throw err })
+			.then(result => {
+				insertedId.should.equal(result._id.toString());
+				done();
+			})
+			.catch(err => { throw err })
 	});
-});
+	it('empty topic', function () {
+		this.timeout(5000);
+		model.removeCollection('articles')
+			.then(removeResult => libArticle.topic())
+			.then(topic => {
+				should(topic).should.equal(null);
+				done();
+			})
+			.catch(err => { throw err })
+	})
+})
 
 describe('modify article', function () {
 	it('参数必须要有主键_id', done => {
-		should(function () {
-			libArticle.mod().then(result => {
+		libArticle.mod()
+			.then(result => {
 				console.error(result);
-				throw result
 			})
-		}).throw('need id')
-		done();
+			.catch(err => { err.message.should.equal('need id'); done(); })
 	})
 	it('第二个参数必须是对象', done => {
 		const articleValues = [[], null, undefined, 3, 0.8, false, 'string'];
 		const promises = articleValues.map(
 			articleValue => new Promise((resolve, reject) => {
 				libArticle.mod(insertedId, articleValue)
-				.then(reject)
-				.catch(err => {
-					err.message.should.equal('article must be a Object');
-					resolve();
-				})
+					.then(reject)
+					.catch(err => {
+						err.message.should.equal('article must be a Object');
+						resolve();
+					})
 			})
 		);
 		Promise.all(promises)
 			.then(result => done())
 			.catch(err => { throw err })
 	})
-	it('如果有 content 选项则必须显式地声明 contentType', done => {
-		libArticle.mod(insertedId, {content: '# markdown title'})
-		.then(result => libArticle.topic())
-		.then(topic => {
-			should(topic._id.toString()).equal(insertedId);
-			should(topic.content).is.not.equal('# markdown title');
-			done();
-		})
-		.catch(err => { throw err });
-	})
-	it('contentType 输入时同时也进行了格式化', done => {
-		libArticle.mod(insertedId, {contentType: 'text'})
-		.then(result => libArticle.topic())
-		.then(topic => {
-			should(topic._id.toString()).equal(insertedId);
-			should(topic.format).is.not.match(/\<h1\>title\<\/h1\>/);
-			done();
-		})
-		.catch(err => { throw err });
-	})
-	it('标题项', done => {
-		libArticle.mod(insertedId, {title: 'a'})
-			.then(result => libArticle.topic())
-			.then(topic => {
-				should(topic._id.toString()).equal(insertedId)
-				topic.title.should.equal('a')
-				done()
+	it('如果有 content 选项则必须显式地声明 contentType，否则将忽略 content', done => {
+		let insertedId;
+		libArticle.insert({content: '# title'})
+			.then(result => { insertedId = result._id.toString() })
+			.then(() => libArticle.mod(insertedId, {content: '# newTitle'}))
+			.then(() => libArticle.get(insertedId))
+			.then(result => {
+				should(result._id.toString()).equal(insertedId)
+				should(result.content).equal('# title');
+				done();
 			})
-			.catch(err => { throw err })
+			.catch(err => { console.error(err); throw err });
+	})
+
+	it('contentType 输入时同时也进行了格式化', done => {
+		let insertedId;
+		libArticle.insert({content: '# title', contentType: 'markdown'})
+			.then(result => { insertedId = result._id.toString() })
+			.then(() => libArticle.mod(insertedId, {contentType: 'text'}))
+			.then(() => libArticle.get(insertedId))
+			.then(result => {
+				should(result._id.toString()).equal(insertedId)
+				should(result.format).is.not.match(/\<h1\>/);
+				done();
+			})
+			.catch(err => { console.error(err); throw err });
+	})
+
+	it('标题项', done => {
+		let insertedId;
+		libArticle.insert({title: 'sourceTitle', content: '# title', contentType: 'markdown'})
+			.then(result => { insertedId = result._id.toString() })
+			.then(() => libArticle.mod(insertedId, {title: 'newTitle'}))
+			.then(() => libArticle.get(insertedId))
+			.then(result => {
+				should(result._id.toString()).equal(insertedId)
+				result.title.should.not.equal('sourceTitle')
+				result.title.should.equal('newTitle')
+				done();
+			})
+			.catch(err => { console.error(err); throw err });
 	})
 	it('标签项', done => {
-		libArticle.mod(insertedId, {tags: ['markdown', 'format', 'newTag']})
-			.then(result => libArticle.topic())
-			.then(topic => {
-				should(topic._id.toString()).equal(insertedId)
-				topic.tags.should.length(3);
+		let insertedId;
+		libArticle.insert({title: 'sourceTitle', content: '# title', contentType: 'markdown'})
+			.then(result => { insertedId = result._id.toString() })
+			.then(() => libArticle.mod(insertedId, {tags: ['markdown', 'format', 'newTag']}))
+			.then(() => libArticle.get(insertedId))
+			.then(result => {
+				should(result._id.toString()).equal(insertedId)
 
-				['markdown', 'format', 'newTag'].forEach(exceptTag => {
-					topic.tags.should.containEql(exceptTag);
+				result.tags.should.length(3);
+
+				const exceptArr = ['markdown', 'format', 'newTag'];
+				exceptArr.forEach((exceptTag, cursor) => {
+					result.tags[cursor].should.equal(exceptTag)
 				});
-
-				done()
 			})
-			.catch(err => { throw err })
+			.then(() => done())
+			.catch(err => { console.error(err); throw err });
 	})
 })
 
-describe('countArticle', function () {
-	it('count all articles', done => {
-		libArticle.count()
-		.then(result => {
-			should(result).equal(2);
-			done();
-		})
-		.catch(err => { throw err });
+describe('countArticle', function (allDone) {
+	it('count all articles', function (done) {
+		model.removeCollection('articles')
+			.then(removeResult => libArticle.insert({}))
+			.then(insertResult => libArticle.insert({tags: ['markdown', 'format']}))
+			.then(insertResult => libArticle.count())
+			.then(count => {
+				should(count).equal(2);
+				done();
+			})
+			.catch(err => { console.error(err); throw err });
 	});
-	it('count articles by tag', done => {
-		libArticle.count(['markdown', 'format'])
-		.then(result => {
-			should(result).equal(1);
-			done();
-		})
-		.catch(err => { throw err })
+	it('count empty tag', function (done) {
+		this.timeout(5000);
+		model.removeCollection('articles')
+			.then(removeResult => libArticle.insert({}))
+			.then(insertResult => libArticle.insert({tags: ['markdown', 'format']}))
+			.then(insertResult => libArticle.insert({tags: ['otherTag', 'tttqqq']}))
+			.then(insertResult => libArticle.insert({tags: ['oneTag']}))
+			.then(insertResult => libArticle.count([]))
+			.then(count => {
+				should(count).equal(1);
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
+	})
+	it('count articles by tag', function (done) {
+		libArticle.count(['otherTag'])
+			.then(count => {
+				should(count).equal(1);
+			})
+			.then(() => done())
+			.catch(err => { console.error(err); throw err })
 	})
 });
-
 describe('del article', function () {
-	it('参数不是数组的时候应该返回 Promise.catch', done => {
+	it('参数不是数组的时候应该是一个 Promise reject', done => {
 		const values = [{}, null, NaN, 99, 9.9, true, undefined, 'string', function () {}];
 		const promises = values.map(value => new Promise((resolve, reject) => {
 			libArticle.del(value)
@@ -260,6 +309,7 @@ describe('del article', function () {
 			.then(result => done())
 			.catch(err => { throw err });
 	})
+
 	it('批量删除文章', done => {
 		const ids = [];
 		let initalCount;
@@ -280,23 +330,33 @@ describe('del article', function () {
 
 describe('get article', function () {
 	it('必须要有主键', () => {
-		should(() => libArticle.get()).throw('need id');
+		libArticle.get()
+			.then(result => { console.error(result) })
+			.catch(err => { err.message.should.equal('need id'); done() })
 	})
-
 	it('不存在的文章', done => {
-		libArticle.get(insertedId)
-		.then(result => {
-			should(result._id.toString()).equal(insertedId);
-			done();
-		})
-		.catch(err => { throw err })
+		let insertedId;
+		libArticle.insert({})
+			.then(result => insertedId = result._id.toString())
+			.then(() => libArticle.del([insertedId]))
+			.then(() => libArticle.get(insertedId))
+			.then(result => {
+				should(result).equal(null);
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
 	})
 	it('获取单个文章', done => {
-		libArticle.get(insertedId)
-		.then(result => {
-			should(result._id.toString()).equal(insertedId);
-			done();
-		})
-		.catch(err => { throw err })
+		let insertedId;
+		libArticle.insert({title: '阿妹你看，上帝压狗'})
+			.then(result => insertedId = result._id.toString())
+			.then(() => libArticle.get(insertedId))
+			.then(result => {
+				should(result).is.an.Object();
+				should(result._id.toString()).equal(insertedId);
+				should(result.title).equal('阿妹你看，上帝压狗')
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
 	})
 })
