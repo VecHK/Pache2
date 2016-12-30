@@ -4,8 +4,6 @@ const article = require('../../lib/article');
 
 const router = express.Router();
 
-const sendJson = function (obj) { this.end(JSON.stringify(obj)) };
-
 router.get('/topic', (req, res) => {
 	article.topic()
 		.then(result => res.json({
