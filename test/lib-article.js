@@ -141,6 +141,19 @@ describe('insertArticle', function () {
 			done()
 		})
 		.catch(err => { throw err })
+	});
+	it('插入项中的 tags 不是一个数组，则将其转换为数组，并将原项目作为数组的第一项', done => {
+		let testItem;
+		libArticle.insert({title: 'test', tags: 'test'})
+			.then(result => testItem = result)
+			.then(() => {
+				should(testItem.title).equal('test');
+				should(testItem.tags).is.an.Array();
+				should(testItem.tags).length(1);
+				should(testItem.tags[0]).equal('test');
+			})
+			.then(() => done())
+			.catch(err => { console.error(err); throw err })
 	})
 	it('insert markdown article', done => {
 		libArticle.insert({content: '# title', contentType: 'markdown', tags: ['markdown', 'format']})
@@ -208,7 +221,20 @@ describe('modify article', function () {
 				should(result.content).equal('# title');
 				done();
 			})
-			.catch(err => { console.error(err); throw err });
+			.catch(err => { console.error(err); throw err })
+	})
+	it('更新 markdown', done => {
+		let insertedId;
+		libArticle.insert({content: '# old'})
+			.then(result => { insertedId = result._id.toString() })
+			.then(() => libArticle.mod(insertedId, {content: '# newTitle', contentType: 'markdown'}))
+			.then(() => libArticle.get(insertedId))
+			.then(result => {
+				should(result._id.toString()).equal(insertedId)
+				should(result.content).equal('# newTitle');
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
 	})
 
 	it('contentType 输入时同时也进行了格式化', done => {
@@ -254,6 +280,22 @@ describe('modify article', function () {
 				exceptArr.forEach((exceptTag, cursor) => {
 					result.tags[cursor].should.equal(exceptTag)
 				});
+			})
+			.then(() => done())
+			.catch(err => { console.error(err); throw err });
+	})
+	it('标签项不是数组', done => {
+		let insertedId;
+		libArticle.insert({title: 'sourceTitle', content: '# title', contentType: 'markdown'})
+			.then(result => { insertedId = result._id.toString() })
+			.then(() => libArticle.mod(insertedId, {tags: 'no-array'}))
+			.then(() => libArticle.get(insertedId))
+			.then(result => {
+				should(result._id.toString()).equal(insertedId)
+
+				should(result.tags).is.an.Array();
+				should(result.tags).length(1);
+				should(result.tags[0]).equal('no-array');
 			})
 			.then(() => done())
 			.catch(err => { console.error(err); throw err });
@@ -309,23 +351,6 @@ describe('countArticle', function (allDone) {
 	})
 });
 describe('remove article', function () {
-	/*
-	it('参数不是数组的时候应该是一个 Promise reject', done => {
-		const values = [{}, null, NaN, 99, 9.9, true, undefined, 'string', function () {}];
-		const promises = values.map(value => new Promise((resolve, reject) => {
-			libArticle.del(value)
-				.then(result => reject(result))
-				.catch(err => {
-					err.message.should.equal('ids is no Array');
-					resolve();
-				})
-		}))
-		Promise.all(promises)
-			.then(result => done())
-			.catch(err => { throw err });
-	})
-	*/
-
 	it('批量删除文章', done => {
 		const ids = [];
 		let initalCount;
