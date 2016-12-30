@@ -117,8 +117,7 @@ describe('front-article', () => {
 	});
 
 	it('article nofound', done => {
-		request(app).get('/article/585fff4ac93d301dbc39732c').end(function (err, res) {
-			res.status.should.equal(404);
+		request(app).get('/article/585fff4ac93d301dbc39732c').expect(404, function (err, res) {
 			done();
 		});
 	})
