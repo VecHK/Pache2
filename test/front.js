@@ -82,13 +82,36 @@ describe('front-list', function () {
 			contentType: 'markdown',
 			tags: ['Programming'],
 		}).then(result => {
-			request(app).get('/tag/Programming').expect(200, (err, res) => {
+			request(app).get('/tag/Programming').end((err, res) => {
 				if (err) { throw err }
+				res.status.should.equal(200);
 				res.text.should.containEql(result.title)
 				done()
 			})
 		}).catch(err => {
+			console.error(err);
 			throw err;
+		})
+	})
+
+	it('error test', done => {
+		const app = express();
+		let globalReq = null;
+		app.use((req, res, next) => {
+			globalReq = req;
+			Object.defineProperty(req, 'pagecode', {
+				get(){return 'a'},
+				set(){},
+			})
+			next();
+		});
+		app.use('/', require('../app'));
+
+		request(app).get('/2').end((err, res) => {
+			if (err) { throw err }
+			console.log(res.text);
+			should(res.status).equal(500);
+			done();
 		})
 	})
 });
@@ -117,9 +140,16 @@ describe('front-article', () => {
 	});
 
 	it('article nofound', done => {
-		request(app).get('/article/585fff4ac93d301dbc39732c').expect(404, function (err, res) {
+		request(app).get('/article/585fff4ac93d301dbc39732c').end(function (err, res) {
+			should(res.status).equal(404);
 			done();
 		});
+	})
+	it('非法 article id', done => {
+		request(app).get('/article/585zzzzzc93d30').end(function (err, res) {
+			should(res.status).equal(404);
+			done();
+		})
 	})
 
 });

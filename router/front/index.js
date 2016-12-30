@@ -4,7 +4,7 @@ const article = require('../../lib/article');
 const router = express.Router();
 module.exports = router;
 
-const has = (obj, ...keys) => keys.every(checkey => Object.keys(obj).some(objkey => objkey === checkey));
+//const has = (obj, ...keys) => keys.every(checkey => Object.keys(obj).some(objkey => objkey === checkey));
 
 router.get('/article/:articleid', (req, res, next) => {
 	req.articleid = req.params.articleid;
@@ -61,10 +61,8 @@ const render = (req, res, next) => {
 		tagCon = req.tags;
 	}
 	article.getlist(req.pagecode, tagCon)
-		.then(listResult => {
-			list = listResult;
-			return article.count(tagCon);
-		})
+		.then(listResult => list = listResult)
+		.then(() => article.count(tagCon))
 		.then(count => {
 			res.render('home', {
 				code: 0,
@@ -75,23 +73,17 @@ const render = (req, res, next) => {
 				count,
 				list,
 			});
-			}, err => {
-				console.error(err);
-				res.json({
-					code: 2
-			})
 		})
 		.catch(err => {
-			console.error(err);
-			res.json({
-				code: 1
-			})
+			let pacheError = new Error('pache error');
+			pacheError.source = err;
+			next(pacheError);
 		});
 };
 
 router.get('/', (req, res, next) => {
 	req.pagecode = 1;
-	render(req, res, next);
+	next();
 });
 router.get('/*', (req, res, next) => {
 	if (req.pagecode) {
@@ -100,3 +92,18 @@ router.get('/*', (req, res, next) => {
 		next();
 	}
 });
+
+router.use(function (err, req, res, next) {
+	if (err instanceof Error) {
+		res.status(500);
+		res.render('pache-error', {
+			err,
+			title: 'Pache 500',
+			articleTitle: '错误',
+			message: 'Pache 内部出现了偏差，你要负责',
+			recommendTags: envir.recommend_tags
+		})
+	} else {
+		next();
+	}
+})
