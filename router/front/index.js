@@ -11,11 +11,10 @@ router.get('/article/:articleid', (req, res, next) => {
 	next();
 });
 router.get('/article/*', (req, res, next) => {
-	res.status(404);
 	article.get(req.articleid)
 		.then(article => {
 			if (article === null) {
-				throw new Error('article nofound');
+				return Promise.reject(new Error('article nofound'))
 			}
 			res.render('article', {
 				article,

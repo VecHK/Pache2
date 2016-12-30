@@ -107,7 +107,7 @@ describe('front-article', () => {
 		libArticle.insert({
 			title: '测试的标题',
 		}).then(result => new Promise((resolve, reject) => {
-			request(app).get(`/article/${result._id.toString()}`).end((err, res) => {
+			request(app).get(`/article/${result._id.toString()}`).expect(200, (err, res) => {
 				if (err) { throw err }
 				res.text.should.containEql('测试的标题');
 				inserted = result;
