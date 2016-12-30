@@ -67,23 +67,26 @@ ArticleSchema.pre('update', function (next) {
 
 	set.mod = new Date;
 
-	/* 如果有 content 项，则同时需要显式地声明了 contentType 项 */
-	if (set.hasOwnProperty('content') && set.hasOwnProperty('contentType')) {
-		contentFormat.apply(set);
-		next();
-	} else if (set.hasOwnProperty('contentType')) {
-		this.findOne({_id: this._conditions._id}).exec()
-			.then(result => {
+	this.findOne({_id: this._conditions._id}).exec()
+		.then(result => {
+			if (result === null) {
+				const err = new Error('article no found');
+				err.status = 404;
+				throw err
+			}
+			/* 如果有 content 项，则同时需要显式地声明了 contentType 项 */
+			else if (set.hasOwnProperty('content') && set.hasOwnProperty('contentType')) {
+				contentFormat.apply(set);
+			} else if (set.hasOwnProperty('contentType')) {
 				set.content = result.content;
 				contentFormat.apply(set);
-				next();
-			})
-			.catch(err => { throw err });
-	} else {
-		delete set.contentType;
-		delete set.content;
-		next();
-	}
+			} else {
+				delete set.contentType;
+				delete set.content;
+			}
+			next();
+		})
+		.catch(err => { next(err) })
 });
 
 mongoose.model('Article', ArticleSchema);

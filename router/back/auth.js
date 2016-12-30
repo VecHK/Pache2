@@ -4,6 +4,10 @@ const utils = require('utility');
 const randomString = require('../../lib/random-string');
 const router = express.Router();
 
+const bodyParser = require('body-parser');
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: false }));
+
 const auth = (randomString, truePw, authCode) => {
 	console.log(`soup: ${utils.md5(randomString + truePw)}\ntrup: ${authCode}`);
 	return authCode === utils.md5(randomString + truePw);

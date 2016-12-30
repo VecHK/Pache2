@@ -4,18 +4,26 @@ const article = require('../../lib/article');
 
 const router = express.Router();
 
+const bodyParser = require('body-parser');
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: false }));
+
 router.get('/topic', (req, res) => {
 	article.topic()
-		.then(result => res.json({
-			code: 0,
-			msg: 'ok',
-			result,
-		}))
+		.then(result => {
+			if (result === null) { res.status(404) }
+			res.json({
+				code: 0,
+				msg: 'ok',
+				result,
+			})
+		})
 		.catch(err => {
 			console.error(err);
+			res.status(err.status || 500);
 			res.json({
 				code: 1,
-				msg: fail,
+				msg: err.message,
 				err,
 			})
 		})
@@ -28,28 +36,44 @@ router.post('/article', (req, res) => {
 			msg: 'ok',
 			result,
 		}))
-		.catch(err => res.json({
-			code: 1,
-			msg: 'fail',
-			err,
-		}))
+		.catch(function (err) {
+			console.error(err);
+			res.status(err.status || 500);
+			res.json({
+				code: 1,
+				msg: err.message,
+				err,
+			});
+		})
 });
 
 router.delete('/articles', (req, res) => {
-	let idArr = Array.isArray(req.body.ids) ? req.body.ids : [req.body.ids];
-	article.del(idArr)
+	const checkIds = new Promise((resolve, reject) => {
+		if (req.body.hasOwnProperty('ids')) {
+			resolve();
+		} else {
+			const err = new Error('no ids');
+			err.status = 400;
+			reject(err);
+		}
+	});
+	checkIds
+		.then(() => article.del(req.body.ids))
 		.then(result => res.json({
 			code: 0,
 			msg: 'ok',
 			result,
 		}))
-		.catch(err => res.json({
-			code: 1,
-			msg: 'fail',
-			err: {
-				message: err.message,
-			}
-		}))
+		.catch(err => {
+			res.status(err.status || 500);
+			res.json({
+				code: 1,
+				msg: err.message,
+				err: {
+					message: err.message,
+				}
+			})
+		})
 });
 
 router.patch('/article/:id', (req, res) => {
@@ -59,13 +83,16 @@ router.patch('/article/:id', (req, res) => {
 			msg: 'ok',
 			result,
 		}))
-		.catch(err => res.json({
-			code: 1,
-			msg: 'fail',
-			err: {
-				message: err.message,
-			}
-		}))
+		.catch(function (err) {
+			res.status(err.status || 500);
+			res.json({
+				code: 1,
+				msg: err.message,
+				err: {
+					message: err.message,
+				}
+			})
+		})
 })
 
 router.use('/articles/:pagecode', (req, res, next) => {
@@ -98,16 +125,14 @@ router.get(['/articles/*', '/articles/'], (req, res, next) => {
 				limit: envir.limit,
 				list,
 			})
-		}, err => {
-			console.error(err);
-			res.json({
-				code: 2
-			})
 		})
 		.catch(err => {
 			console.error(err);
+			res.status(err.status || 500);
 			res.json({
-				code: 1
+				code: 1,
+				msg: err.message,
+				err: err,
 			})
 		})
 });
@@ -124,10 +149,10 @@ router.get('/article/*', (req, res, next) => {
 			result,
 		}))
 		.catch(err => {
-			res.status(404)
+			res.status(err.status || 500)
 			res.json({
 				code: 1,
-				msg: 'fail',
+				msg: err.message,
 				err: {
 					message: err.message,
 				},

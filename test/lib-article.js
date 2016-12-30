@@ -1,3 +1,4 @@
+const utils = require('utility');
 const envir = require('../envir');
 const TEST_DB = 'pache_test';
 envir.db = `mongodb://127.0.0.1:27017/${TEST_DB}`;
@@ -257,6 +258,19 @@ describe('modify article', function () {
 			.then(() => done())
 			.catch(err => { console.error(err); throw err });
 	})
+	it('非法的文章 id', done => {
+		libArticle.mod('wiwoiuroi', {title: 'new'})
+			.catch(err => {
+				done();
+			})
+	})
+	it('修改不存在的文章', done => {
+		libArticle.mod(utils.md5('不存在的文章id').slice(0, 24), {title: 'new'})
+			.catch(err => {
+				should(err.message).equal('article no found');
+				done();
+			})
+	})
 })
 
 describe('countArticle', function (allDone) {
@@ -294,7 +308,8 @@ describe('countArticle', function (allDone) {
 			.catch(err => { console.error(err); throw err })
 	})
 });
-describe('del article', function () {
+describe('remove article', function () {
+	/*
 	it('参数不是数组的时候应该是一个 Promise reject', done => {
 		const values = [{}, null, NaN, 99, 9.9, true, undefined, 'string', function () {}];
 		const promises = values.map(value => new Promise((resolve, reject) => {
@@ -309,6 +324,7 @@ describe('del article', function () {
 			.then(result => done())
 			.catch(err => { throw err });
 	})
+	*/
 
 	it('批量删除文章', done => {
 		const ids = [];
@@ -325,7 +341,27 @@ describe('del article', function () {
 				count.should.equal(initalCount);
 				done();
 			})
-			.catch(err => { throw err })
+			.catch(err => { console.error(err); throw err })
+	})
+	it('传入的 ids 不是数组，则为删除单篇文章', done => {
+		let id = null;
+		libArticle.insert({})
+			.then(result => id = result._id.toString())
+			.then(() => libArticle.del(id))
+			.then(result => {
+				should(result.result.n).equal(1);
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
+	})
+
+	it('删除一个不存在的文章', done => {
+		libArticle.del([utils.md5('不存在的啦').slice(0, 24)])
+			.then(result => {
+				should(result.result.n).equal(0)
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
 	})
 })
 

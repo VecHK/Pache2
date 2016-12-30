@@ -7,7 +7,6 @@ const logger = require('morgan');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const bodyParser = require('body-parser');
 
 const RedisStore = require('connect-redis')(session);
 const redis = require('redis');
@@ -24,9 +23,6 @@ app.set('view engine', 'ejs');
 app.use('/', router_front);
 
 //-----------------后台-----------------
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 
 let redisHandle = new RedisStore({
 	client: redis.createClient(6379, '127.0.0.1'),
