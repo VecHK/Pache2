@@ -41,14 +41,7 @@ const contentFormat = function () {
 ArticleSchema.pre('save', function (next) {
 	contentFormat.apply(this);
 
-	if (this.hasOwnProperty('tags') && !Array.isArray(this.tags)) {
-		this.tags = [ set.tags ];
-	}
 	this.tags = this.tags.filter(tag => tag.length)
-
-	if (!this.title.length) {
-		this.title = '(无标题)';
-	}
 
 	let now = new Date;
 	this.mod = now;
