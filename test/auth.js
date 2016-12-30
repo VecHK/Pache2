@@ -11,9 +11,14 @@ describe('auth', () => {
 	let globalReq = null;
 	app.use('/', (req, res, next) => {
 		globalReq = req;
+		req.auth_status = false;
 		next();
 	});
 	app.use(require('../app'));
+	app.get('/admin/auth_status_test', (req, res) => {
+		req.auth_status = true;
+		res.end('auth_status_test');
+	});
 
 	it('authed should be false', done => {
 		request(app).get('/admin/authed').end((err, res) => {
@@ -47,15 +52,24 @@ describe('auth', () => {
 		});
 	});
 
+	it('bad pass auth', done => {
+		request(app)
+			.post('/admin/auth')
+			.set('Cookie', cookie)
+			.send({ pass: utils.md5(randomCode + envir.pass + 'badPass') })
+			.expect(403, function (err, res) {
+				done();
+			});
+	})
+
 	it('pass auth', (done) => {
 		request(app)
-		.post('/admin/auth')
-		.set('Cookie', cookie)
-		.send({ pass: utils.md5(randomCode + envir.pass) })
-		.end(function (err, res) {
-			res.status.should.equal(200);
-			done();
-		});
+			.post('/admin/auth')
+			.set('Cookie', cookie)
+			.send({ pass: utils.md5(randomCode + envir.pass) })
+			.expect(200, function (err, res) {
+				done();
+			});
 	});
 
 	it('authed should be true', done => {
@@ -66,6 +80,24 @@ describe('auth', () => {
 			JSON.parse(res.text).should.equal(true);
 			done();
 		})
+	})
+
+	it('auth status should be false', done => {
+		request(app)
+			.get('/admin/auth_status_test')
+			.expect(403, (err, res) => {
+				should(globalReq.auth_status).equal(false);
+				done();
+			})
+	})
+	it('auth status should be true', done => {
+		request(app)
+			.get('/admin/auth_status_test')
+			.set('Cookie', cookie)
+			.expect(200, (err, res) => {
+				should(globalReq.auth_status).equal(true);
+				done();
+			})
 	})
 
 	it('getRandom after need login', (done) => {
@@ -84,23 +116,24 @@ describe('auth', () => {
 			})
 		})
 	});
+
 	it('login out', (done) => {
 		request(app)
-		.post('/admin/auth')
-		.set('Cookie', cookie)
-		.send({ pass: utils.md5(randomCode + envir.pass) })
-		.end(function (err, res) {
-			res.status.should.equal(200);
-
-			request(app)
-			.get('/admin/logout')
+			.post('/admin/auth')
 			.set('Cookie', cookie)
-			.end((err, res) => {
+			.send({ pass: utils.md5(randomCode + envir.pass) })
+			.end(function (err, res) {
 				res.status.should.equal(200);
 
-				globalReq.session.should.not.have.property('user');
-				done();
+				request(app)
+				.get('/admin/logout')
+				.set('Cookie', cookie)
+				.end((err, res) => {
+					res.status.should.equal(200);
+
+					globalReq.session.should.not.have.property('user');
+					done();
+				});
 			});
-		});
 	});
 })

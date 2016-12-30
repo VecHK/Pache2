@@ -1,12 +1,8 @@
 const express = require('express');
 const envir = require('../../envir');
 const utils = require('utility');
+const randomString = require('../../lib/random-string');
 const router = express.Router();
-
-const trueOrFalse = () => Math.round(Math.random()),
-	backCode = () => 65 + Math.floor(Math.random() * 25),
-	randomChar = (lower = 0) => String.fromCharCode(backCode() + (lower && 32)),
-	randomString = (length, lower = 0) => randomChar(lower && trueOrFalse()) + (--length ? randomString(length, lower && trueOrFalse()) : '');
 
 const auth = (randomString, truePw, authCode) => {
 	console.log(`soup: ${utils.md5(randomString + truePw)}\ntrup: ${authCode}`);
