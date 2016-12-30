@@ -94,16 +94,12 @@ router.get('/*', (req, res, next) => {
 });
 
 router.use(function (err, req, res, next) {
-	if (err instanceof Error) {
-		res.status(500);
-		res.render('pache-error', {
-			err,
-			title: 'Pache 500',
-			articleTitle: '错误',
-			message: 'Pache 内部出现了偏差，你要负责',
-			recommendTags: envir.recommend_tags
-		})
-	} else {
-		next();
-	}
+	res.status(err.status || 500);
+	res.render('pache-error', {
+		err,
+		title: 'Pache 500',
+		articleTitle: '错误',
+		message: 'Pache 内部出现了偏差，你要负责',
+		recommendTags: envir.recommend_tags
+	})
 })

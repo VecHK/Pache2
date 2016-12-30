@@ -109,7 +109,6 @@ describe('front-list', function () {
 
 		request(app).get('/2').end((err, res) => {
 			if (err) { throw err }
-			console.log(res.text);
 			should(res.status).equal(500);
 			done();
 		})
@@ -153,3 +152,20 @@ describe('front-article', () => {
 	})
 
 });
+
+describe('front', allDone => {
+	const app = express();
+	let globalReq = null;
+	app.use('/', (req, res, next) => {
+		globalReq = req;
+		next();
+	});
+	app.use('/', require('../app'));
+	it('404', done => {
+		request(app).get('/dnnnnnnnnnnnnnnnnnnnn').end((err, res) => {
+			if (err) { throw err }
+			should(res.status).equal(404);
+			done();
+		})
+	})
+})
