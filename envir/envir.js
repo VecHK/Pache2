@@ -7,7 +7,7 @@ const package = require('../package');
 const envir = {
 	version: package.version,
 	CONFIG_PATH: './config.suc',
-	reLoad(){
+	reload(){
 		try {
 			Object.assign(this, suc.parse(
 				fs.readFileSync(path.join(__dirname, '../', this.CONFIG_PATH)).toString()
@@ -19,6 +19,6 @@ const envir = {
 	},
 };
 
-envir.reLoad();
+envir.reload();
 
 module.exports = envir;
