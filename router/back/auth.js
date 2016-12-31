@@ -52,7 +52,7 @@ router.post('/auth', (req, res, next) => {
 		res.status(200);
 		res.end('ok');
 	} else {
-		res.status(403);
+		res.status(401);
 		res.end('fail');
 	}
 });
@@ -61,7 +61,7 @@ router.use((req, res, next) => {
 	if (req.session.user) {
 		next();
 	} else {
-		res.status(403);
+		res.status(401);
 		res.end('need login');
 	}
 });

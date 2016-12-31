@@ -57,9 +57,10 @@ describe('auth', () => {
 			.post('/admin/auth')
 			.set('Cookie', cookie)
 			.send({ pass: utils.md5(randomCode + envir.pass + 'badPass') })
-			.expect(403, function (err, res) {
+			.then(res => {
+				res.status.should.equal(401);
 				done();
-			});
+			})
 	})
 
 	it('pass auth', (done) => {
@@ -85,7 +86,8 @@ describe('auth', () => {
 	it('auth status should be false', done => {
 		request(app)
 			.get('/admin/auth_status_test')
-			.expect(403, (err, res) => {
+			.then(res => {
+				should(res.status).equal(401);
 				should(globalReq.auth_status).equal(false);
 				done();
 			})
