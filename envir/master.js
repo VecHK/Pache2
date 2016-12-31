@@ -8,14 +8,6 @@ const envir = require('./envir')
 
 const getPool = [];
 Object.assign(exports, envir, {
-	setEnvir(workers) {
-		for (let cursor = 0; cursor < workers.length; ++cursor) {
-			workers[cursor].send({
-				type: 'envir',
-				envir,
-			});
-		}
-	},
 	get(propertyName, cb){
 		cb(envir[propertyName]);
 	}
