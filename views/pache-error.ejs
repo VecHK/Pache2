@@ -15,15 +15,7 @@
 	<link rel="stylesheet" href="/style/article.css" />
 </head>
 <body>
-	<header>
-		<div class="local error">Error</div>
-		<div class="tags">
-			<% recommendTags.forEach(tag => { %>
-				<a href="/tag/<%= tag %>"><%= tag %></a>
-			<% }) %>
-		</div>
-		</div>
-	</header>
+	<% include public/pae-header %>
 	<div class="title">
 		<% try { %>
 			<%= articleTitle %>

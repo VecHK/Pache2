@@ -22,6 +22,7 @@ body > .list {
 
 .list > li {
 	margin: 1.5em 0;
+	text-align: center;
 }
 body > .list:first-child {
 	margin-top: 0;
@@ -41,6 +42,16 @@ body > .list:first-child {
 
 .pagecode {
 	margin: 2em 0.5em;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	align-items: center;
+
+	display: -webkit-flex;
+	-webkit-justify-content: center;
+	-webkit-align-content: center;
+	-webkit-align-items: center;
+
 	> * {
 		margin: 0px 4px;
 		width: 20px;
@@ -56,5 +67,7 @@ body > .list:first-child {
 }
 footer {
 	font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
-	margin: 1em 0.5em;
+	margin: 1em 1.75em;
+	color: #777;
+	font-weight: 300;
 }
