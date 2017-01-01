@@ -66,8 +66,18 @@ body > .list:first-child {
 	}
 }
 footer {
-	font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+	width: 640px;
 	margin: 1em 1.75em;
+
 	color: #777;
 	font-weight: 300;
+	font-family: ISOCPEUR, "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+
+	address::before {
+		content: '——';
+	}
+	address {
+		font-size: 12px;
+		font-family: Arial, 黑体, 宋体;
+	}
 }
