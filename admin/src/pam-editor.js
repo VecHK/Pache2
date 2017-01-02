@@ -5,16 +5,17 @@ class AutoTextArea extends PamEventEmitter {
 			fill.textContent = textarea.value + ' ';
 
 			/* 如果按下回车，并且编辑器高度比 body 大的时候，跳到底部 */
-			if (e.keyCode === 13 && fill.offsetHeight > document.body.offsetHeight) {
-				window.scrollTo(document.body, document.body.scrollHeight)
+			if (
+				e.keyCode === 13 &&
+				(document.body.scrollHeight - document.body.offsetHeihgt) >= document.body.scrollTop - 100
+			) {
+				//window.scrollTo(document.body, scrollh);
 			}
 		} else {
 			fill.innerText = textarea.value;
 		}
 		/* 多加 32，这样不会在末行按回车的时候闪烁了 */
 		textarea.style.height = fill.offsetHeight + 32 + 'px';
-
-
 	}
 	resize(e={}){
 		this.emit('resize', e, this);
