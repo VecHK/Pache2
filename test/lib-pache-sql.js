@@ -18,8 +18,8 @@ describe('PacheSQL', function () {
 
 		sql.connect()
 			.then(() => sql.query(`CREATE DATABASE \`pache_test_db\``))
-			.then((row, fields) => done())
-			.catch(err => { done() })
+			.then((row, fields) => { sql.disconnect(); done() })
+			.catch(err => { sql.disconnect(); done() })
 
 		Object.assign(SQLInfomation, { database: TEST_DB })
 	})
@@ -30,11 +30,12 @@ describe('PacheSQL', function () {
 			.then(() => done())
 			.catch(err => { console.error(err); throw err })
 	})
-	it('Connect Fail', done => {
-		const sql = new PacheSQL({ host: 'localhost', port: 9988, user: 'abc', password: '777', database: '不可能存在的数据库' })
+	it('Connect Fail', function (done) {
+		this.timeout(5000);
+		const sql = new PacheSQL({ host: 'localhost', port: 3306, user: 'abc', password: '777', database: '不可能存在的数据库' })
 		sql.connect()
 			.then(() => { console.log('不可能到这里的，常考') })
-			.catch(err => { done() })
+			.catch(err => { console.warn(err); done() })
 	})
 	it('Disconnect', done => {
 		const sql = new PacheSQL(SQLInfomation)

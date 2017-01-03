@@ -12,31 +12,6 @@ const model = require('../model');
 
 const should = require('should');
 
-const JsonHandle = function (fn) {
-	return function (err, res) {
-		if (err) { throw err }
-		let obj = JSON.parse(res.text);
-		fn(obj, res);
-	};
-};
-const thunkTestJson = function (app) {
-	return function (url, data) {
-		return new Promise((resolve, reject) => {
-			let requestObj = request(app);
-			if (data) {
-				requestObj = requestObj.post(url).send(data)
-			} else {
-				requestObj = requestObj.get(url)
-			}
-			requestObj.end((err, res) => {
-				if (err) { return reject(err) }
-				console.log(res.text);
-				res.json = JSON.parse(res.text);
-				resolve(res);
-			})
-		});
-	};
-};
 const app = express();
 let globalReq = null;
 app.use('/', (req, res, next) => {
@@ -44,8 +19,6 @@ app.use('/', (req, res, next) => {
 	next();
 });
 app.use('/', require('../router/back/api'));
-
-let testJson = thunkTestJson(app);
 
 const JsonMiddle = res => {
 	res.json = JSON.parse(res.text);
@@ -57,7 +30,8 @@ describe('GET /topic', () => {
 		let article = null;
 		libArticle.insert({title: 'topicTitle'})
 			.then(result => article = result)
-			.then(() => testJson('/topic'))
+			.then(() => request(app).get('/topic'))
+			.then(JsonMiddle)
 			.then(res => {
 				should(res.status).equal(200);
 				should(res.json.result._id.toString()).equal(article._id.toString());
@@ -66,9 +40,10 @@ describe('GET /topic', () => {
 			.then(() => done())
 			.catch(err => { console.error(err); throw err })
 	});
-	it('empty topic', done => {
+	it('empty topic', function (done) {
 		model.removeCollection('articles')
-			.then(() => testJson('/topic'))
+			.then(() => request(app).get('/topic'))
+			.then(JsonMiddle)
 			.then(res => {
 				should(res.status).equal(404)
 				should(res.json.result).equal(null)
@@ -83,7 +58,8 @@ describe('GET /topic', () => {
 			err.stack = '';
 			reject(err);
 		})};
-		testJson('/topic')
+		request(app).get('/topic')
+			.then(JsonMiddle)
 			.then(res => {
 				should(res.status).equal(500)
 				should(res.json.code).is.not.equal(0)
