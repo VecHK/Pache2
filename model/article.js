@@ -30,11 +30,16 @@ const ArticleSchema = new Schema({
 });
 
 const contentFormat = function () {
+	this.contentType = this.contentType.toLowerCase();
+
 	if (this.contentType === 'markdown') {
 		this.format = md.render(this.content);
-	} else {
-		/* 转 Text */
+	} else if (this.contentType === 'text') {
 		this.format = `<pre><code>${entities.encode(this.content)}</code></pre>`;
+	} else if (this.contentType === 'html') {
+		this.format = this.content;
+	} else {
+		this.format = 'unknown contentType';
 	}
 };
 
@@ -42,9 +47,6 @@ ArticleSchema.pre('save', function (next) {
 	contentFormat.apply(this);
 
 	this.tags = this.tags.filter(tag => tag.length)
-
-	let now = new Date;
-	this.mod = now;
 
 	next();
 });

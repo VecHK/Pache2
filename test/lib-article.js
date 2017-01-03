@@ -155,13 +155,50 @@ describe('insertArticle', function () {
 			.then(() => done())
 			.catch(err => { console.error(err); throw err })
 	})
-	it('insert markdown article', done => {
+	it('插入后的 contentType 一定是小写的', done => {
+		libArticle.insert({content: '<h2>title</h2>', contentType: 'tExT'})
+			.then(result => {
+				should(result.contentType).equal('text');
+				done();
+			})
+			.catch(err => { console.error(err); throw err})
+	})
+	it('insert unknown type article', done => {
+		libArticle.insert({content: '<h2>title</h2>', contentType: 'uuuuuuuu'})
+			.then(result => {
+				should(result.format).containEql('unknown')
+				should(result.format).containEql('contentType')
+				done();
+			})
+			.catch(err => { console.error(err); throw err})
+	})
+	it('insert HTML type article', done => {
+		libArticle.insert({content: '<h2>title</h2>', contentType: 'html'})
+			.then(result => {
+				should(result.format).match(/\<h2\>title\<\/h2\>/)
+				done();
+			})
+			.catch(err => { console.error(err); throw err})
+	})
+	it('insert text type article', done => {
+		libArticle.insert({content: '<h2>title</h2>', contentType: 'text'})
+			.then(result => {
+				should(result.format).containEql('title')
+				should(result.format).containEql('&lt;h2&gt;')
+				should(result.format).containEql('&lt;/h2&gt;')
+				done();
+			})
+			.catch(err => { console.error(err); throw err})
+	})
+
+	it('insert markdown type article', done => {
 		libArticle.insert({content: '# title', contentType: 'markdown', tags: ['markdown', 'format']})
-		.then(result => {
-			should(result.format).match(/\<h1\>title\<\/h1\>/)
-			insertedId = result._id.toString();
-			done();
-		})
+			.then(result => {
+				should(result.format).match(/\<h1\>title\<\/h1\>/)
+				insertedId = result._id.toString();
+				done();
+			})
+			.catch(err => { console.error(err); throw err})
 	})
 });
 
