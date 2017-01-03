@@ -31,19 +31,7 @@ const yargs = require('yargs')
 
 		try {
 			envir.reload()
-			const printKeyValue = function (jumpChar, key, value) {
-				process.stdout.write(Array(jumpChar).fill('').join(' ') + value + '\r')
-				process.stdout.write(key)
-				process.stdout.write('\n')
-			};
-			const jump = 18;
-			process.stdout.write(`--- ${envir.CONFIG_PATH}\n`)
-			printKeyValue(jump, 'MongoDB 地址:', envir.db)
-			printKeyValue(jump, 'http 端口:', envir.port)
-			printKeyValue(jump, '密码:', envir.pass)
-			printKeyValue(jump, '单页最大文章数:', envir.limit)
-			printKeyValue(jump, '是否启用 PAE:', envir.ENABLE_PAE)
-			printKeyValue(jump, 'cluster 线程数:', envir.cluster_fork_num)
+			envir.printInfo()
 		} catch (e) {
 			console.error(e.message)
 			console.error(e.sourceError)
