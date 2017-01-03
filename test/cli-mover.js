@@ -10,6 +10,8 @@ const mover = require('../cli/mover');
 
 const should = require('should');
 
+const compareDate = (t1, t2) => t1.toDateString() === t2.toDateString();
+
 describe('getSqlArticles', function () {
 	const SQLInfomation = {
 		host: 'localhost',
@@ -57,9 +59,6 @@ describe('getSqlArticles', function () {
 	})
 })
 describe('老 Pache 的 SQL 集转换为 Pache 2 的格式', function () {
-	const compareDate = (t1, t2) => {
-		return (t1.toDateString() === t2.toDateString())
-	};
 	const articles = [
 		{ id: 9,
 			title: 'title1',
@@ -109,12 +108,38 @@ describe('老 Pache 的 SQL 集转换为 Pache 2 的格式', function () {
 			should(article.contentType).equal(articles[cursor].type)
 			should(article.content).equal(articles[cursor].content)
 
-			compareDate(article.time, articles[cursor].time).should.equal(true)
+			compareDate(article.date, articles[cursor].time).should.equal(true)
 			compareDate(article.mod, articles[cursor].ltime).should.equal(true)
 		})
 
 		should(result[0].tags).length(2)
 		should(result[0].tags).containEql('面向对象')
 		should(result[0].tags).containEql('程序设计')
+	})
+})
+
+describe('saveArticleCollection', function () {
+	it('正常入库', done => {
+		const date = new Date(2015, 10, 4);
+		const mod = new Date(2016, 11, 3);
+
+		mover.saveArticleCollection([{
+			_old_id: 992,
+			title: 'testTitle',
+			content: 'content',
+			contentType: 'text',
+			date,
+			mod,
+		}]).then(result => {
+			should(compareDate(new Date(result[0].mod), mod)).equal(true);
+			should(compareDate(new Date(result[0].date), date)).equal(true);
+			should(result[0]._old_id).equal(992)
+			done()
+		})
+			.catch(err => { console.error(err); throw err })
+	})
+	it('错误的 Collection', done => {
+		mover.saveArticleCollection([null])
+			.catch(err => { done() })
 	})
 })

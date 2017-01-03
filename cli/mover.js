@@ -1,6 +1,8 @@
 const Collect = require('collect-info')
 const request = require('supertest')
 const PacheSQL = require('../lib/pache-sql')
+const libArticle = require('../lib/article')
+const asyncEach = require('../lib/async-each');
 
 let sqlinfo = {
 	host: 'localhost',
@@ -108,9 +110,26 @@ Object.assign(exports, {
 				title: article.title,
 				content: article.content,
 				contentType: article.type,
-				time: new Date(article.time),
+				date: new Date(article.time),
 				mod: new Date(article.ltime),
+				_old_id: article.id,
 			};
+		})
+	},
+	saveArticleCollection(ArticleCollection){
+		return new Promise((resolve, reject) => {
+			let result = [];
+			asyncEach(ArticleCollection, ({status, item, next}) => {
+				libArticle.insert(item)
+					.then(insert => {
+						insert._old_id = item._old_id;
+						result.push(insert)
+						next();
+					})
+					.catch(err => reject(err))
+			}, (status) => {
+				resolve(result);
+			})
 		})
 	},
 	getSqlArticles(objInfo, ARTICLE_TABLE, TAGS_TABLE){
