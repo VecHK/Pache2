@@ -142,6 +142,15 @@ describe('insertArticle', function () {
 		})
 		.catch(err => { throw err })
 	});
+	it('错误的参数类型', done => {
+		const badTypes = [null, undefined, 2, true, [], 'string']
+		const promises = badTypes.map(value => new Promise((resolve, reject) => {
+			libArticle.insert(value).catch(() => resolve())
+		}))
+		Promise.all(promises)
+			.then(() => done())
+			.catch(err => { console.error(err); throw err })
+	})
 
 	const compareDate = (t1, t2) => t1.toDateString() === t2.toDateString();
 	it('允许自定义 date 字段', done => {
