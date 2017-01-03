@@ -7,8 +7,11 @@ const envir = require('./envir');
 const http = require('http');
 
 if (cluster.isMaster) {
+	process.stdout.write('Pache Envir ')
+	envir.printInfo();
+
 	const EventEmitter = require('events').EventEmitter;
-	console.log(`Pache ${envir.version}\n------`);
+	console.log(`\n------- 主线程启动 -------\n`);
 
 	cluster.on('listening', (worker, address) => {
 		console.log(`端口已应用: pid[${worker.process.pid}], address[${address.address}:${address.port}]`);
