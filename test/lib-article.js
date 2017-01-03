@@ -142,6 +142,48 @@ describe('insertArticle', function () {
 		})
 		.catch(err => { throw err })
 	});
+
+	const compareDate = (t1, t2) => t1.toDateString() === t2.toDateString();
+	it('允许自定义 date 字段', done => {
+		const date = new Date(2007, 2, 2);
+
+		libArticle.insert({title: 'testDate', date})
+			.then(result => {
+				compareDate(new Date(result.date), date).should.equal(true);
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
+	})
+	it('错误的 date 字段会被忽略', done => {
+		const date = new Date({});
+
+		libArticle.insert({title: 'badDate', date})
+			.then(result => {
+				compareDate(new Date(result.date), new Date).should.equal(true)
+			})
+			.then(() => done())
+			.catch(err => { console.error(err); throw err })
+	})
+	it('允许自定义 mod 字段', done => {
+		const mod = new Date(2008, 8, 8);
+		libArticle.insert({title: 'testMod', mod})
+			.then(result => {
+				compareDate(new Date(result.mod), mod).should.equal(true);
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
+	})
+	it('错误的 mod 字段会被忽略', done => {
+		const mod = new Date({});
+		libArticle.insert({title: 'badMod', mod})
+			.then(result => {
+				compareDate(new Date(result.mod), new Date).should.equal(true);
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
+	})
+
+
 	it('插入项中的 tags 不是一个数组，则将其转换为数组，并将原项目作为数组的第一项', done => {
 		let testItem;
 		libArticle.insert({title: 'test', tags: 'test'})
