@@ -14,12 +14,19 @@ const yargs = require('yargs')
 	})
 
 	.command(['version', 'ver'], '查看 Pache 版本', {}, argv => {
-		console.log(package.version)
+		console.info(package.version)
 		process.exit(0)
 	})
-	.command(['import'], '转移 php-Pache 的数据', {}, argv => {
-		console.log('PHP-Pache 数据迁移程序')
-		process.exit(0)
+	.command(['export [filepath]'], '导出 Pache 的文章数据', {}, argv => {
+		const pacheExport = require('../cli/export');
+
+		pacheExport(argv.filepath)
+			.then(() => process.exit(0))
+			.catch(() => process.exit(1))
+	})
+	.command(['import'], '导入 php-Pache 的文章数据', {}, argv => {
+		const PacheImport = require('../cli/import');
+		PacheImport();
 	})
 	.command(['view-config'], '查看 Pache 配置', {}, argv => {
 		let sucPath = path.join(__dirname, '../config.suc')
