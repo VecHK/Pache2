@@ -510,3 +510,25 @@ describe('get article', function () {
 			.catch(err => { console.error(err); throw err })
 	})
 })
+
+describe('get all', function () {
+	it('get All articles', done => {
+		envir.limit = 3;
+		const articlesList = [];
+		model.removeCollection('articles')
+			.then(result => libArticle.insert({}))
+			.then(result => articlesList.push(result) && libArticle.insert({}))
+			.then(result => articlesList.push(result) && libArticle.insert({}))
+			.then(result => articlesList.push(result) && libArticle.insert({}))
+			.then(result => articlesList.push(result) && libArticle.insert({}))
+			.then(result => articlesList.push(result) && libArticle.insert({}))
+			.then(result => articlesList.push(result) && libArticle.insert({}))
+			.then(result => articlesList.push(result))
+			.then(() => libArticle.getAll())
+			.then(collection => {
+				should(collection).length(articlesList.length)
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
+	})
+})
