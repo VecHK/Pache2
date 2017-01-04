@@ -5,6 +5,9 @@ const cluster = require('cluster');
 if (cluster.isMaster) {
 	describe('Envir Master', () => {
 		const envir = require('../envir')
+		it('print info', () => {
+			envir.printInfo()
+		})
 		it('setEnvir', done => {
 			const workers = [cluster.fork()]
 			envir.setEnvir(workers);
