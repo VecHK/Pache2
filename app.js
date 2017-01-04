@@ -33,7 +33,7 @@ let redisHandle = new RedisStore({
 
 let sessinHandle = session({
 	secret: envir.session_secret,
-	cookie: { domain: 'localhost' },
+	cookie: { /* domain: 'localhost' */ },
 	key: 'pache-session',
 	resave: false,
 	saveUninitialized: false,
