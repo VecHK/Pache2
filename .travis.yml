@@ -9,6 +9,7 @@ install:
 
 services:
   - redis
+  - mysql
 
 addons:
   apt:

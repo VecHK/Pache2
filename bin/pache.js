@@ -17,6 +17,13 @@ const yargs = require('yargs')
 		console.info(package.version)
 		process.exit(0)
 	})
+	.command(['clear'], '清空 Pache 的文章数据', {}, argv => {
+		const PacheClear = require('../cli/clear');
+
+		PacheClear()
+			.then(() => process.exit(0))
+			.catch(() => process.exit(1))
+	})
 	.command(['export [filepath]'], '导出 Pache 的文章数据', {}, argv => {
 		const pacheExport = require('../cli/export');
 

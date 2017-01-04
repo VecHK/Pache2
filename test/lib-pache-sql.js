@@ -35,7 +35,7 @@ describe('PacheSQL', function () {
 		const sql = new PacheSQL({ host: 'localhost', port: 3306, user: 'abc', password: '777', database: '不可能存在的数据库' })
 		sql.connect()
 			.then(() => { console.log('不可能到这里的，常考') })
-			.catch(err => { console.warn(err); done() })
+			.catch(err => { done() })
 	})
 	it('Disconnect', done => {
 		const sql = new PacheSQL(SQLInfomation)
