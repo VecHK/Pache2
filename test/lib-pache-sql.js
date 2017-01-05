@@ -3,10 +3,13 @@ const PacheSQL = require('../lib/pache-sql')
 const should = require('should');
 
 describe('PacheSQL', function () {
+	/*
+		账号密码的配置有 travis 的原因
+	 */
 	const SQLInfomation = {
-		host: 'localhost',
+		host: '127.0.0.1',
 		user: 'root',
-		password: 'root',
+		password: '',
 		port: 3306,
 	};
 	const TEST_TABLE = 'pache_test';
