@@ -100,7 +100,7 @@ describe('getSqlArticles', function () {
 			.catch(err => console.error(err))
 	})
 })
-return ;
+
 describe('老 Pache 的 SQL 集转换为 Pache 2 的格式', function () {
 	const articles = [
 		{ id: 9,
