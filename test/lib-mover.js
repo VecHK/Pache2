@@ -1,32 +1,74 @@
 const utils = require('utility');
 const envir = require('../envir');
-const TEST_DB = 'pache_test';
-envir.db = `mongodb://127.0.0.1:27017/${TEST_DB}`;
+const TEST_MONGO_DB = 'pache_test';
+envir.db = `mongodb://127.0.0.1:27017/${TEST_MONGO_DB}`;
 
 const model = require('../model');
 const libArticle = require('../lib/article');
 
 const mover = require('../lib/mover');
+const PacheSQL = require('../lib/pache-sql')
 
 const should = require('should');
 
 const compareDate = (t1, t2) => t1.toDateString() === t2.toDateString();
 
+const TEST_DB = 'pache_test';
+const TEST_ARTICLE_TABLE = 'pache_article';
+const TEST_TAG_TABLE = 'pache_tag';
+const TAG_TABLE_DEFINE =
+`CREATE TABLE \`pache_tag\` (
+  \`tagname\` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  \`articleid\` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin`;
+const ARTICLE_TABLE_DEFINE =
+`CREATE TABLE \`pache_article\` (
+  \`id\` int(11) NOT NULL AUTO_INCREMENT,
+  \`title\` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  \`type\` varchar(16) COLLATE utf8_bin DEFAULT NULL,
+  \`permission\` int(255) DEFAULT NULL,
+  \`article\` longtext COLLATE utf8_bin,
+  \`format\` longtext COLLATE utf8_bin,
+  \`categories\` varchar(32) COLLATE utf8_bin DEFAULT NULL,
+  \`time\` datetime DEFAULT NULL,
+  \`ltime\` datetime DEFAULT NULL,
+  PRIMARY KEY (\`id\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin`;
+
+
 describe('getSqlArticles', function () {
+	/*
+		账号密码的配置有 travis 的原因
+	 */
 	const SQLInfomation = {
-		host: 'localhost',
+		host: '127.0.0.1',
 		user: 'root',
-		password: 'root',
+		password: '',
 		port: 3306,
-		database: 'pache',
-		pache_tag: 'pache_tag',
-		pache_article: 'pache_article',
 	};
+
+	/* 创建成功后会在 SQLInfomation 中添加一个 database 属性（方便后续的测试） */
+	it('创建一个 MySQL 测试数据库，以及测试用的表', function (done) {
+		this.timeout(5000);
+		const sql = new PacheSQL(SQLInfomation)
+		sql.connect()
+			.then(() => sql.query(`CREATE DATABASE IF NOT EXISTS ${TEST_DB}`))
+			.then((row, fields) => sql.query(`USE ${TEST_DB}`))
+			.then((row, fields) => sql.query('DROP TABLE IF EXISTS `pache_tag`'))
+			.then((row, fields) => sql.query(TAG_TABLE_DEFINE))
+			.then((row, fields) => sql.query('DROP TABLE IF EXISTS `pache_article`'))
+			.then((row, fields) => sql.query(ARTICLE_TABLE_DEFINE))
+			.then((row, fields) => {
+				Object.assign(SQLInfomation, { database: TEST_DB });
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
+	})
 
 	it('错误的标签表名', done => {
 		const BAD_ARTICLE_TABLE = 'bad_pache_article';
 		const SQLInfo = Object.assign({}, SQLInfomation, { pache_article: BAD_ARTICLE_TABLE })
-		mover.getSqlArticles(SQLInfo, BAD_ARTICLE_TABLE, SQLInfo.pache_tag)
+		mover.getSqlArticles(SQLInfo, BAD_ARTICLE_TABLE, TEST_TAG_TABLE)
 			.catch(err => {
 				should(err.message).containEql('文章表')
 				should(err.message).containEql(BAD_ARTICLE_TABLE)
@@ -37,7 +79,7 @@ describe('getSqlArticles', function () {
 	it('错误的标签表名', done => {
 		const BAD_TAG_TABLE = 'bad_pache_tag';
 		const SQLInfo = Object.assign({}, SQLInfomation, { pache_tag: BAD_TAG_TABLE })
-		mover.getSqlArticles(SQLInfo, SQLInfo.pache_article, BAD_TAG_TABLE)
+		mover.getSqlArticles(SQLInfo,TEST_ARTICLE_TABLE, BAD_TAG_TABLE)
 			.catch(err => {
 				should(err.message).containEql('标签表')
 				should(err.message).containEql(BAD_TAG_TABLE)
@@ -48,7 +90,7 @@ describe('getSqlArticles', function () {
 			})
 	})
 	it('正常获取', done => {
-		mover.getSqlArticles(SQLInfomation, SQLInfomation.pache_article, SQLInfomation.pache_tag)
+		mover.getSqlArticles(SQLInfomation, TEST_ARTICLE_TABLE, TEST_TAG_TABLE)
 			.then(PacheArticleCollection => {
 				should(PacheArticleCollection).is.an.Object();
 				should(PacheArticleCollection).has.property('articles').is.an.Array();
@@ -58,6 +100,7 @@ describe('getSqlArticles', function () {
 			.catch(err => console.error(err))
 	})
 })
+return ;
 describe('老 Pache 的 SQL 集转换为 Pache 2 的格式', function () {
 	const articles = [
 		{ id: 9,

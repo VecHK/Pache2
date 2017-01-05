@@ -17,9 +17,9 @@ describe('PacheSQL', function () {
 		const sql = new PacheSQL(SQLInfomation)
 
 		sql.connect()
-			.then(() => sql.query(`CREATE DATABASE \`pache_test_db\``))
+			.then(() => sql.query(`CREATE DATABASE IF NOT EXISTS ${TEST_DB}`))
 			.then((row, fields) => { sql.disconnect(); done() })
-			.catch(err => { sql.disconnect(); done() })
+			.catch(err => { console.error(err); throw err })
 
 		Object.assign(SQLInfomation, { database: TEST_DB })
 	})
