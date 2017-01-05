@@ -13,16 +13,9 @@ const yargs = require('yargs')
 		describe: '指派 config.suc 的位置（默认为 Pache 目录中的 ./config.suc）',
 	})
 
-	.command(['version', 'ver'], '查看 Pache 版本', {}, argv => {
-		console.info(package.version)
-		process.exit(0)
-	})
-	.command(['clear'], '清空 Pache 的文章数据', {}, argv => {
-		const PacheClear = require('../cli/clear');
-
-		PacheClear()
-			.then(() => process.exit(0))
-			.catch(() => process.exit(1))
+	.command(['import'], '导入 Pache-Classic 的文章数据', {}, argv => {
+		const PacheImport = require('../cli/import');
+		PacheImport();
 	})
 	.command(['export [filepath]'], '导出 Pache 的文章数据', {}, argv => {
 		const pacheExport = require('../cli/export');
@@ -31,9 +24,12 @@ const yargs = require('yargs')
 			.then(() => process.exit(0))
 			.catch(() => process.exit(1))
 	})
-	.command(['import'], '导入 php-Pache 的文章数据', {}, argv => {
-		const PacheImport = require('../cli/import');
-		PacheImport();
+	.command(['clear'], '清空 Pache 的文章数据', {}, argv => {
+		const PacheClear = require('../cli/clear');
+
+		PacheClear()
+			.then(() => process.exit(0))
+			.catch(() => process.exit(1))
 	})
 	.command(['view-config'], '查看 Pache 配置', {}, argv => {
 		let sucPath = path.join(__dirname, '../config.suc')
@@ -68,7 +64,11 @@ const yargs = require('yargs')
 			process.exit(0);
 		});
 	})
-	.command(['run', 'web'], '启动 Web 服务', {}, argv => {
+	.command(['version'], '查看 Pache 版本', {}, argv => {
+		console.info(package.version)
+		process.exit(0)
+	})
+	.command(['run'], '启动 Web 服务', {}, argv => {
 		require('../master');
 	})
 	.help('h')
