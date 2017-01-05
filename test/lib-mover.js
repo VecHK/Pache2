@@ -63,7 +63,7 @@ describe('老 Pache 的 SQL 集转换为 Pache 2 的格式', function () {
 		{ id: 9,
 			title: 'title1',
 			type: 'markdown',
-			content: '# test',
+			article: '# test',
 			format: '<h1>test</h1>',
 			time: new Date(2015, 10, 30, 23, 44, 00),
 			ltime: new Date(2015, 11, 30, 23, 44, 00)
@@ -71,7 +71,7 @@ describe('老 Pache 的 SQL 集转换为 Pache 2 的格式', function () {
 		{ id: 33,
 			title: 'title2',
 			type: 'text',
-			content: '这是一个文本',
+			article: '这是一个文本',
 			format: 'text:这是一个文本',
 			time: new Date(2016, 0, 0, 23, 44, 00),
 			ltime: new Date(2015, 1, 25, 23, 44, 00)
@@ -106,7 +106,7 @@ describe('老 Pache 的 SQL 集转换为 Pache 2 的格式', function () {
 
 			should(article.title).equal(articles[cursor].title)
 			should(article.contentType).equal(articles[cursor].type)
-			should(article.content).equal(articles[cursor].content)
+			should(article.content).equal(articles[cursor].article)
 
 			compareDate(article.date, articles[cursor].time).should.equal(true)
 			compareDate(article.mod, articles[cursor].ltime).should.equal(true)
