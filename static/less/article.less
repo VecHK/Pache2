@@ -1,5 +1,8 @@
 @import "base.less";
 
+@pache-article-line-height: 1.8em;
+@pache-article-font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+
 body, html {
 	padding: 0;
 	margin: 0;
@@ -21,7 +24,7 @@ article, .info {
 	color: #344;
 	width: 760px;
 	font-size: 1.1em;
-	font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+	font-family: @pache-article-font-family;
 }
 
 .error-message {
@@ -52,7 +55,7 @@ article {
 	}
 
 	p {
-		line-height: 1.8em;
+		line-height: @pache-article-line-height;
 	}
 
 	blockquote {
@@ -66,10 +69,19 @@ article {
 		padding: 0 0.2em;
 	}
 
-	pre {
+	pre.text-type {
 		word-wrap: break-word;
 		word-break: break-all;
 		white-space: pre-wrap;
+
+		line-height: @pache-article-line-height;
+		font-family: @pache-article-font-family;
+
+		code {
+			font-family: @pache-article-font-family;
+			padding: 0;
+			background: transparent;
+		}
 	}
 
 	pre code[class] {
