@@ -35,7 +35,7 @@ const contentFormat = function () {
 	if (this.contentType === 'markdown') {
 		this.format = md.render(this.content);
 	} else if (this.contentType === 'text') {
-		this.format = `<pre><code>${entities.encode(this.content)}</code></pre>`;
+		this.format = `<pre class="text-type"><code>${entities.encode(this.content)}</code></pre>`;
 	} else if (this.contentType === 'html') {
 		this.format = this.content;
 	} else {
