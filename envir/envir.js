@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const Suc = require('node-suc').Suc;
 const suc = new Suc;
-const package = require('../package');
+const npmPackage = require('../package');
+const cluster = require('cluster');
 
 const printKeyValue = function (jumpChar, key, value) {
 	process.stdout.write(Array(jumpChar).fill('').join(' ') + value + '\r')
@@ -10,9 +11,7 @@ const printKeyValue = function (jumpChar, key, value) {
 	process.stdout.write('\n')
 };
 
-const envir = {
-	version: package.version,
-	CONFIG_PATH: path.join(__dirname, '../config.suc'),
+class Envir {
 	printInfo(){
 		const jump = 18;
 		process.stdout.write(`--- ${envir.CONFIG_PATH}\n`)
@@ -22,7 +21,7 @@ const envir = {
 		printKeyValue(jump, '单页最大文章数:', this.limit)
 		printKeyValue(jump, '是否启用 PAE:', this.ENABLE_PAE)
 		printKeyValue(jump, 'cluster 线程数:', this.cluster_fork_num)
-	},
+	}
 	reload(){
 		try {
 			Object.assign(this, suc.parse(
@@ -33,9 +32,28 @@ const envir = {
 			err.sourceError = e;
 			throw err;
 		}
-	},
-};
+	}
+	setEnvir(workers) {
+		for (let cursor = 0; cursor < workers.length; ++cursor) {
+			workers[cursor].send({
+				type: 'envir',
+				envir,
+			});
+		}
+	}
+	get(propertyName, cb){
+		cb(envir[propertyName]);
+	}
+}
+Object.assign(Envir.prototype, {
+	version: npmPackage.version,
+	CONFIG_PATH: path.join(__dirname, '../config.suc'),
+});
 
-envir.reload();
+let envir = new Envir;
+
+if (cluster.isMaster) {
+	envir.reload()
+}
 
 module.exports = envir;
