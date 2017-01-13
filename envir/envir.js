@@ -14,7 +14,7 @@ const printKeyValue = function (jumpChar, key, value) {
 class Envir {
 	printInfo(){
 		const jump = 18;
-		process.stdout.write(`--- ${envir.CONFIG_PATH}\n`)
+		process.stdout.write(`--- ${this.CONFIG_PATH}\n`)
 		printKeyValue(jump, 'MongoDB 地址:', this.db)
 		printKeyValue(jump, 'http 端口:', this.port)
 		printKeyValue(jump, '密码:', this.pass.split('').fill('*').join(''))
@@ -34,15 +34,16 @@ class Envir {
 		}
 	}
 	setEnvir(workers) {
+		const self = this;
 		for (let cursor = 0; cursor < workers.length; ++cursor) {
 			workers[cursor].send({
 				type: 'envir',
-				envir,
+				self,
 			});
 		}
 	}
 	get(propertyName, cb){
-		cb(envir[propertyName]);
+		cb(this[propertyName]);
 	}
 }
 Object.assign(Envir.prototype, {
