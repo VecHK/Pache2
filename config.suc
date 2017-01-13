@@ -35,10 +35,4 @@ session_secret >reimu_marisa
 # 通常多线程的性能会比单线程要好
 # 0 为当前 CPU 数量，CPU 数量应该说是操作系统核心数
 # 线程数不是越多越好，通常最佳值是当前的 CPU 数量
-[cluster_fork_num] 1
-
-# 推荐标签
-# 被推荐的标签将会显示在首页，不管是否存在它
-[recommend_tags]
-Programming
-Life
+[cluster_fork_num] 0

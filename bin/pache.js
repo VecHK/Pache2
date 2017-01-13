@@ -68,8 +68,25 @@ const yargs = require('yargs')
 		console.info(package.version)
 		process.exit(0)
 	})
-	.command(['run'], '启动 Web 服务', {}, argv => {
-		require('../master');
+	.command(['run [configpath]'], '启动 Web 服务', {}, argv => {
+		const cluster = require('cluster');
+		try {
+			if (cluster.isMaster) {
+				const envir = require('../envir');
+
+				let sucPath = path.join(__dirname, '../config.suc')
+				if (argv.configpath) { sucPath = argv.configpath }
+
+				envir.CONFIG_PATH = sucPath;
+				envir.reload();
+			}
+			const app = require('../master')
+			app();
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+
 	})
 	.help('h')
 	.alias('h', 'help')
