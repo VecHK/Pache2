@@ -34,11 +34,10 @@ class Envir {
 		}
 	}
 	setEnvir(workers) {
-		const self = this;
 		for (let cursor = 0; cursor < workers.length; ++cursor) {
 			workers[cursor].send({
 				type: 'envir',
-				self,
+				envir: this,
 			});
 		}
 	}
