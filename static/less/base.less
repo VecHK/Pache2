@@ -1,22 +1,12 @@
 @torzo-blue: hsl(201, 47%, 35%);
 @title-font: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+@pache-article-font-family: "Noto Sans CJK SC", "Source Han Sans CN", "微软雅黑", "黑体";
+@pache-color: rgb(59, 59, 70);
 
 .local:not(.error):hover {
 }
 .local {
-	margin: 0 .382em 0 0em;
-	padding: 0;
 
-	width: 2.5em;
-
-	font-family: ISOCPEUR,  "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "黑体";
-	color: grey;
-	text-align: center;
-
-	cursor: pointer;
-
-	transition-property: text-shadow, color;
-	transition-duration: .618s;
 }
 
 .error {
@@ -24,6 +14,16 @@
 	color: #f1f1f1;
 }
 
+.page-shadow {
+	position: absolute;
+	left: 0;
+	top: -32px;
+
+	width: 100%;
+	height: 32px;
+
+	box-shadow: 0px 0px 12px #999;
+}
 header {
 	display: inline-flex;
 	align-content: center;
@@ -34,44 +34,38 @@ header {
 	-webkit-align-items: center;
 
 	width: ~"calc(100% - 1em)";
-	margin: 1em 0em 1em 1em;
+	margin: 0em 0em 1em 0em;
 
-	> *:not(.local):hover {
-		border-bottom-color: #D7D7D7
+	> .current {
+		height: 1.75em;
+		background: @pache-color;
+		color: azure;
+		box-shadow: 0px 0px 1px @pache-color;
 	}
-	> * img {
-		height: 100%;
-	}
-	> *:not(.local) {
-		height: 1.5em;
-	}
-	> * {
-		color: @torzo-blue;
-		background: transparent;
-		text-decoration: none;
-		margin: 0 .382em 0 .382em;
-		padding: 1px .5em 1px .5em;
-		font-family: consolas, "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "黑体";
-		font-weight: bold;
 
-		border: 1px solid transparent;
-		transition-property: border-color;
-		transition-duration: .182s;
-
-		height: 100%;
-		line-height: 16px;
-		font-size: 16px;
-		display: flex;
-		align-content: flex-end;
+	> a {
+		display: inline-flex;
+		align-content: center;
 		align-items: flex-end;
-		justify-content: center;
 
-		display: -webkit-flex;
-		-webkit-align-content: flex-end;
+		display: -webkit-inline-flex;
+		-webkit-align-content: center;
 		-webkit-align-items: flex-end;
-		-webkit-justify-content: center;
-	}
-	.current {
-		background: #f1f1f1;
+
+		margin: 0em .5em 0em;
+		padding: 0em .5em 0em;
+
+		height: 1.5em;
+		font-size: 1;
+
+		text-decoration: none;
+		font-family: @pache-article-font-family;
+		font-weight: 300;
+
+		background: transparent;
+		color: grey;
+
+		border-bottom-left-radius: 4px;
+		border-bottom-right-radius: 4px;
 	}
 }
