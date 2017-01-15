@@ -6,26 +6,24 @@ body, html {
 }
 
 .title a {
-	font-size: 1.5em;
+	font-size: 1.75em;
 	font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
 	text-decoration: blink;
-	color: hsl(201, 47%, 35%);
+	color: @pache-title-color;
+//	text-shadow: rgba(27, 29, 82, 0.13) 0px 0px 5px;
 }
 
 body > .list {
 	list-style: none;
 	list-style-type: none;
 	padding: 0;
-	margin: 0 0 0 .5em;
+	margin: 1em 0;
 }
 
 
 .list > li {
 	margin: 1.5em 0;
 	text-align: center;
-}
-body > .list:first-child {
-	margin-top: 0;
 }
 .list > li:first-child {
 	margin-top: 0;
@@ -37,7 +35,7 @@ body > .list:first-child {
 .time {
 	font-family: ISOCTEUR, consolas, courier;
 	font-size: medium;
-	color: rgba(121, 86, 73, 0.618);
+	color: @pache-time-label-color;
 }
 
 .pagecode {
@@ -63,20 +61,5 @@ body > .list:first-child {
 	}
 	.current {
 		color: #607D8B;
-	}
-}
-footer {
-	margin: 1em ~"calc(1em + 7px)";
-
-	color: #777;
-	font-weight: 300;
-	font-family: ISOCPEUR, "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
-
-	address::before {
-		content: '——';
-	}
-	address {
-		font-size: 12px;
-		font-family: Arial, 黑体, 宋体;
 	}
 }
