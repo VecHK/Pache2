@@ -32,7 +32,7 @@ body > .list {
 	list-style-type: none;
 	margin: 0;
 	@list-space-height: 3em;
-	padding: @list-space-height 0 @list-space-height;
+	padding: @list-space-height 0 calc(@list-space-height + @page-code-height);
 }
 
 .time {
@@ -43,6 +43,9 @@ body > .list {
 
 .pagecode {
 	.flex-frame();
+	position: absolute;
+	bottom: 0;
+	right: 0;
 	width: 100%;
 
 	.current {
