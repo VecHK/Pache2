@@ -106,6 +106,7 @@ describe('POST /article', () => {
 
 describe('DELETE /articles', function () {
 	it('remove multi article', done => {
+		console.log('mmmmmmmmmmmmmmmmm')
 		const ids = [];
 		const insert = (obj = {}) => libArticle.insert({});
 		const pushId = (result) => ids.push(result._id.toString());
