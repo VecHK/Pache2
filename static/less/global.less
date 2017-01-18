@@ -1,5 +1,7 @@
 @import "base.less";
 
+@page-code-height: 1.6em;
+
 body, html {
 	position: relative;
 	padding: 0;
@@ -14,26 +16,23 @@ body, html {
 	color: @pache-title-color;
 }
 
-body {
-}
-
 body > .list {
+	> li {
+		&:first-child {
+			margin-top: 0;
+		}
+		&:last-child {
+			margin-bottom: 0;
+		}
+		margin: 1.5em 0;
+		text-align: center;
+	}
+
 	list-style: none;
 	list-style-type: none;
-	padding: 0;
 	margin: 0;
-}
-
-
-.list > li {
-	margin: 1.5em 0;
-	text-align: center;
-}
-.list > li:first-child {
-	margin-top: 0;
-}
-.list > li:last-child {
-	margin-bottom: 0;
+	@list-space-height: 3em;
+	padding: @list-space-height 0 @list-space-height;
 }
 
 .time {
@@ -43,23 +42,11 @@ body > .list {
 }
 
 .pagecode {
-	position: absolute;
-	margin: 0;
-	bottom: 0;
-	right: 0;
-
-	display: flex;
-	justify-content: flex-end;
-	align-content: center;
-	align-items: center;
-
-	display: -webkit-flex;
-	-webkit-justify-content: flex-end;
-	-webkit-align-content: center;
-	-webkit-align-items: center;
+	.flex-frame();
+	width: 100%;
 
 	.current {
-		height: 1.6em;
+		height: @page-code-height;
 		background: @pache-color;
 		color: azure;
 		box-shadow: 0px 0px 1px @pache-color;
@@ -70,15 +57,12 @@ body > .list {
 			box-shadow: 0px 0px 8px @pache-color;
 		}
 	}
+	> *:not(.current):hover {
+		color: hsl(174, 100%, 29%);
+	}
 
 	> * {
-		display: flex;
-		justify-content: center;
-		align-items: flex-end;
-
-		display: -webkit-flex;
-		-webkit-justify-content: center;
-		-webkit-align-items: flex-end;
+		.flex-frame();
 
 		margin: 0em .5em 0em;
 		padding: 0em .5em 0em;

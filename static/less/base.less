@@ -26,19 +26,29 @@
 
 	box-shadow: 0px 0px 12px #999;
 }
-header {
+.flex-frame(
+	@justify-c: center,
+	@align-i: center,
+	@align-c: @align-i
+) {
 	display: inline-flex;
-	justify-content: flex-start;
-	align-items: center;
+	justify-content: @justify-c;
+	align-items: @align-i;
+	align-content: @align-c;
 
 	display: -webkit-inline-flex;
-	-webkit-justify-content: flex-start;
-	-webkit-align-items: center;
+	-webkit-justify-content: @justify-c;
+	-webkit-align-items: @align-i;
+	-webkit-align-content: @align-c;
+}
+header {
+	.flex-frame();
 
-	width: ~"calc(100% - 1em)";
-	margin: 0em 0em 3em 0em;
+	width: 100%;
+	margin: 0;
 
 	> .current {
+		padding-top: 3px;
 		height: 1.5em;
 		padding-bottom: .1em;
 		background: @pache-color;

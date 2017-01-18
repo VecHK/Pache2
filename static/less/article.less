@@ -53,8 +53,15 @@ article {
 		color: @pache-color;
 	}
 
+	.justify-text {
+		text-align: justify;
+		text-justify: inter-ideographic;
+	}
 	p {
 		line-height: @pache-article-line-height;
+	}
+	pre.text-type, p, li {
+		.justify-text;
 	}
 
 	blockquote {
