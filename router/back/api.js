@@ -49,10 +49,10 @@ router.post('/article', (req, res) => {
 
 router.delete('/articles', (req, res) => {
 	const checkIds = new Promise((resolve, reject) => {
-		if (req.body.hasOwnProperty('ids')) {
+		if ((typeof(req.body.ids) === 'string') || Array.isArray(req.body.ids)) {
 			resolve();
 		} else {
-			const err = new Error('no ids');
+			const err = new Error('no ids, or ids is not string or array');
 			err.status = 400;
 			reject(err);
 		}
