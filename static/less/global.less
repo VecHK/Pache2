@@ -15,6 +15,10 @@ body, html {
 	text-decoration: blink;
 	color: @pache-title-color;
 }
+.time {
+	font-family: @pache-time-label-font-family;
+	color: @pache-time-label-color;
+}
 
 body > .list {
 	> li {
@@ -33,12 +37,6 @@ body > .list {
 	margin: 0;
 	@list-space-height: 3em;
 	padding: @list-space-height 0 calc(@list-space-height + @page-code-height);
-}
-
-.time {
-	font-family: @pache-time-label-font-family;
-	font-size: medium;
-	color: @pache-time-label-color;
 }
 
 .pagecode {
@@ -87,4 +85,19 @@ body > .list {
 	&:not(.current):hover {
 		color: hsl(174, 100%, 29%);
 	}
+}
+
+// 大于 800px 的设备
+@media screen and (min-width: 800px) {
+	.time { font-size: medium }
+}
+
+// (360px 以上，但小于 800px)的设备
+@media screen and (max-width: 800px) and (min-width: 360px) {
+	.time { font-size: small }
+}
+
+// 360px 以下的设备
+@media screen and (max-width: 360px) {
+	.time { font-size: small }
 }
