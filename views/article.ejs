@@ -10,7 +10,10 @@
 </head>
 <body>
 	<% include public/pae-header %>
-	<div class="title"><%= article.title %></div>
+	<div class="article-details">
+		<div class="title"><%= article.title %></div>
+		<time><%= article.date.toLocaleString() %></time>
+	</div>
 	<article>
 		<%- article.format %>
 	</article>

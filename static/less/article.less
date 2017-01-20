@@ -10,12 +10,21 @@ body {
 	margin-bottom: 38.2vh;
 }
 
-.title {
-	margin: 2em 0;
-	font-size: 1.75em;
+.article-details {
+	margin: 6em 0em;
+	font-size: medium;
 	text-align: center;
-	color: @pache-color;
-	font-family: @title-font;
+
+	.title {
+		font-size: 2.5em;
+		font-family: @title-font;
+		color: @pache-color;
+	}
+	time {
+		margin: auto;
+		font-family: @pache-time-label-font-family;
+		color: #5f8686;
+	}
 }
 
 @article-space: 1.5em;
@@ -62,6 +71,12 @@ article {
 	p {
 		line-height: @pache-article-line-height;
 	}
+	// 代码框
+	pre > code {
+		max-width: 100%;
+		overflow: auto;
+	}
+
 	pre.text-type, p, li {
 		.justify-text;
 	}
@@ -113,8 +128,14 @@ article {
 		box-shadow: 0px 0px 4px #bbb;
 	}
 }
+.info {
+	display: none;
+}
 // 大于 800px 的设备
 @media screen and (min-width: 800px) {
+	.info {
+		display: block;
+	}
 	article, .info {
 		padding: 0;
 		width: 760px;
