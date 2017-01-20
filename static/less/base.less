@@ -1,5 +1,6 @@
 @torzo-blue: hsl(201, 47%, 35%);
 @title-font: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+@pache-header-font-family: "微软雅黑", "黑体";
 @pache-article-font-family: "Noto Sans CJK SC", "Source Han Sans CN", "微软雅黑", "黑体";
 @pache-color: hsl(240, 9%, 25%);
 @pache-title-color: hsl(240, 9%, 30%);
@@ -48,8 +49,7 @@ header {
 	margin: 0;
 
 	> .current {
-		padding-top: 3px;
-		height: 1.5em;
+		padding-top: .1em;
 		padding-bottom: .1em;
 		background: @pache-color;
 		color: azure;
@@ -62,22 +62,15 @@ header {
 	}
 
 	> a {
-		display: inline-flex;
-		justify-content: center;
-		align-items: flex-end;
-
-		display: -webkit-inline-flex;
-		-webkit-justify-content: center;
-		-webkit-align-items: flex-end;
+		.flex-frame();
 
 		margin: 0em .5em 0em;
 		padding: 0em .5em 0em;
 
-		height: 1.3em;
 		font-size: 1;
 
 		text-decoration: none;
-		font-family: @pache-article-font-family;
+		font-family: @pache-header-font-family;
 		font-weight: 300;
 
 		background: transparent;
