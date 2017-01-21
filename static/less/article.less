@@ -87,6 +87,16 @@ article {
 			list-style-position: outside;
 		}
 	}
+	ul {
+		> li:before {
+			content: "-";
+			color: #AAA;
+			margin: 0 .2em;
+		}
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
 	blockquote {
 		margin: 0;
 		margin-top: 2em;
@@ -148,7 +158,7 @@ article {
 	}
 	article {
 		ul, ol {
-			padding: 1em 2.5em;
+			padding: 1em 1em;
 			> li {
 				list-style-position: outside;
 			}
