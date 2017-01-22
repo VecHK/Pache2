@@ -2,9 +2,10 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
 
 const CategorySchema = new Schema({
-	name: { type: String },
-	type: { type: String, default: 'category' },
 	value: {  },
+	name: { type: String },
+	sort: { type: Number, default: 0 },
+	type: { type: String, default: 'category' },
 });
 
 CategorySchema.pre('save', function (next) {
@@ -15,16 +16,23 @@ CategorySchema.pre('save', function (next) {
 		throw err;
 	}
 	/* name 有无重复 */
-	//console.info(this.__proto__.findOne);
 	CategoryModel.findOne({name: this.name})
 		.then(info => {
 			if (typeof(info) === 'object' && info !== null) {
 				let err = new Error(`repeat category(${this.name})`);
 				throw err
-			} else {
-				next()
 			}
 		})
+		.then(() => CategoryModel.findOne().sort({'sort': -1}))
+		.then(topic => {
+			if (topic === null) {
+				this.sort = 0;
+			} else {
+				this.sort = topic.sort + 1;
+			}
+			next();
+		})
+		//.then(() => next())
 		.catch(err => next(err))
 });
 
