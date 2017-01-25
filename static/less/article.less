@@ -1,13 +1,19 @@
 @import "base.less";
 
 @pache-article-line-height: 1.8em;
+@pache-article-letter-spacing: .1em;
 
 body, html {
 	padding: 0;
 	margin: 0;
+	font-family: @pache-article-font-family;
 }
 body {
 	margin-bottom: 38.2vh;
+}
+
+h-char {
+	color: hsl(0, 0%, 60%);
 }
 
 .article-details {
@@ -16,9 +22,10 @@ body {
 	text-align: center;
 
 	.title {
-		font-size: 2.5em;
+		font-size: 2em;
 		font-family: @title-font;
 		color: @pache-color;
+		padding: 0 .5em;
 	}
 	time {
 		margin: auto;
@@ -69,9 +76,23 @@ article {
 		text-align: justify;
 		text-justify: inter-ideographic;
 	}
+	.initial {
+		&::first-letter {
+			color: hsla(240, 9%, 25%, 0.9);
+			float: left;
+			font-size: 3.5em;
+			line-height: 1em;
+			margin: 0 .1em;
+		}
+	}
 	p {
 		line-height: @pache-article-line-height;
+		letter-spacing: @pache-article-letter-spacing;
+		margin: 2em 0;
 	}
+	> p:first-child { .initial }
+
+
 	// 代码框
 	pre > code {
 		max-width: 100%;
@@ -107,7 +128,7 @@ article {
 	}
 
 	code {
-		font-family: ISOCPEUR, Consolas, courier, "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+		font-family: ISOCPEUR, Consolas, courier, "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体" !important;
 		background: #f1f1f1;
 		padding: 0 0.2em;
 	}
@@ -139,7 +160,6 @@ article {
 		display: block;
 		margin: auto;
 		max-width: 100%;
-		max-height: 80vh;
 		box-shadow: 0px 0px 4px #bbb;
 	}
 }
@@ -148,6 +168,11 @@ article {
 }
 // 大于 800px 的设备
 @media screen and (min-width: 800px) {
+	.article-details {
+		.title {
+			padding: 0;
+		}
+	}
 	.info {
 		display: block;
 	}
@@ -167,6 +192,9 @@ article {
 			margin-left: 2em;
 			margin-right: 2em;
 		}
+		img {
+			max-height: 80vh;
+		}
 	}
 
 	.article-details time { font-size: medium }
@@ -177,11 +205,17 @@ article {
 	article, .info {
 		font-size: 1.1em;
 	}
+	article {
+		img { max-height: 400px }
+	}
 }
 
 // 360px 以下的设备
-@media screen and (max-width: 360px) {
+@media screen and (max-width: 359px) {
 	article, .info {
 		font-size: 1em;
+	}
+	article {
+		img { max-height: 320px }
 	}
 }
