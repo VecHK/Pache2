@@ -1,6 +1,7 @@
 @import "base.less";
 
 @page-code-height: 1.6em;
+@list-space-height: 3em;
 
 html {
 	height: 100%;
@@ -38,7 +39,7 @@ body > .list {
 	list-style: none;
 	list-style-type: none;
 	margin: 0;
-	@list-space-height: 3em;
+
 	padding: @list-space-height .5em calc(@list-space-height + @page-code-height);
 }
 
@@ -97,10 +98,13 @@ body > .list {
 
 // (360px 以上，但小于 800px)的设备
 @media screen and (max-width: 800px) and (min-width: 360px) {
+	body > .list {
+		padding: @list-space-height 1.5em calc(@list-space-height + @page-code-height);
+	}
 	.time { font-size: small }
 }
 
 // 360px 以下的设备
-@media screen and (max-width: 360px) {
+@media screen and (max-width: 359px) {
 	.time { font-size: small }
 }

@@ -17,19 +17,22 @@ h-char {
 }
 
 .article-details {
-	margin: 6em 0em;
+	padding: 3em 0 1em;
 	font-size: medium;
-	text-align: center;
+	text-align: right;
 
 	.title {
-		font-size: 2em;
+		font-size: 1.5em;
+		font-weight: 600;
 		font-family: @title-font;
 		color: @pache-color;
-		padding: 0 .5em;
+		padding: 0 1em;
+		margin-left: 1.2em;
 	}
 	time {
 		margin: auto;
 		font-size: small;
+		padding: 0 2em;
 		font-family: @pache-time-label-font-family;
 		color: @pache-time-label-color;
 	}
@@ -169,8 +172,13 @@ article {
 // 大于 800px 的设备
 @media screen and (min-width: 800px) {
 	.article-details {
+		padding: 6em 0;
+		text-align: center;
+
 		.title {
+			font-size: 2em;
 			padding: 0;
+			margin-left: 0;
 		}
 	}
 	.info {
