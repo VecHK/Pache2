@@ -60,7 +60,7 @@ const render = (req, res, next) => {
 	if (Array.isArray(req.tags)) {
 		tagCon = req.tags;
 	}
-	article.getlist(req.pagecode, tagCon)
+	article.list(req.pagecode, {tags: tagCon})
 		.then(listResult => list = listResult)
 		.then(() => article.count(tagCon))
 		.then(count => {

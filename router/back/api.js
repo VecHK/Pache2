@@ -112,7 +112,7 @@ router.use('/articles', (req, res, next) => {
 
 router.get(['/articles/*', '/articles/'], (req, res, next) => {
 	let list;
-	article.getlist(req.pagecode)
+	article.list(req.pagecode)
 		.then(listResult => {
 			list = listResult;
 			return article.count();

@@ -321,8 +321,8 @@ describe('GET /articles', function () {
 	});
 
 	it('get artiles error', done => {
-		const oldGetlist = libArticle.getlist;
-		libArticle.getlist = function () {
+		const oldList = libArticle.list;
+		libArticle.list = function () {
 			const err = new Error('get-error');
 			err.stack = '';
 			return Promise.reject(err);
@@ -334,7 +334,7 @@ describe('GET /articles', function () {
 				should(res.json.code).is.not.equal(0);
 				should(res.json.msg).equal('get-error');
 			})
-			.then(() => libArticle.getlist = oldGetlist)
+			.then(() => libArticle.list = oldList)
 			.then(() => done())
 			.catch(err => { console.error(err); throw err })
 	})
