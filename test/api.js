@@ -41,7 +41,7 @@ describe('GET /topic', () => {
 			.catch(err => { console.error(err); throw err })
 	});
 	it('empty topic', function (done) {
-		model.removeCollection('articles')
+		model.removeCollection('articles').catch(() => {})
 			.then(() => request(app).get('/topic'))
 			.then(JsonMiddle)
 			.then(res => {
