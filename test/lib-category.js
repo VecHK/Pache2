@@ -11,6 +11,25 @@ const should = require('should');
 const libCaty = libCategory;
 
 describe('添加分类索引', () => {
+	libCaty.set('99999999999999999')['不存在的属性'];
+	it('长度为 0 的字符串将会抛出错误', done => {
+		libCaty.set('').catch(e => {
+			should(e.message).containEql('empty String')
+			done()
+		})
+	})
+	it('错误的类型', done => {
+		libCaty.set(undefined)
+			.catch(e => {
+				should(e.message).containEql('name is not undefined, null')
+				return libCaty.set(null)
+			})
+			.catch(e => {
+				should(e.message).containEql('name is not undefined, null')
+				done()
+			})
+	})
+
 	it('添加一个分类索引', done => {
 		model.removeCollection('categories')
 			.catch(() => Promise.resolve())

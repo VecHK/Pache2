@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
 
+const ObjectId = mongoose.Schema.Types.ObjectId;
+
 const CategorySchema = new Schema({
 	value: {  },
 	name: { type: String },
@@ -10,11 +12,19 @@ const CategorySchema = new Schema({
 
 CategorySchema.pre('save', function (next) {
 	/* name 检查 */
-	if ((typeof(this.name) !== 'string') || !this.name.length) {
-		const err = new Error('name is not String, or is an empty String')
+	if (typeof(this.name) === 'undefined' || this.name === null || typeof(this.name.toString) !== 'function') {
+		const err = new Error('name is not undefined, null, or toString method is not function')
 		err.status = 500;
-		throw err;
+		return next(err);
 	}
+	let str = this.name.toString()
+	if ((typeof(str) !== 'string') || !str.length) {
+		const err = new Error('toString() \'s value is not String, or is an empty String')
+		err.status = 500;
+		return next(err);
+	}
+	this.name = str;
+
 	/* name 有无重复 */
 	CategoryModel.findOne({name: this.name})
 		.then(info => {
