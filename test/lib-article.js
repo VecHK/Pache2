@@ -5,6 +5,7 @@ envir.db = `mongodb://127.0.0.1:27017/${TEST_DB}`;
 
 const model = require('../model');
 const libArticle = require('../lib/article');
+const libCategory = require('../lib/category');
 
 const should = require('should');
 
@@ -127,6 +128,164 @@ describe('get articles list', allDone => {
 			.catch(err => { throw err })
 	})
 });
+
+describe('new articles list', () => {
+	envir.limit = 2;
+	it('page 必须是整数，并且 page 不能小于 0', () => {
+		const values = [0, 9.3, true, false, null, {}, [], NaN, 'string', '1', '2', undefined];
+		const promises = values.map(page => new Promise((resolve, reject) => {
+			libArticle.list(page)
+				.then(result => reject())
+				.catch(err => {
+					err.should.equal('page must be Integer and greater or equal to 1');
+					resolve();
+				})
+		}));
+		Promise.all(promises)
+			.then(result => { done() })
+			.catch(err => { throw err })
+	});
+
+	let history = [];
+	it('无条件的列表', function (done) {
+		this.timeout(5000);
+		libArticle.insert({ title: 'A'})
+			.then(result => history.push(result) && libArticle.insert({ title: 'B'}))
+			.then(result => history.push(result) && libArticle.insert({ title: 'C', tags: ['233']}))
+			.then(result => history.push(result) && libArticle.list(1))
+			.then(list => {
+				list[0].title.should.equal('C');
+				list[1].title.should.equal('B');
+				return libArticle.list(2);
+			})
+			.then(list => {
+				list[0].title.should.equal('A');
+				done();
+			})
+			.catch(err => { throw err })
+	})
+	it('无条件的列表（反序）', function (done) {
+		this.timeout(5000);
+		model.removeCollection('articles')
+			.then(result => should(result).equal(true) && libArticle.insert({ title: 'AAA'}))
+			.then(() => libArticle.insert({ title: 'BBB', tags: ['tesTTT']}))
+			.then(() => libArticle.insert({ title: 'CCC'}) && libArticle.list(1, {}, 1))
+			.then(list => {
+				list[0].title.should.equal('AAA');
+				list[1].title.should.equal('BBB');
+				list[1].tags.should.containEql('tesTTT');
+				return libArticle.list(2, {}, 1);
+			})
+			.then(list => {
+				list[0].title.should.equal('CCC');
+				done();
+			})
+			.catch(err => { console.error(err); throw err })
+	})
+
+	it('空标签的列表', done => {
+		history = [];
+		libArticle.insert({ title: '10'})
+			.then(result => history.push(result) && libArticle.insert({ title: '20'}))
+			.then(result => history.push(result) && libArticle.insert({ title: '30', tags: ['233']}))
+			.then(result => history.push(result) && libArticle.list(1, {tags: []}))
+			.then(list => {
+				list[0].tags.should.length(0);
+				list[0].title.should.equal('20');
+				done();
+			})
+			.catch(err => { throw err })
+	})
+	it('空标签的列表（反序）', function (done) {
+		this.timeout(5000);
+		model.removeCollection('articles')
+			.then(result => should(result).equal(true))
+			.then(() => libArticle.insert({ title: '111', tags: ['我是有标签的'] }))
+			.then(() => libArticle.insert({ title: '222' }))
+			.then(() => libArticle.insert({ title: '333' }))
+
+			.then(() => libArticle.list(1, {tags: []}, 1))
+			.then(list => {
+				list[0].tags.should.length(0);
+				list[0].title.should.equal('222');
+			})
+			.then(() => done())
+			.catch(err => { console.error(err); throw err })
+	})
+
+	it('有标签的列表', done => {
+		history = [];
+		libArticle.insert({ title: '0', tags: ['testTag', '有标签']})
+			.then(result => history.push(result) && libArticle.insert({ title: '1' , tags: ['testTag', '有标签']}))
+			.then(result => history.push(result) && libArticle.insert({ title: '2' , tags: ['testTag', '有标签']}))
+			.then(result => history.push(result) && libArticle.list(1, {tags: ['testTag', '有标签']}))
+			.then(list => {
+				list.should.length(2);
+				list[0].title.should.equal('2');
+				/* 换第二页 */
+				return libArticle.list(2, {tags: ['testTag', '有标签']});
+			})
+			.then(list => {
+				list.should.length(1);
+				list[0].title.should.equal('0');
+				done();
+			})
+			.catch(err => { throw err })
+	})
+	it('有标签的列表（反序）', done => {
+		libArticle.list(1, {tags: ['testTag', '有标签']}, 1)
+			.then(list => {
+				list[0].title.should.equal('0');
+				list[1].title.should.equal('1');
+				/* 换第二页 */
+				return libArticle.list(2, {tags: ['testTag', '有标签']}, 1);
+			})
+			.then(list => {
+				list[0].title.should.equal('2');
+			})
+			.then(() => libArticle.del(history.map(article => article._id.toString())))
+			.then(delResult => done())
+			.catch(err => { throw err })
+	})
+
+	it('有分类的列表', function (done) {
+		this.timeout(5000);
+		let categoryId;
+		model.removeCollection('articles').catch(info => { console.warn(info) })
+			.then(result => model.removeCollection('categories')).catch(() => {})
+			.then(() => libCategory.set('list'))
+			.then(result => categoryId = result._id.toString())
+
+			.then(() => libArticle.insert({ title: '111', category: categoryId }))
+			.then(() => libArticle.insert({ title: '222' }))
+			.then(() => libArticle.insert({ title: '333', category: categoryId }))
+
+			.then(() => libArticle.list(1, {category: categoryId}))
+			.then(list => {
+				should(list[0].title).equal('333');
+			})
+			.then(() => done())
+			.catch(err => { console.error(err); throw err })
+	})
+	it('有分类的列表（反序）', function (done) {
+		let categoryId;
+		libCategory.get('list')
+			.then(result => categoryId = result._id.toString())
+
+			.then(() => libArticle.insert({ title: '111', category: categoryId }))
+			.then(() => libArticle.insert({ title: '222' }))
+			.then(() => libArticle.insert({ title: '333', category: categoryId }))
+
+			.then(() => libArticle.list(1, {category: categoryId}, 1))
+			.then(list => {
+				should(list[0].title).equal('111');
+			})
+			.then(() => done())
+			.catch(err => { console.error(err); throw err })
+	})
+
+})
+
 let insertedId;
 let defaultArticleId;
 describe('insertArticle', function () {

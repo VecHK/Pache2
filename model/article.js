@@ -11,9 +11,13 @@ const entities = new Entities;
 /* markdown */
 const MarkdownIt = require('markdown-it');
 
-const md = MarkdownIt()
+const md = MarkdownIt({
+	html: true,
+	})
 	.use(require('markdown-it-footnote'))
 
+
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const ArticleSchema = new Schema({
 	status: { type: Number, default: 0 },
@@ -27,6 +31,8 @@ const ArticleSchema = new Schema({
 	date: { type: Date, default: Date.now },
 	mod: { type: Date, default: Date.now },
 
+	repost: { type: Object, default: null },
+	category: { type: String, default: null },
 });
 
 const contentFormat = function () {
