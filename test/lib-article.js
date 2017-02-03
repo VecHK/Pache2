@@ -596,6 +596,18 @@ describe('countArticle', function (allDone) {
 			.then(() => done())
 			.catch(err => { console.error(err); throw err })
 	})
+	it('count articles by category', done => {
+		let category;
+		libCategory.set('countByCategory')
+			.then(newCategory => { category = newCategory; console.error(category) })
+			.then(() => libArticle.insert({title: 't', category: category._id.toString()}))
+			.then(() => libArticle.insert({title: 't', category: category._id.toString()}))
+			.then(() => libArticle.insert({title: 't', category: category._id.toString()}))
+			.then(() => libArticle.count(null, category._id.toString()))
+			.then(count => should(count).equal(3))
+			.then(() => done())
+			.catch(err => { console.error(err); throw err })
+	})
 });
 describe('remove article', function () {
 	it('批量删除文章', done => {
