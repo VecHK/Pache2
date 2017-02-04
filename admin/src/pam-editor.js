@@ -38,7 +38,37 @@ class AutoTextArea extends PamEventEmitter {
 }
 AutoTextArea.prototype.eventList = [/*'keypress',*/ 'keydown', 'focus', 'click', 'change'];
 
-class PamEditorTagManager {
+class PamEditorCategoryCompoent {
+	regCategoryPlugin(){
+		/*
+		this.extendsArticleProperty.category = (article) => {
+
+		};
+		*/
+		this.applyArticleProperty.push(article => {
+			this.loadCategory(article.category)
+		})
+	}
+	loadCategory(category){
+		console.info('category:', category)
+	}
+	setCategoryContainer(ele = $$('.category-frame', this.contain)){
+		this.categoryContain = ele;
+	}
+	categoryStart(){
+		this.setCategoryContainer();
+		this.regCategoryPlugin();
+	}
+	constructor(){
+		this.start();
+		this.plugin();
+		this.tagStart();
+		this.categoryStart();
+		this.setButton();
+	}
+}
+
+class PamEditorTagManager extends PamEditorCategoryCompoent {
 	clearTag(){
 		this.tags.splice(0);
 		$$('.tag-list', this.tagContain).innerHTML = '';
@@ -108,12 +138,6 @@ class PamEditorTagManager {
 				this.emit(`action-${actName}`, status, e);
 			};
 		});
-	}
-	constructor(){
-		this.start();
-		this.tagStart();
-		this.setButton();
-		this.plugin();
 	}
 }
 class PamPlugin extends PamEditorTagManager {

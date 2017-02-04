@@ -9,7 +9,7 @@ const notify = require('gulp-notify');
 const plumber = require('gulp-plumber');
 const beep = require('beeper');
 
-gulp.task('es6toes5', () => {
+gulp.task('admin_es6toes5', () => {
 	return gulp.src("admin/src/*.js")
 		.pipe(plumber({
 			errorHandler: function (err) {
@@ -23,6 +23,20 @@ gulp.task('es6toes5', () => {
 		.pipe(sourcemaps.write("."))
 		.pipe(gulp.dest("admin/script/"));
 });
+gulp.task('front_es6toes5', () => {
+	return gulp.src("static/src/*.js")
+		.pipe(plumber({
+			errorHandler: function (err) {
+				beep('*-*-');
+				notify.onError('Error: <%= error.message %>').apply(this, arguments);
+			}}
+		))
+		.pipe(sourcemaps.init())
+		.pipe(babel())
+		/* .pipe(concat("all.js")) */
+		.pipe(sourcemaps.write("."))
+		.pipe(gulp.dest("static/script/"));
+})
 
 gulp.task('admin-less', () => {
 	return gulp.src('admin/less/*.less')
@@ -52,9 +66,10 @@ gulp.task('front-less', () => {
 });
 
 gulp.task('watch', () => {
-	gulp.watch('admin/src/*.js', ['es6toes5']);
+	gulp.watch('static/src/*.js', ['front_es6toes5']);
+	gulp.watch('admin/src/*.js', ['admin_es6toes5']);
 	gulp.watch('static/less/*.less', ['front-less']);
 	gulp.watch('admin/less/*.less', ['admin-less']);
 });
 
-gulp.task('default', ['es6toes5', 'minify', 'watch']);
+gulp.task('default', ['front_es6toes5', 'admin_es6toes5', 'minify', 'watch']);

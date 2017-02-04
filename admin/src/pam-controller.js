@@ -33,7 +33,7 @@ editor.on('action-submit', status => {
 	}
 });
 
-/* 核心 modified */
+/* 核心 modified 事件 */
 CORE.on('article-modified', obj => {
 	console.info('已修改');
 });

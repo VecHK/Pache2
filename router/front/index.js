@@ -59,11 +59,16 @@ router.use(['/tag/*', '/category/*'], (req, res, next) => {
 	req.isHome = true;
 	next();
 })
+router.use('/:pagecode', (req, res, next) => {
+	if (!isNaN(req.params.pagecode)) {
+		req.isHome = true;
+	}
+	next();
+})
 router.use('*/:pagecode', (req, res, next) => {
 	let pagecode = Number(req.params.pagecode)
 	if (!isNaN(pagecode)) {
 		req.con.pagecode = pagecode
-		req.isHome = true;
 	}
 	next()
 })

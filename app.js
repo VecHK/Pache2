@@ -20,10 +20,11 @@ app.use(express.static(staticDir));
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+//-----------------前台-----------------
 app.use('/', router_front);
 
 //-----------------后台-----------------
-
 let redisHandle = new RedisStore({
 	client: redis.createClient(6379, '127.0.0.1'),
 	ttl: 3600 * 72,
@@ -43,5 +44,6 @@ app.use(sessinHandle);
 
 const router_back = require('./router/back');
 app.use('/admin', router_back);
+
 
 module.exports = app;

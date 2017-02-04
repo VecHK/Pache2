@@ -1,0 +1,41 @@
+/* split-layer 相关 */
+#article a.footnote-ref {
+	line-height: 0px;
+}
+#article sup {
+	vertical-align: top;
+	line-height: inherit;
+	transition: line-height .618s;
+}
+.split-layer {
+	margin: 0;
+	padding: 0;
+}
+.split-layer .split-content *:empty{
+	margin-top: 0;
+	padding-top: 0;
+}
+.split-layer .split-content *:first-child{
+	margin-top: 0;
+	padding-top: 0;
+}
+.split-layer .split-content *:last-of-type{
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+.split-layer .split-content{
+	margin: auto;
+	padding: 10px;
+	padding-bottom: 10px;
+
+	border-top: 1px dotted rgba(0, 0, 0, 0.182);
+	border-bottom: 1px dotted rgba(0, 0, 0, 0.182);
+
+	line-height: 1.8em;
+	letter-spacing: 0.1em;
+	text-align: justify;
+}
+.grey-area {
+	cursor: pointer;
+	background-color: rgba(255, 255, 255, 0.618);
+}

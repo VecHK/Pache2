@@ -11,10 +11,21 @@ const entities = new Entities;
 /* markdown */
 const MarkdownIt = require('markdown-it');
 
+const hljs = require('highlight.js');
+
 const md = MarkdownIt({
 	html: true,
-	})
-	.use(require('markdown-it-footnote'))
+	highlight: function (str, lang) {
+		if (lang && hljs.getLanguage(lang)) {
+			try {
+				return `<pre class="hljs source-code"><code>${hljs.highlight(lang, str, true).value}</code></pre>`;
+			} catch (__) {}
+		}
+
+		return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+	}
+})
+.use(require('markdown-it-footnote'))
 
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
