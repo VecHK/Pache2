@@ -143,10 +143,10 @@ var CreateSplitLayer = function (parentEle){
 
 	};
 	CreateSplitLayer.prototype.show = function (cb, time){
-		适配间隙 = Number(getComputedStyle(this.article, null).lineHeight.replace(/px$/, ''));
 		var thisEleR = $(this.ele);
 		if (this.sup){
-			this.greyArea[0].style.height = (this.sup.offsetTop + this.sup.offsetHeight + 适配间隙) + 'px';
+			适配间隙 = Number(getComputedStyle(this.sup.parentNode, null).lineHeight.replace(/px$/, ''));
+			this.greyArea[0].style.height = (this.sup.offsetTop + this.sup.offsetHeight + 适配间隙 - 1) + 'px';
 			this.greyArea[1].style.height = (document.body.offsetHeight - this.ele.offsetHeight) + 'px';
 
 			thisEleR.fadeIn(cb, time);
