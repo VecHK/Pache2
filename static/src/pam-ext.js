@@ -5,7 +5,7 @@
  - footnote Extend
 
  */
-var 适配间隙 = 20;
+var 适配间隙 = 40;
 
 var objExt = function (source, newobj){
 	return Object.keys(newobj).filter(function (key){
