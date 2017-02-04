@@ -43,6 +43,8 @@ router.use('/', (req, res, next) => {
 	next();
 })
 
+
+
 router.use('*/tag/:tagraw', (req, res, next) => {
 	req.con.tags = req.params.tagraw.split(',').map(str => str.trim());
 	next();
@@ -53,15 +55,25 @@ router.use('*/category/:category', (req, res, next) => {
 	next()
 })
 
+router.use(['/tag/*', '/category/*'], (req, res, next) => {
+	req.isHome = true;
+	next();
+})
 router.use('*/:pagecode', (req, res, next) => {
 	let pagecode = Number(req.params.pagecode)
 	if (!isNaN(pagecode)) {
 		req.con.pagecode = pagecode
+		req.isHome = true;
 	}
 	next()
 })
 
-router.get('/*', (req, res, next) => {
+router.get('/', (req, res, next) => {
+	req.isHome = true;
+	next()
+})
+
+const homeRender = (req, res, next) => {
 	let category;
 	(() => {
 		if (typeof(req.con.category) === 'string') {
@@ -97,6 +109,13 @@ router.get('/*', (req, res, next) => {
 			pacheError.source = err;
 			next(pacheError);
 		});
+};
+router.get('/*', (req, res, next) => {
+	if (req.isHome) {
+		homeRender(req, res, next)
+	} else {
+		next()
+	}
 });
 
 
