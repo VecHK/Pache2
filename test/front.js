@@ -4,7 +4,10 @@ envir.db = `mongodb://127.0.0.1:27017/${TEST_DB}`;
 
 const express = require('express');
 const http = require('http');
+
+const model = require('../model');
 const libArticle = require('../lib/article');
+const libCategory = require('../lib/category');
 
 const request = require('supertest');
 const cheerio = require('cheerio');
@@ -106,6 +109,29 @@ describe('front-list', function () {
 			should(res.text).containEql(result.title)
 			done()
 		})
+		.catch(err => {
+			console.error(err);
+			throw err;
+		})
+	})
+
+	it('has category', done => {
+		let category, inserted;
+		model.removeCollection('articles').catch(() => {})
+		.then(() => model.removeCollection('categories')).catch(() => {})
+		.then(() => libCategory.set('categoryList'))
+		.then(result => {category = result})
+		.then(() => libArticle.insert({
+			title: '测试：分类标题',
+			category: category._id.toString(),
+		}))
+		.then(result => {inserted = result})
+		.then(() => request(app).get('/category/categoryList'))
+		.then(res => {
+			should(res.status).equal(200);
+			should(res.text).containEql('测试：分类标题')
+		})
+		.then(() => done())
 		.catch(err => {
 			console.error(err);
 			throw err;

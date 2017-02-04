@@ -1,7 +1,7 @@
 const express = require('express');
 const envir = require('../../envir');
-const article = require('../../lib/article');
-const category = require('../../lib/category');
+const libArticle = require('../../lib/article');
+const libCategory = require('../../lib/category');
 const router = express.Router();
 module.exports = router;
 
@@ -14,7 +14,7 @@ router.get('/article/:articleid', (req, res, next) => {
 	next();
 });
 router.get('/article/*', (req, res, next) => {
-	article.get(req.articleid)
+	libArticle.get(req.articleid)
 		.then(article => {
 			if (article === null) {
 				return Promise.reject(new Error('article nofound'))
@@ -65,7 +65,7 @@ router.get('/*', (req, res, next) => {
 	let category;
 	(() => {
 		if (typeof(req.con.category) === 'string') {
-			return category.get(req.con.category)
+			return libCategory.get(req.con.category)
 				.then((result) => {
 					if (result !== null) {
 						category = result
@@ -76,9 +76,9 @@ router.get('/*', (req, res, next) => {
 			return Promise.resolve()
 		}
 	})()
-		.then(() => article.list(req.con.pagecode, {category: req.con.category, tags: req.con.tags}))
+		.then(() => libArticle.list(req.con.pagecode, {category: req.con.category, tags: req.con.tags}))
 		.then(listResult => list = listResult)
-		.then(() => article.count(req.con.tags, req.con.category))
+		.then(() => libArticle.count(req.con.tags, req.con.category))
 		.then(count => {
 			console.log('count:', count)
 			console.log(req.con)
