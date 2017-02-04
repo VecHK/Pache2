@@ -5,7 +5,7 @@
  - footnote Extend
 
  */
-var 适配间隙 = 40;
+var 适配间隙 = 0;
 
 var objExt = function (source, newobj){
 	return Object.keys(newobj).filter(function (key){
@@ -35,6 +35,7 @@ var collectFootnote = function (){
 	});
 };
 var CreateSplitLayer = function (parentEle){
+	this.article = parentEle;
 	var
 	splitLayer = document.createElement('div'),
 	content = document.createElement('div'),
@@ -142,6 +143,7 @@ var CreateSplitLayer = function (parentEle){
 
 	};
 	CreateSplitLayer.prototype.show = function (cb, time){
+		适配间隙 = Number(getComputedStyle(this.article, null).lineHeight.replace(/px$/, ''));
 		var thisEleR = $(this.ele);
 		if (this.sup){
 			this.greyArea[0].style.height = (this.sup.offsetTop + this.sup.offsetHeight + 适配间隙) + 'px';
@@ -149,7 +151,7 @@ var CreateSplitLayer = function (parentEle){
 
 			thisEleR.fadeIn(cb, time);
 
-			this.sup.style.lineHeight = (this.content.offsetHeight + this.sup.offsetHeight + 适配间隙) + 'px';
+			this.sup.style.lineHeight = (this.content.offsetHeight + this.sup.offsetHeight + 适配间隙 / 2) + 'px';
 		}else{
 			thisEleR.fadeIn(cb, time);
 		}
@@ -189,7 +191,7 @@ var clearArrow = function (ele){
 
 var foontnoteExtend = function (){
 	const articleEle = document.getElementById('article');
-	var splitLayer = new CreateSplitLayer(articleEle);
+	let splitLayer = new CreateSplitLayer(articleEle);
 
 	splitLayer.hide();
 
