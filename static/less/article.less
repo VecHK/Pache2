@@ -73,7 +73,6 @@ article {
 	}
 
 	h1, h2, h3, h4, h5, h6 {
-		margin-top: 2em;
 		color: @pache-color;
 	}
 
@@ -146,14 +145,21 @@ article {
 		padding: 0;
 		margin: 0;
 	}
+	p + blockquote {
+		margin-top: -1.1em;
+	}
 	blockquote {
-		margin: 0;
-		margin-top: 2em;
-		margin-bottom: 2em;
+		margin: 1.8em -0.5em;
 		padding: 0 .5em 0;
 		color: #777;
-		font-size: medium;
+		font-size: .8em;
 		border-left: 2px solid @pache-grey;
+		> * {
+			margin-top: 0;
+			margin-bottom: 0;
+			padding-top: 0;
+			padding-bottom: 0;
+		}
 	}
 
 	code {
@@ -194,18 +200,35 @@ article {
 
 	table{
 		position: relative;
-		max-width: 75vw;
-		font-size: 16px;
-		box-shadow: 0px 0px 1px @pache-grey;
+
+		font-size: .8em;
+
+		border: 1px solid @pache-grey;
+		border-spacing: 0px;
 	}
 	table thead{
 		border-bottom: 2px solid #eee;
+		th {
+			padding: 0 .5em;
+		}
 	}
 	table tr{
 		height: 32px;
+
+		td:first-child {
+			border-left: 0;
+		}
+		td {
+			color: slategrey;
+			border-left: 1px solid @pache-grey;
+		}
+	}
+	table td {
+		padding: 0 .5em;
+		//border: 1px solid grey;
 	}
 	table tbody tr:nth-child(2n-1){
-		background: #EEE;
+		background: #f7f7f7;
 	}
 }
 .info {
@@ -241,9 +264,13 @@ article {
 		blockquote {
 			margin-left: 2em;
 			margin-right: 2em;
+			font-size: 1em;
 		}
 		img {
 			max-height: 80vh;
+		}
+		table tbody tr:nth-child(2n-1){
+			background: #E7E7E7;
 		}
 	}
 
