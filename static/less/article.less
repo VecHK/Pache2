@@ -231,6 +231,35 @@ article {
 		background: #f7f7f7;
 	}
 }
+.footnotes, .footnotes-sep {
+	display: none;
+}
+
+@media print {
+	.footnotes, .footnotes-sep {
+		display: block;
+	}
+	.footnotes {
+		font-size: .618em;
+		p {
+			margin: .382em 0;
+			line-height: 1em;
+		}
+	}
+	.footnote-backref {
+		display: none;
+	}
+	table {page-break-inside: avoid;}
+	img {
+		max-height: 100vh;
+	}
+	header { display: none }
+	[id^="fnref"] { color: @pache-grey }
+	a[href^="http://"]:after {
+		content: "(" attr(href) ")"
+	}
+}
+
 .info {
 	display: none;
 }
