@@ -14,6 +14,44 @@
 	};
 
 	const DOMMethod = {
+		fadeIn(cb, time = 618) {
+			this.forEach(ele => {
+				ele.style.opacity = 0;
+				ele.style.transition = 'opacity '+ time +'ms';
+				ele.style.webkitTransition = 'opacity '+ time +'ms';
+
+				ele.style.display = '';
+				ele.style.display = getComputedStyle(ele, null).getPropertyValue('display');
+
+				setTimeout(function (){
+					ele.style.opacity = 1;
+					setTimeout(function (){
+						cb && cb();
+					}, time);
+				}, 16.8);
+			})
+		},
+		fadeOut(cb, time = 618) {
+			this.forEach(ele => {
+				ele.style.opacity = 1;
+				ele.style.transition = 'opacity '+ time +'ms';
+				ele.style.webkitTransition = 'opacity '+ time +'ms';
+
+				setTimeout(function (){
+					ele.style.opacity = 0;
+					setTimeout(function (){
+						ele.style.display = 'none';
+						console.warn(cb);
+						cb && cb();
+					}, time);
+				}, 16.8);
+			})
+		},
+		remove(){
+			this.forEach(ele => {
+				ele.parentNode.removeChild(ele)
+			})
+		},
 		html(value){
 			if (typeof(value) !== 'undefined') {
 				this.forEach(ele => {
