@@ -104,7 +104,7 @@ article {
 		margin-top: .9em;
 	}
 
-	ul + *:not(p), ol + *:not(p) {
+	ul + hr, ol + hr {
 		margin-top: 3em;
 		margin-bottom: 3em;
 	}
@@ -125,9 +125,11 @@ article {
 		padding: 1em 0em 1em 1em;
 		> li {
 			list-style-position: outside;
+			margin: 0 0 0 1em;
+			line-height: 1.5em;
 		}
 	}
-	ul {
+	ul, ol {
 		> li:hover {
 		}
 		> li:hover::before {
@@ -137,7 +139,8 @@ article {
 			font-family: Courier, fantasy;
 			font-weight: 900;
 			color: #AAA;
-			margin: 0 .2em;
+			margin: 0 0em 0em -1em;
+			padding: 0 .2em;
 			transition: color .382s;
 		}
 
@@ -285,7 +288,7 @@ article {
 	}
 	article {
 		ul, ol {
-			padding: 1em 1em;
+			margin: 1em 1em;
 			> li {
 				list-style-position: outside;
 			}
@@ -309,7 +312,7 @@ article {
 // (360px 以上，但小于 800px)的设备
 @media screen and (max-width: 800px) and (min-width: 360px) {
 	article, .info {
-		font-size: 1.1em;
+		font-size: 1em;
 	}
 	article {
 		img { max-height: 400px }
