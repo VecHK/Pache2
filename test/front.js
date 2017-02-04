@@ -26,69 +26,87 @@ describe('front-list', function () {
 			content: '# title',
 			contentType: 'markdown',
 			tags: ['Life'],
-		}).then(result => {
-			request(app).get('/').end(function (err, res) {
-				res.status.should.equal(200);
-				should(res.text).containEql('首页的测试');
-				globalReq.pagecode.should.equal(1);
-				should(globalReq.tags).equal(null);
-				done();
-			})
-		}).catch(err => {
-			throw err;
+		})
+		.then(result => request(app).get('/'))
+		.then(res => {
+			res.status.should.equal(200);
+			should(res.text).containEql('首页的测试');
+			globalReq.con.pagecode.should.equal(1);
+			done();
+		})
+		.catch(err => {
+			console.error(err);
+			throw err
+		})
+	});
+	it('pagecode', (done) => {
+		request(app).get('/4')
+		.then(res => {
+			res.status.should.equal(200);
+			globalReq.con.pagecode.should.equal(4);
+			done();
+		})
+		.catch(err => {
+			console.error(err);
+			throw err
 		})
 	});
 
-	it('pagecode', (done) => {
-		request(app).get('/4').end(function (err, res) {
-			res.status.should.equal(200);
-			globalReq.pagecode.should.equal(4);
-			should(globalReq.tags).equal(null);
-			done();
-		});
-	});
-
 	it('no pagecode taglist', (done) => {
-		request(app).get('/tag/vec, apple,     original, javascript').end(function (err, res) {
+		request(app).get('/tag/vec, apple, original, javascript')
+		.then(res => {
 			res.status.should.equal(200);
-			globalReq.tags.should
+			globalReq.con.tags.should
 				.containEql('vec')
 				.containEql('apple')
 				.containEql('original')
 				.containEql('javascript')
 
 			done();
-		});
+		})
+		.catch(err => {
+			console.error(err);
+			throw err
+		})
 	})
 
 	it('has pagecode taglist', (done) => {
-		request(app).get('/8/tag/vec, apple, original, java script').end(function (err, res) {
-			res.status.should.equal(200);
-			globalReq.pagecode.should.equal(8);
-			globalReq.tags.should
+		request(app).get('/tag/vec, apple, original, java script/8')
+		.then(res => {
+			should(res.status).equal(200);
+			should(globalReq.con.pagecode).equal(8);
+			should(globalReq.con.tags)
 				.containEql('vec')
 				.containEql('apple')
 				.containEql('original')
 				.containEql('java script')
 
 			done();
-		});
+		})
+		.catch(err => {
+			console.error(err);
+			throw err
+		})
 	})
 
 	it('has tag taglist', done => {
+		let result;
 		libArticle.insert({
 			title: 'testing',
 			content: '# title',
 			contentType: 'markdown',
 			tags: ['Programming'],
-		}).then(result => {
-			request(app).get('/tag/Programming').end((err, res) => {
-				if (err) { throw err }
-				res.status.should.equal(200);
-				res.text.should.containEql(result.title)
-				done()
-			})
-		}).catch(err => {
+		})
+		.then(inserted => {
+			result = inserted;
+			return request(app).get('/tag/Programming')
+		})
+		.then(res => {
+			should(res.status).equal(200)
+			should(res.text).containEql(result.title)
+			done()
+		})
+		.catch(err => {
 			console.error(err);
 			throw err;
 		})
@@ -99,11 +117,7 @@ describe('front-list', function () {
 		let globalReq = null;
 		app.use((req, res, next) => {
 			globalReq = req;
-			Object.defineProperty(req, 'pagecode', {
-				get(){return 'a'},
-				set(){},
-			})
-			next();
+			next(new Error('test Error'));
 		});
 		app.use('/', require('../app'));
 
@@ -152,20 +166,3 @@ describe('front-article', () => {
 	})
 
 });
-
-describe('front', allDone => {
-	const app = express();
-	let globalReq = null;
-	app.use('/', (req, res, next) => {
-		globalReq = req;
-		next();
-	});
-	app.use('/', require('../app'));
-	it('404', done => {
-		request(app).get('/dnnnnnnnnnnnnnnnnnnnn').end((err, res) => {
-			if (err) { throw err }
-			should(res.status).equal(404);
-			done();
-		})
-	})
-})
