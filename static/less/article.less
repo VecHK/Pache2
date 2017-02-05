@@ -122,14 +122,15 @@ article {
 		.justify-text;
 	}
 	ul, ol {
-		padding: 1em 0em 1em 1em;
+		padding: 0;
+		margin: 0;
 		> li {
 			list-style-position: outside;
 			margin: 0 0 0 1em;
 			line-height: 1.5em;
 		}
 	}
-	ul, ol:not(.footnotes-list) {
+	ul {
 		> li:hover {
 		}
 		> li:hover::before {
@@ -145,8 +146,6 @@ article {
 		}
 
 		list-style: none;
-		padding: 0;
-		margin: 0;
 	}
 	p + blockquote {
 		margin-top: -1.1em;

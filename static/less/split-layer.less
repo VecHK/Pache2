@@ -8,12 +8,12 @@ h-hws[hidden] + sup {
 	//margin-left: -.25em;
 }
 sup.footnote-ref[status="open"] [id^="fnref"]:before {
-	background: @torzo-blue;
-	border-color: transparent;
+	box-shadow: inset 0px 0px 1px #AAA;
 }
 sup.footnote-ref {
 	top: -.25em;
 	margin-left: -.5px;
+	z-index: 9;
 }
 
 @media print {
@@ -30,15 +30,16 @@ sup.footnote-ref {
 		color: slategrey;
 		border: 1px solid #ccc;
 		border-radius: 999px;
-		width: 1em;
-		height: 1em;
+		width: 1.25em;
+		height: 1.25em;
 
 		.flex-frame;
 
 		align-content: center;
 		vertical-align: middle;
 		margin: 0 .1em;
-		transition: background .618s, border-color .618s;
+		transition: box-shadow .618s;
+		box-shadow: 0px 0px 1px #AAA;
 	}
 }
 
