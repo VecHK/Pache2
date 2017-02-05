@@ -151,7 +151,7 @@ var CreateSplitLayer = function (parentEle){
 
 			thisEleR.fadeIn(cb, time);
 
-			this.sup.style.lineHeight = (this.content.offsetHeight + this.sup.offsetHeight + 适配间隙 / 1) + 'px';
+			this.sup.style.lineHeight = (this.content.offsetHeight + this.sup.offsetHeight + 适配间隙 / 2) + 'px';
 			$(this.sup).attr('status', 'open')
 		}else{
 			thisEleR.fadeIn(cb, time);
@@ -202,7 +202,8 @@ var foontnoteExtend = function (){
 	footnotes.forEach(function (footnote){
 		footnote.a.style.lineHeight = '0px';
 		$(footnote.a).attr('sup-text', $(footnote.a).text())
-		footnote.a.innerHTML = '';
+
+		// footnote.a.innerHTML = '';
 
 		if (footnote.sup.previousElementSibling && footnote.sup.previousElementSibling.tagName.toLowerCase() === 'h-hws') {
 			$(footnote.sup.previousElementSibling).remove()
@@ -210,6 +211,7 @@ var foontnoteExtend = function (){
 		if (footnote.sup.nextElementSibling && footnote.sup.nextElementSibling.tagName.toLowerCase() === 'h-hws') {
 			footnote.sup.nextElementSibling.remove()
 		}
+
 		//line-height: 0px;
 		footnote.a.onclick = function (){
 			splitLayer.sup = footnote.sup;
