@@ -147,7 +147,7 @@ var CreateSplitLayer = function (parentEle){
 		if (this.sup){
 			适配间隙 = Number(getComputedStyle(this.sup.parentNode, null).lineHeight.replace(/px$/, ''));
 			this.greyArea[0].style.height = (this.sup.offsetTop + this.sup.offsetHeight + 适配间隙 - 0) + 'px';
-			this.greyArea[1].style.height = (document.body.offsetHeight - this.ele.offsetHeight) + 'px';
+			this.greyArea[1].style.height = (document.body.scrollHeight - this.sup.offsetTop + 适配间隙) + 'px';
 
 			thisEleR.fadeIn(cb, time);
 
