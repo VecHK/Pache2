@@ -65,7 +65,24 @@ article, .info {
 	}
 }
 
-article {
+article, .split-content {
+	a:not([href^="#"]):link {
+		border-bottom: 1px solid transparent;
+		padding-bottom: 4px;
+		transition: border-color .618s;
+		color: slateblue;
+	}
+	a[href^="#"]:link {
+		color: steelblue;
+	}
+	a:not([href^="#"]):visited {
+		color: slategrey;
+	}
+	a:not([href^="#"]):hover {
+		border-color: hsla(210, 13%, 50%, 0.618);
+	}
+	a:not([href^="#"]):active {color:#0000FF;}
+
 	hr {
 		border: 0;
 		height: 1px;
