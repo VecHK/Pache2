@@ -2,7 +2,7 @@
 	Pache 文章页增强插件集
 	Pache Article Page Extend Collection
 
- - footnote Extend
+ - split-layer
 
  */
 var 适配间隙 = 0;
@@ -14,233 +14,169 @@ var objExt = function (source, newobj){
 	}).length;
 };
 
-var collectFootnote = function (){
-	var pre = $('sup.footnote-ref');
+class SplitLayerFootnote {
+	collectFootnote(){
+		var pre = $('sup.footnote-ref', this.article);
 
-	return Array.prototype.map.call(pre, function (ele){
-		var a = ele.getElementsByTagName('a');
-		if (a.length){
-			a = a[0];
-		} else {
-			return undefined;
-		}
-
-		if ( a.href.indexOf('#') !== -1 ){
-			return {sup: ele, a: a};
-		} else {
-			return false;
-		}
-	}).filter(function (item){
-		return item !== undefined;
-	});
-};
-var CreateSplitLayer = function (parentEle){
-	this.article = parentEle;
-	var
-	splitLayer = document.createElement('div'),
-	content = document.createElement('div'),
-	greyArea = [document.createElement('div'), document.createElement('div')];
-
-	let checkSize = (() => {
-		let currentSize = document.body.scrollWidth;
-		return () => {
-			if (currentSize !== document.body.scrollWidth) {
-				currentSize = document.body.scrollWidth;
-				return true
+		return pre.map(ele => {
+			let a = ele.getElementsByTagName('a');
+			if (a.length){
+				a = a[0];
 			} else {
-				return false
+				return undefined;
+			}
+
+			if (a.href.indexOf('#') !== -1){
+				return {sup: ele, a: a};
+			} else {
+				return false;
+			}
+		}).filter(item => {
+			return item !== undefined;
+		});
+	}
+
+	constructor(articleEle = document.body){
+		this.articleEle = articleEle;
+
+		this.init();
+	}
+}
+class Layer {
+	setContent(html){
+		this.content.innerHTML = html;
+		this.clearArrow()
+	}
+	clearArrow(ele = this.content){
+		var
+		as = $('[href].footnote-backref', ele),
+		clearEmptyNode = function (e){
+			var parent = e.parentNode;
+			if ( parent === ele ){
+				return false;
+			}
+			else if ( parent.innerHTML.length ){
+				return parent.removeChild(e);
+			}
+			else{
+				return clearEmpty(parent);
 			}
 		};
-	})();
-	window.addEventListener('resize', function (){
-		this.sup && checkSize() && this.hide(function (){
-			setTimeout(this.show.bind(this), 16.7);
-		}.bind(this));
-	}.bind(this));
+		as.forEach(a => {
+			var parent = a.parentNode;
+			parent.removeChild(a);
 
-	var closeSplitLayer = function (){
-		this.hide();
-		if ( this.sup ){
-			this.sup = undefined;
-		}
-	}.bind(this);
+			//clearEmptyNode(a);
+		});
+	}
+	position(footnote = this.footnote){
+		const {sup} = footnote;
+		const {contentFrame} = this;
 
-	window.addEventListener('keydown', function (e){
-		if ( this.sup && e.keyCode === 27 ){
-			closeSplitLayer();
-		}
-	});
-	splitLayer.className = 'split-layer';
+		let lineHeight = Number(getComputedStyle(sup.parentNode, null).lineHeight.replace(/px$/g, ''));
 
-	greyArea.forEach(function (ele){
-		ele.className = 'grey-area';
-		ele.addEventListener('click', closeSplitLayer, true);
-	});
+		contentFrame.style.top = (sup.offsetTop + lineHeight) + 'px';
 
-	content.className = 'split-content';
+		sup.style.lineHeight = (contentFrame.scrollHeight + lineHeight) + 'px';
 
-	splitLayer.appendChild(greyArea[0]);
-	splitLayer.appendChild(content);
-	splitLayer.appendChild(greyArea[1]);
-
-	false && objExt(content.style, {
-		width: parentEle.offsetWidth + 'px',
-	});
-
-	objExt(splitLayer.style, {
-		display: 'flex',
-		justifyContent: 'center',
-		position: 'absolute',
-		width: '100%',
-		left: '0px',
-		top: '0px',
-		border: '0',
-	});
-
-	document.body.appendChild(splitLayer);
-
-	objExt(this, {
-		parent: parentEle,
-		ele: splitLayer,
-		greyArea: greyArea,
-		content: content,
-	});
-};
-/* 设定 CreateSplitLayer.prototype 属性行为，以及一些公有方法*/
-(function (){
-	var
-	xy = {
-		x: 'left',
-		y: 'top',
-		h: 'height',
-		bt: 'borderTop',
-		bb: 'borderBottom',
-	},
-	posGet = function (d){
-		return function (){
-			return this.ele.style[xy[d]];
+		contentFrame.style.height = (contentFrame.scrollHeight) + 'px';
+	}
+	open(footnote = this.footnote){
+		this.switch = true;
+		this.container.style.display = 'block';
+		this.position(footnote)
+	}
+	close(footnote = this.footnote){
+		this.switch = false;
+		this.contentFrame.style.height = '0px';
+		this.footnote.sup.style.lineHeight = '';
+		let backObj = {
+			ok(fn){ this.cb = fn }
 		};
-	},
-	posSet = function (d){
-		return function (value){
-			this.ele.style[xy[d]] = value + 'px';
+
+		let time = Number(getComputedStyle(this.contentFrame, null).transitionDuration.replace(/s$/g, ''))
+		setTimeout(() => {
+			this.container.style.display = 'none';
+			backObj.cb && backObj.cb();
+		}, time * 1000)
+
+		return backObj;
+	}
+	setCloseEvent(){
+		this.bg.onclick = e => {
+			this.close();
 		};
-	},
-	createGetOrSet = function (d){
-		return {
-			get: posGet(d),
-			set: posSet(d),
-		};
-	};
+	}
+	setResize(){
+		let checkSize = (() => {
+			let currentSize = document.body.scrollWidth;
+			return () => {
+				if (currentSize !== document.body.scrollWidth) {
+					currentSize = document.body.scrollWidth;
+					return true
+				} else {
+					return false
+				}
+			};
+		})();
+		window.addEventListener('resize', e => {
+			this.switch && checkSize() && this.close().ok(this.open.bind(this))
+		})
+	}
 
-	Object.defineProperties(CreateSplitLayer.prototype, {
-		posX: createGetOrSet('x'),
-		posY: createGetOrSet('y'),
-		height: createGetOrSet('h'),
-	});
-
-	CreateSplitLayer.prototype.resize = function (){
-
-	};
-	CreateSplitLayer.prototype.show = function (cb, time){
-		var thisEleR = $(this.ele);
-		if (this.sup){
-			适配间隙 = Number(getComputedStyle(this.sup.parentNode, null).lineHeight.replace(/px$/, ''));
-			this.greyArea[0].style.height = (this.sup.offsetTop + this.sup.offsetHeight + 适配间隙 - 0) + 'px';
-			this.greyArea[1].style.height = (document.body.scrollHeight - this.sup.offsetTop + 适配间隙) + 'px';
-
-			thisEleR.fadeIn(cb, time);
-
-			this.sup.style.lineHeight = (this.content.offsetHeight + this.sup.offsetHeight + 适配间隙 / 2) + 'px';
-			$(this.sup).attr('status', 'open')
-		}else{
-			thisEleR.fadeIn(cb, time);
+	constructor(footnote, parentEle = document.body, container = document.createElement('div')){
+		if (footnote) {
+			this.footnote = footnote;
 		}
-	};
-	CreateSplitLayer.prototype.hide = function (cb, time){
-		if (this.sup){
-			this.sup.style.lineHeight = '';
-			$(this.sup).attr('status', 'close')
-		}
-		$(this.ele).fadeOut(cb, time);
-	};
-})();
+		container.classList.add('split-layer');
 
+		container.innerHTML = `
+		<div class="sl-bg"></div>
+		<div class="sl-content-frame">
+			<div class="sl-content"></div>
+		</div>
+		`;
 
-/* 清除内容栏的箭头 */
-var clearArrow = function (ele){
-	var
-	as = $('[href].footnote-backref', ele),
-	clearEmptyNode = function (e){
-		var parent = e.parentNode;
-		if ( parent === ele ){
-			return false;
-		}
-		else if ( parent.innerHTML.length ){
-			return parent.removeChild(e);
-		}
-		else{
-			return clearEmpty(parent);
-		}
-	};
-	as.forEach(a => {
-		var parent = a.parentNode;
-		parent.removeChild(a);
+		parentEle.appendChild(container);
+		this.parentEle = parentEle;
+		this.container = container;
+		this.bg = $$('.sl-bg', container);
+		this.contentFrame = $$('.sl-content-frame', container);
+		this.content = $$('.sl-content', container);
 
-		//clearEmptyNode(a);
-	});
-};
+		this.setCloseEvent();
+		this.setResize();
+	}
+}
+class SplitLayer extends SplitLayerFootnote {
+	getAnthorContent(footnote){
+		var anthor = $$(`[href="#${footnote.a.id}"]`, this.article);
+		return anthor.parentNode.innerHTML;
+	}
+	setAction(footnotes = this.footnotes){
+		footnotes.forEach(footnote => {
+			if (footnote.sup.previousElementSibling && footnote.sup.previousElementSibling.tagName.toLowerCase() === 'h-hws') {
+				$(footnote.sup.previousElementSibling).remove()
+			}
+			if (footnote.sup.nextElementSibling && footnote.sup.nextElementSibling.tagName.toLowerCase() === 'h-hws') {
+				footnote.sup.nextElementSibling.remove()
+			}
 
-var foontnoteExtend = function (){
-	const articleEle = document.getElementById('article');
-	let splitLayer = new CreateSplitLayer(articleEle);
+			const layer = new Layer(footnote);
+			footnote.layer = layer;
 
-	splitLayer.hide();
+			layer.setContent(this.getAnthorContent(footnote));
 
-	window.footnotes = collectFootnote();
+			footnote.a.onclick = e => {
+				layer.open(footnote);
+				return false;
+			};
+		})
+	}
+	init(){
+		this.footnotes = this.collectFootnote();
+		this.setAction();
+	}
+}
 
-	footnotes.forEach(function (footnote){
-		footnote.a.style.lineHeight = '0px';
-		$(footnote.a).attr('sup-text', $(footnote.a).text())
-
-		// footnote.a.innerHTML = '';
-
-		if (footnote.sup.previousElementSibling && footnote.sup.previousElementSibling.tagName.toLowerCase() === 'h-hws') {
-			$(footnote.sup.previousElementSibling).remove()
-		}
-		if (footnote.sup.nextElementSibling && footnote.sup.nextElementSibling.tagName.toLowerCase() === 'h-hws') {
-			footnote.sup.nextElementSibling.remove()
-		}
-
-		//line-height: 0px;
-		footnote.a.onclick = function (){
-			splitLayer.sup = footnote.sup;
-
-			var anthor = $$(`[href="#${footnote.a.id}"]`, articleEle);
-			console.log(anthor.parentNode.innerHTML)
-
-			splitLayer.content.innerHTML = anthor.parentNode.innerHTML;
-			clearArrow(splitLayer.content);
-			try {
-				Han(splitLayer.content).render()
-			} catch (e){}
-
-
-			window.splitLayer = splitLayer;
-			/*
-			splitLayer.greyArea[0].style.height = (footnote.sup.offsetTop + footnote.sup.offsetHeight) + 'px';
-			splitLayer.greyArea[1].style.height = (document.body.offsetHeight - splitLayer.ele.offsetHeight) + 'px';
-
-			splitLayer.fadeIn(footnote.sup);
-
-			footnote.sup.style.lineHeight = (splitLayer.content.offsetHeight + footnote.sup.offsetHeight) + 'px';
-			*/
-			splitLayer.show();
-
-			return false;
-		};
-	});
-
-};
-
-foontnoteExtend()
+let splitLayer = new SplitLayer(document.getElementById('article'))
