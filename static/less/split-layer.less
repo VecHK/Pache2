@@ -1,11 +1,47 @@
+@import "base.less";
 /* split-layer 相关 */
 #article a.footnote-ref {
 	line-height: 0px;
 }
 //修正 han-css 造成的间隙
 h-hws[hidden] + sup {
-	margin-left: -.25em;
+	//margin-left: -.25em;
 }
+sup.footnote-ref[status="open"] [id^="fnref"]:before {
+	background: @torzo-blue;
+	border-color: transparent;
+}
+sup.footnote-ref {
+	top: -.25em;
+	margin-left: -.5px;
+}
+
+@media print {
+	[id^="fnref"]:after {
+		content: attr(sup-text);
+		position: relative;
+		top: -.5em;
+	}
+}
+@media not print {
+	[id^="fnref"]:before {
+		content: " ";
+		position: relative;
+		color: slategrey;
+		border: 1px solid #ccc;
+		border-radius: 999px;
+		width: 1em;
+		height: 1em;
+
+		.flex-frame;
+
+		align-content: center;
+		vertical-align: middle;
+		margin: 0 .1em;
+		transition: background .618s, border-color .618s;
+	}
+}
+
 #article sup {
 	vertical-align: top;
 	line-height: 0px;

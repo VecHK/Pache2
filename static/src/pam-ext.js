@@ -146,12 +146,13 @@ var CreateSplitLayer = function (parentEle){
 		var thisEleR = $(this.ele);
 		if (this.sup){
 			适配间隙 = Number(getComputedStyle(this.sup.parentNode, null).lineHeight.replace(/px$/, ''));
-			this.greyArea[0].style.height = (this.sup.offsetTop + this.sup.offsetHeight + 适配间隙 - 1) + 'px';
+			this.greyArea[0].style.height = (this.sup.offsetTop + this.sup.offsetHeight + 适配间隙 - 0) + 'px';
 			this.greyArea[1].style.height = (document.body.offsetHeight - this.ele.offsetHeight) + 'px';
 
 			thisEleR.fadeIn(cb, time);
 
-			this.sup.style.lineHeight = (this.content.offsetHeight + this.sup.offsetHeight + 适配间隙 / 2) + 'px';
+			this.sup.style.lineHeight = (this.content.offsetHeight + this.sup.offsetHeight + 适配间隙 / 1) + 'px';
+			$(this.sup).attr('status', 'open')
 		}else{
 			thisEleR.fadeIn(cb, time);
 		}
@@ -159,6 +160,7 @@ var CreateSplitLayer = function (parentEle){
 	CreateSplitLayer.prototype.hide = function (cb, time){
 		if (this.sup){
 			this.sup.style.lineHeight = '';
+			$(this.sup).attr('status', 'close')
 		}
 		$(this.ele).fadeOut(cb, time);
 	};
@@ -199,6 +201,15 @@ var foontnoteExtend = function (){
 
 	footnotes.forEach(function (footnote){
 		footnote.a.style.lineHeight = '0px';
+		$(footnote.a).attr('sup-text', $(footnote.a).text())
+		footnote.a.innerHTML = '';
+
+		if (footnote.sup.previousElementSibling && footnote.sup.previousElementSibling.tagName.toLowerCase() === 'h-hws') {
+			$(footnote.sup.previousElementSibling).remove()
+		}
+		if (footnote.sup.nextElementSibling && footnote.sup.nextElementSibling.tagName.toLowerCase() === 'h-hws') {
+			footnote.sup.nextElementSibling.remove()
+		}
 		//line-height: 0px;
 		footnote.a.onclick = function (){
 			splitLayer.sup = footnote.sup;
