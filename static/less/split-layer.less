@@ -2,6 +2,9 @@
 /* split-layer 相关 */
 #article sup a[id^="fnref"] {
 	line-height: 0px;
+	vertical-align: top;
+	transition: height .618s;
+	height: 2em;
 }
 //修正 han-css 造成的间隙
 h-hws[hidden] + sup {
@@ -11,12 +14,18 @@ h-hws[hidden] + sup {
 #article sup {
 	vertical-align: top;
 	line-height: 2em;
-	//top: 0;
+	top: .5em;
+	display: inline-flex;
+	align-content: flex-start;
+	align-items: flex-start;
+	justify-content: flex-start;
 }
 #article sup, .split-layer .sl-content-frame {
 	transition-duration: .618s;
 }
-
+* {
+	//transform: rotate3d(0, 0, 0);
+}
 .split-layer {
 	display: none;
 	position: absolute;
@@ -53,17 +62,17 @@ h-hws[hidden] + sup {
 			margin: auto;
 			padding: 1em 3.5em;
 			line-height: 1.5em;
-			letter-spacing: 0.1em;
+			letter-spacing: 0.15em;
 			text-align: justify;
 			font-size: .618em;
 			color: #666;
 			overflow: hidden;
 		}
-	}
-}
-
-@media screen and (min-width: 800px) {
-	.sl-content {
-		width: 760px;
+		@media screen and (min-width: 800px) {
+			.sl-content {
+				width: 760px;
+				font-size: .85em;
+			}
+		}
 	}
 }

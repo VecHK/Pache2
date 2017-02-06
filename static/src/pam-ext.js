@@ -70,16 +70,17 @@ class Layer {
 		});
 	}
 	position(footnote = this.footnote){
-		const {sup} = footnote;
+		const {a, sup} = footnote;
 		const {contentFrame} = this;
 
 		let lineHeight = Number(getComputedStyle(sup.parentNode, null).lineHeight.replace(/px$/g, ''));
 
-		contentFrame.style.top = (sup.offsetTop + lineHeight) + 'px';
-
-		sup.style.lineHeight = (contentFrame.scrollHeight + lineHeight) + 'px';
+		contentFrame.style.top = (sup.offsetTop + lineHeight * 0.6) + 'px';
 
 		contentFrame.style.height = (contentFrame.scrollHeight) + 'px';
+		a.style.height = (contentFrame.scrollHeight + lineHeight * 1) + 'px';
+
+		sup.style.lineHeight = (contentFrame.scrollHeight + lineHeight * 1) + 'px';
 	}
 	open(footnote = this.footnote){
 		this.switch = true;
@@ -89,6 +90,7 @@ class Layer {
 	close(footnote = this.footnote){
 		this.switch = false;
 		this.contentFrame.style.height = '0px';
+		this.footnote.a.style.height = '';
 		this.footnote.sup.style.lineHeight = '';
 		let backObj = {
 			ok(fn){ this.cb = fn }
