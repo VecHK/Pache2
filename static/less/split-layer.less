@@ -1,5 +1,8 @@
 @import "base.less";
 /* split-layer 相关 */
+sup, a {
+	z-index: 9;
+}
 #article sup a[id^="fnref"] {
 	line-height: 0px;
 	vertical-align: top;
@@ -44,7 +47,7 @@ h-hws[hidden] + sup {
 		position: absolute;
 		overflow: hidden;
 		height: 0px;
-		background-color: rgb(248, 248, 248);
+		background-color: hsl(0, 0%, 95%);
 		transition-property: height;
 
 		&:before { top: -2px }
@@ -65,7 +68,8 @@ h-hws[hidden] + sup {
 			letter-spacing: 0.15em;
 			text-align: justify;
 			font-size: .618em;
-			color: #666;
+			color: @pache-color;
+			text-shadow: 0px 1px 0px white;
 			overflow: hidden;
 		}
 		@media screen and (min-width: 800px) {

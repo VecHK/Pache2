@@ -1,0 +1,56 @@
+@import "base.less";
+
+.page-btn-panel {
+	.flex-frame(flex-end, center);
+	display: flex;
+	display: -webkit-flex;
+	margin: 4em 0 0;
+}
+.page-btn-panel.left-mode {
+	flex-direction: row-reverse;
+	-webkit-flex-direction: row-reverse;
+}
+
+@button-shadow-offset: 1px;
+.page-btn:active {
+	background: -webkit-linear-gradient(top, @pache-color, hsl(240, 9%, 45%) 80%);
+	text-shadow: 0px @button-shadow-offset 0px @pache-color;
+}
+.page-btn {
+	position: relative;
+	background: #3a3a45;
+	color: azure;
+	border: 0;
+	border-radius: 4px;
+	margin: 0 1em;
+
+	background: -webkit-linear-gradient(top, hsl(240, 9%, 45%), @pache-color 80%);
+	text-shadow: 0px -@button-shadow-offset 0px @pache-color;
+	outline: none;
+}
+
+.page {
+	opacity: 0;
+	position: fixed;
+	top: 1em;
+
+	transform: scale(1);
+	transform-origin: center top;
+
+	transition-duration: .618s;
+	transition-property: transform, opacity, left, top;
+	padding: 1.5em;
+	width: ~"calc(100% - 1.5em - 1.5em)";
+	background: white;
+}
+
+.current-page {
+	transform: scale(1);
+	opacity: 1;
+	left: 0;
+	top: 0;
+}
+
+.solid-page {
+	position: relative;
+}

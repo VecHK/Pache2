@@ -1,6 +1,7 @@
 @import "base.less";
 @import "highlight-style.less";
 @import "split-layer.less";
+@import "split-page.less";
 
 @pache-article-line-height: 1.8em;
 @pache-article-letter-spacing: .1em;
@@ -11,7 +12,8 @@ body, html {
 	font-family: @pache-article-font-family;
 }
 body {
-	margin-bottom: 38.2vh;
+	margin-bottom: 4em;
+	transition: opacity 1s;
 }
 
 h-char {
@@ -42,10 +44,12 @@ h-char {
 
 @article-space: 1.5em;
 article, .info {
+	position: relative;
 	margin: auto;
-	padding: 0 @article-space;
+	//padding: 0 @article-space;
 	color: @pache-color;
 	width: calc(~"100%" - @article-space + @article-space);
+	width: 100%;
 	font-size: 1em;
 	font-family: @pache-article-font-family;
 }
@@ -64,8 +68,10 @@ article, .info {
 		font-family: consolas, Courier;
 	}
 }
-
-article, .split-content {
+article * {
+	transform: rotate3d(0, 0, 0);
+}
+.page, .split-content {
 	a:not([href^="#"]):link {
 		border-bottom: 1px solid transparent;
 		padding-bottom: 4px;
@@ -127,8 +133,7 @@ article, .split-content {
 		margin-bottom: 3em;
 	}
 
-	> p:first-child { .initial }
-
+	> p:first-child { .initial; margin-top: 0 }
 
 	// 代码框
 	pre > code {
@@ -218,6 +223,14 @@ article, .split-content {
 		box-shadow: 0px 0px 4px #bbb;
 	}
 
+	img + figcaption {
+		font-size: .8em;
+		color: grey;
+		text-align: center;
+	}
+
+	strong { font-weight: bold }
+
 	table{
 		position: relative;
 
@@ -298,12 +311,13 @@ article, .split-content {
 	.info {
 		display: block;
 	}
-	article, .info {
+	.info, .page {
 		padding: 0;
 		width: 760px;
+		padding: ~"0 calc(50vw - (760px / 2))";
 		font-size: 1.2em;
 	}
-	article {
+	.page {
 		ul, ol {
 			margin: 1em 1em;
 			> li {
@@ -328,20 +342,20 @@ article, .split-content {
 
 // (360px 以上，但小于 800px)的设备
 @media screen and (max-width: 800px) and (min-width: 360px) {
-	article, .info {
+	.page, .info {
 		font-size: 1em;
 	}
-	article {
+	.page {
 		img { max-height: 400px }
 	}
 }
 
 // 360px 以下的设备
 @media screen and (max-width: 359px) {
-	article, .info {
+	.info, .page {
 		font-size: 1em;
 	}
-	article {
+	.page {
 		img { max-height: 320px }
 	}
 }
