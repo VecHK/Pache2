@@ -1,7 +1,7 @@
 @import "base.less";
 
 .page-btn-panel {
-	.flex-frame(flex-end, center);
+	.flex-frame(center, center);
 	display: flex;
 	display: -webkit-flex;
 	margin: 4em 0 0;
@@ -36,12 +36,13 @@
 	opacity: 0;
 	position: fixed;
 	top: 1em;
+	min-height: 80vh;
 
 	transform: scale(1);
 	transform-origin: center top;
 
 	transition-duration: .618s;
-	transition-property: transform, opacity, left, top;
+	transition-property: transform, opacity, left, top, height;
 	padding: 1.5em;
 	width: ~"calc(100% - 1.5em - 1.5em)";
 	background: white;

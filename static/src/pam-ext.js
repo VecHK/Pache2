@@ -254,16 +254,12 @@ class SplitPage {
 				nextBtn.onclick = e => {
 					++this.current;
 
-					console.log(this.page, this.current, this.page[this.current])
-					if (!this.viewerTopMoreThanArticle()) {
-						this.page[this.current].style.position = 'absolute'
-					} else {
-						this.page[this.current].style.position = ''
-					}
+					this.page[this.current].style.position = this.viewerTopMoreThanArticle() ? '' : 'absolute';
 					this.page[this.current].style.display = 'block';
+
 					setTimeout(() => {
 						this.page[this.current].classList.add('current-page')
-
+						pageEle.classList.remove('current-page')
 						setTimeout(() => {
 							console.warn(scrollTop)
 							if (this.viewerTopMoreThanArticle()) {
@@ -271,7 +267,7 @@ class SplitPage {
 							}
 							this.page[this.current].classList.add('solid-page')
 							pageEle.classList.remove('solid-page')
-							pageEle.classList.remove('current-page')
+
 							pageEle.style.display = 'none'
 							this.page[this.current].style.position = ''
 						}, 700)
@@ -284,12 +280,14 @@ class SplitPage {
 				previousBtn.classList.add('page-btn');
 				previousBtn.onclick = e => {
 					--this.current;
+					this.page[this.current].style.position = this.viewerTopMoreThanArticle() ? '' : 'absolute';
 					this.page[this.current].style.display = 'block';
 					setTimeout(() => {
 						this.page[this.current].classList.add('current-page')
 						pageEle.classList.remove('current-page')
 						setTimeout(() => {
-							scrollTo(document.body, scrollTop)
+							this.viewerTopMoreThanArticle() && scrollTo(document.body, scrollTop);
+
 							pageEle.classList.remove('solid-page')
 							this.page[this.current].classList.add('solid-page')
 							pageEle.style.display = 'none';
