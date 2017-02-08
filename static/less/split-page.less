@@ -17,16 +17,19 @@
 	text-shadow: 0px @button-shadow-offset 0px @pache-color;
 }
 .page-btn {
+	outline: none;
 	position: relative;
-	background: #3a3a45;
-	color: azure;
-	border: 0;
-	border-radius: 4px;
 	margin: 0 1em;
 
+	color: azure;
+
+	border: 0;
+	border-radius: 4px;
+
+	background: #3a3a45;
 	background: -webkit-linear-gradient(top, hsl(240, 9%, 45%), @pache-color 80%);
 	text-shadow: 0px -@button-shadow-offset 0px @pache-color;
-	outline: none;
+	box-shadow: 0px 1px 1px #999;
 }
 
 .page {

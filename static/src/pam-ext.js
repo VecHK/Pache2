@@ -76,7 +76,7 @@ class Layer {
 
 		let lineHeight = Number(getComputedStyle(sup.parentNode, null).lineHeight.replace(/px$/g, ''));
 
-		contentFrame.style.top = (sup.offsetParent.offsetTop + sup.offsetTop + lineHeight * 0.6) + 'px';
+		contentFrame.style.top = (this.articleEle.offsetTop + sup.offsetTop + lineHeight * 0.6) + 'px';
 
 		contentFrame.style.height = (contentFrame.scrollHeight) + 'px';
 		a.style.height = (contentFrame.scrollHeight + lineHeight * 1) + 'px';
@@ -143,7 +143,7 @@ class Layer {
 		})
 	}
 
-	constructor(footnote, parentEle = document.body, container = document.createElement('div')){
+	constructor(footnote, parentEle = document.body, container = document.createElement('div'), articleEle = $$('#article')){
 		if (footnote) {
 			this.footnote = footnote;
 		}
@@ -159,6 +159,7 @@ class Layer {
 		parentEle.appendChild(container);
 		this.parentEle = parentEle;
 		this.container = container;
+		this.articleEle = articleEle;
 		this.bg = $$('.sl-bg', container);
 		this.contentFrame = $$('.sl-content-frame', container);
 		this.content = $$('.sl-content', container);
