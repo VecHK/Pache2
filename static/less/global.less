@@ -40,7 +40,7 @@ body > .list {
 
 	list-style: none;
 	list-style-type: none;
-	margin: 0;
+	margin: auto;
 
 	padding: @list-space-height .5em calc(@list-space-height + @page-code-height);
 }
@@ -95,6 +95,9 @@ body > .list {
 
 // 大于 800px 的设备
 @media screen and (min-width: 800px) {
+	.list {
+		width: ~"calc(18em * 2.5)";
+	}
 	.title a { font-size: 2.5em }
 	.time { font-size: medium }
 }

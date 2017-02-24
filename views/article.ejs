@@ -9,21 +9,37 @@
 	<link rel="stylesheet" media="all" href="/han/han.css">
 	<link rel="stylesheet" href="/style/article.css" />
 </head>
-<body style="opacity: 0">
-	<% include public/pae-header %>
-	<div class="article-details">
-		<div class="title"><%= article.title %></div>
-		<time><%= article.date.toLocaleDateString() %></time>
+<body>
+	<div class="page-shadow"></div>
+	<div class="top-block">
+		<div class="top page-btn-panel">
+		</div>
+		<div class="article-details">
+			<div class="title"><%= article.title %></div>
+			<time><%= article.date.toLocaleDateString() %></time>
+		</div>
 	</div>
 	<article id="article">
 		<%- article.format %>
 	</article>
+
+	<div class="page-jumper">
+		<div class="page-jumper-frame">
+			<div class="page-jumper-content">
+				<ul class="page-select-list">
+				</ul>
+			</div>
+		</div>
+		<div class="page-jumper-bg"></div>
+	</div>
+
 	<script src="/han/han.min.js"></script>
 	<script>
 	try {
 		var titleHan = Han(document.querySelector('.title')).render();
 	} catch (e) {}
 	</script>
+	<script type="text/javascript" src="/script/gro.js"></script>
 	<script type="text/javascript" src="/admin/script/pam-event.js"></script>
 	<script type="text/javascript" src="/admin/script/vools.js"></script>
 	<script type="text/javascript" src="/script/pam-ext.js"></script>

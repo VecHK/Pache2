@@ -6,22 +6,24 @@
  - split-page
 
  */
-var 适配间隙 = 0;
 
-var objExt = function (source, newobj){
-	return Object.keys(newobj).filter(function (key){
-		source[key] = newobj[key];
-		return true;
-	}).length;
-};
+/* fix IE bug */
+Array.from = Array.from ? Array.from : obj => [].slice.call(obj)
 
-class SplitLayerFootnote {
+class SplitLayerFootnote extends GroCreate() {
+	/* 收集完成，清除原腳註元素們 */
+	_collectDone(arr){
+		$('.footnotes-sep', this.articleEle).remove();
+
+		$('.footnotes', this.articleEle).css('position', 'fixed').remove();
+		return arr;
+	}
 	collectFootnote(){
 		var pre = $('sup.footnote-ref', this.articleEle);
 
-		return pre.map(ele => {
+		return this._collectDone(pre.map(ele => {
 			let a = ele.getElementsByTagName('a');
-			if (a.length){
+			if (a.length) {
 				a = a[0];
 			} else {
 				return undefined;
@@ -34,22 +36,20 @@ class SplitLayerFootnote {
 			}
 		}).filter(item => {
 			return item !== undefined;
-		});
+		}));
 	}
-
-	constructor(articleEle = document.body){
-		this.articleEle = articleEle;
-
-		this.init();
+	__construct(articleEle = document.body){
+		this.articleEle = articleEle
 	}
 }
+
 class Layer {
 	setContent(html){
 		this.content.innerHTML = html;
 		this.clearArrow()
 	}
 	clearArrow(ele = this.content){
-		var
+		let
 		as = $('[href].footnote-backref', ele),
 		clearEmptyNode = function (e){
 			var parent = e.parentNode;
@@ -198,13 +198,209 @@ class SplitLayer extends SplitLayerFootnote {
 			};
 		})
 	}
-	init(){
-		this.footnotes = this.collectFootnote();
-		this.setAction();
+
+	__init() {
+		this.footnotes = this.collectFootnote()
+		this.setAction()
 	}
 }
 
-class SplitPage {
+const PamEvent = {};
+PamEventEmitter.use(PamEvent)
+
+class Scroller {
+	/* 设定滚动事件
+	direct 為 true 時為滾輪上，false 時為滾輪下
+	*/
+	setWheelEvent(ele = window) {
+		this._canScroll = true;
+		const scrollFunc = (e) => {
+			e = e || window.event
+			this._canScroll || e.preventDefault()
+
+			let direct = (e.wheelDelta || e.detail) > 0
+			if (e.wheelDelta === undefined) {
+				// firefox
+				direct = !direct
+			}
+			this.emit(`滾輪-${direct ? '上' : '下'}`)
+		};
+
+		if (ele.onmousewheel !== undefined) {
+			// IE/Opera/Chrome
+			document.addEventListener('mousewheel', scrollFunc, true)
+		} /*else if (ele.onwheel !== undefined) {
+			// fireFox new
+			ele.onwheel = scrollFunc
+		} */else {
+			// fireFox old
+			document.addEventListener('DOMMouseScroll', scrollFunc, true)
+		}
+	}
+	setTouchEvent(touchEle) {
+		let status = {
+			x: 0,
+			y: 0,
+		}
+		touchEle.addEventListener('touchstart', e => {
+			this.isTouch = true
+			status.x = e.touches[0].clientX
+			status.y = e.touches[0].clientY
+			console.warn(e)
+		})
+		touchEle.addEventListener('touchend', e => {
+			this.isTouch = false
+		})
+		touchEle.addEventListener('touchmove', e => {
+			//console.info(e.touches[0].clientX, e.touches[0].clientY)
+			e.preventDefault()
+			let diffY = status.y - e.touches[0].clientY
+			if (Math.abs(diffY) < 50) {
+				return
+			}
+			status.y = e.touches[0].clientY
+			if (diffY > 0) {
+				this.emit('上滑')
+			} else {
+				this.emit('下滑')
+			}
+		})
+
+	}
+	constructor(scrollEle = window, touchEle = window) {
+		this.setWheelEvent(scrollEle)
+		this.setTouchEvent(touchEle)
+	}
+}
+PamEventEmitter.use(Scroller.prototype)
+
+class PageJumper {
+	_throwNoLength(){ throw new Error('渲染列表失敗：沒有指定 length 參數') }
+	renderList(length = this._throwNoLength()) {
+		const $pageJumperPageList = $('.page-select-list', this.pageJumperContainer)
+
+		for (let current = 0; current < length; ++current) {
+			const itemEle = document.createElement('div')
+			$pageJumperPageList.append(...$(itemEle).class('page-select-item').text(current + 1))
+		}
+	}
+	openPageJumper() {
+		this.scroller._canScroll = false;
+		if (this.animating) {
+			return ;
+		} else {
+			this.animating = true
+		}
+		this.emit('jumper-open')
+
+		const container = this.pageJumperContainer
+		let $pjf = $('.page-jumper-content', container).css('top', '')
+		let time = Number(getComputedStyle($pjf[0], null).transitionDuration.replace(/s/g, ''))
+		$(container).css('display', 'flex')
+		setTimeout(() => {
+			$('.page-jumper-content', container).css('top', '0px')
+			setTimeout(() => {
+				this.isOpen = true
+				this.animating = false
+			}, time * 1000)
+		}, 32)
+	}
+	closePageJumper() {
+		if (this.animating) {
+			return
+		} else {
+			this.animating = true
+		}
+		this.emit('jumper-close')
+
+		this.isOpen = false
+		const container = this.pageJumperContainer
+
+		let $pjf = $('.page-jumper-content', container).css('top', '')
+		let time = Number(getComputedStyle($pjf[0], null).transitionDuration.replace(/s/g, ''))
+
+		setTimeout(() => {
+			$(container).css('display', '')
+			this.animating = false
+			this.scroller._canScroll = true
+			this.emit('jumper-closed')
+		}, time * 1000)
+	}
+	setPageJumperBtn() {
+		const container = this.pageJumperContainer;
+		$$('.page-jumper-bg', container).addEventListener('click', e => {
+			this.closePageJumper()
+		})
+	}
+
+	pageCodeClick() { this.openPageJumper() }
+
+	scrollDown() {
+		console.info('down')
+		if (this.scrollNum >= this.page.length - 1) {
+			this.scrollNum = 0
+		} else {
+			++this.scrollNum
+		}
+	}
+	scrollUp() {
+		console.info('up')
+		if (this.scrollNum <= 0) {
+			this.scrollNum = this.page.length - 1
+		} else {
+			--this.scrollNum
+		}
+	}
+	scrollNumChange(scrollNum) {
+		const $items = $('.page-select-item', this.pageJumperContainer)
+		let height = $items[scrollNum].offsetHeight * scrollNum
+		console.warn(scrollNum)
+
+		$('.page-select-list .current', this.pageJumperContainer).classRemove('current')
+		$($items[scrollNum]).class('current')
+
+		$('.page-select-list', this.pageJumperContainer).css({
+			marginTop: `calc(96px - ${height}px - 31px)`
+		})
+	}
+
+	setpageJumper(container = $$('.page-jumper')) {
+		this.scroller = new Scroller(window, $$('.page-jumper-content', container));
+		console.info(this.scroller)
+		this.pageJumperContainer = container
+		this.setPageJumperBtn()
+
+		this.renderList(this.page.length)
+
+		let _scrollNum = 0
+		Object.defineProperty(this, 'scrollNum', {
+			get(){ return _scrollNum },
+			set(value){
+				_scrollNum = value
+				this.scrollNumChange(_scrollNum)
+				return _scrollNum
+			},
+		})
+		this.scrollNum = this.current
+
+		this.scroller.on('滾輪-上', () => {
+			this.isOpen && this.scrollUp()
+		})
+		this.scroller.on('滾輪-下', () => {
+			this.isOpen && this.scrollDown()
+		})
+
+		this.scroller.on('上滑', () => {
+			this.isOpen && this.scrollDown()
+		})
+
+		this.scroller.on('下滑', () => {
+			this.isOpen && this.scrollUp()
+		})
+	}
+}
+
+class SplitPage extends PageJumper {
 	throwNoContainer(){
 		throw new Error('splitPage 初始化失败：没有指定容器')
 	}
@@ -214,16 +410,155 @@ class SplitPage {
 		this.current = 0;
 	}
 
-	viewerTopMoreThanArticle(scrollableElement = document.body){
-		return scrollableElement.scrollTop > this.container.offsetTop;
+	viewerTopMoreThanArticle(){
+		/* 兼容 IE11 */
+		const scrollableElementScrollTop = $$('html').scrollTop || $$('body').scrollTop || 0
+		return scrollableElementScrollTop > this.container.offsetTop
 	}
 
-	getSplitElements(){
+	getSplitElements() {
 		return $('.split-page', this.container).filter(ele => ele.parentNode === this.container)
 	}
 
+	previousPage(current, previous){
+		$(previous).css({
+			position: this.viewerTopMoreThanArticle() ? '' : 'absolute',
+			display: 'block',
+		})
+
+		setTimeout(() => {
+			$(previous).class('current-page')
+			$(current).classRemove('current-page')
+
+			setTimeout(() => {
+				$(previous).class('solid-page').css('position', '')
+				if (this.viewerTopMoreThanArticle()) {
+					scrollTo(document.body, this.scrollTop)
+				}
+				$(current).classRemove('solid-page').css('display', 'none')
+			}, 700)
+		}, 100)
+
+		this.emit('換頁', this.current, this)
+	}
+	clickPrevious() {
+		return this.jumpTo(this.current - 1)
+	}
+
+	nextPage(current, next){
+		$(next).css({
+			position: this.viewerTopMoreThanArticle() ? '' : 'absolute',
+			display: 'block',
+		})
+
+		setTimeout(() => {
+			$(next).class('current-page')
+			$(current).classRemove('current-page')
+			setTimeout(() => {
+				$(next).class('solid-page').css('position', '')
+				if (this.viewerTopMoreThanArticle()) {
+					scrollTo(document.body, this.scrollTop)
+				}
+				$(current).classRemove('solid-page').css('display', 'none')
+			}, 650)
+		}, 100)
+
+		this.emit('換頁', this.current, this)
+	}
+	clickNext() {
+		return this.jumpTo(this.current + 1)
+	}
+
+	setBottomBtn(parentContainer, cursor, totalHtml) {
+		const nextBtn = document.createElement('button')
+		const $nextBtn = $(nextBtn).class('next', 'page-btn').text('>')
+
+		this.nextBtn = nextBtn
+
+		const pageLabel = document.createElement('buttion')
+		const $pageLabel = $(pageLabel).class('page-code', 'page-btn').text(cursor + 1)
+		pageLabel.addEventListener('click', this.pageCodeClick.bind(this))
+
+		const previousBtn = document.createElement('button')
+		const $previousBtn = $(previousBtn).class('previous', 'page-btn').text('<')
+		this.previousBtn = previousBtn
+
+		// 翻页按钮栏
+		const pageBtnPanel = document.createElement('section')
+		const $pageBtnPanel = $(pageBtnPanel).class('bottom', 'page-btn-panel')
+		$pageBtnPanel.append(previousBtn, pageLabel, nextBtn)
+
+		// 第一頁的情況
+		if (!this.page.length) {
+			$previousBtn.css('visibility', 'hidden')
+		} else {
+			previousBtn.onclick = this.clickPrevious.bind(this)
+		}
+		// 尾頁的情況
+		if ((cursor + 1) === totalHtml.length) {
+			$nextBtn.css('visibility', 'hidden')
+		} else {
+			nextBtn.onclick = this.clickNext.bind(this)
+		}
+
+		parentContainer.appendChild(pageBtnPanel)
+	}
+
+	setTopBtn(parentContainer = $$('.page-btn-panel.top')) {
+		const nextBtn = document.createElement('button')
+		const $nextBtn = $(nextBtn).class('next', 'page-btn').text('>')
+		nextBtn.addEventListener('click', this.clickNext.bind(this))
+		this.topNextBtn = nextBtn
+
+		const pageLabel = document.createElement('a')
+		const $pageLabel = $(pageLabel).class('page-code', 'page-btn').text('首頁').setAttr('href', '/');
+
+		const previousBtn = document.createElement('button')
+		const $previousBtn = $(previousBtn).class('previous', 'page-btn').text('<')
+		previousBtn.addEventListener('click', this.clickPrevious.bind(this))
+		this.previousBtn = previousBtn
+
+		const onPaging = (newPageCode) => {
+			// 第一頁的情況
+			if (!newPageCode) {
+				$previousBtn.css('visibility', 'hidden')
+			} else {
+				$previousBtn.css('visibility', '')
+			}
+
+			// 尾頁的情況
+			if ((newPageCode + 1) === this.page.length) {
+				$nextBtn.css('visibility', 'hidden')
+			} else {
+				$nextBtn.css('visibility', '')
+			}
+		};
+		this.on('換頁', onPaging)
+		this.emit('換頁', this.current)
+
+		$(parentContainer).append(previousBtn, pageLabel, nextBtn)
+	}
+
+	jumpTo(pageCode) {
+		if (pageCode === this.current) {
+			return
+		}
+		const current = this.current
+		this.current = pageCode
+		if (pageCode > current) {
+			this.nextPage(this.page[current], this.page[pageCode])
+		} else {
+			this.previousPage(this.page[current], this.page[pageCode])
+		}
+	}
+	setJumperEvent() {
+		this.on('jumper-close', () => {
+			this.jumpTo(this.scrollNum)
+		})
+	}
+
 	createSplitPage(){
-		let containerHTML = this.container.innerHTML;
+		let containerHTML = this.container.innerHTML
 		this.container.innerHTML = '';
 
 		(() => {
@@ -239,73 +574,18 @@ class SplitPage {
 		.map((html, cursor, totalHtml) => {
 			if (html.length) {
 				let pageEle = document.createElement('div');
+
+				const resizeHandle = e => {
+					let 剩余高度 = $$('html').clientHeight - $$('.top-block').offsetHeight
+					pageEle.style.minHeight = 剩余高度 + 'px'
+				};
+				window.addEventListener('resize', resizeHandle)
+				resizeHandle()
+
 				pageEle.classList.add('page');
 				pageEle.innerHTML = html;
 
-				let scrollTop = $$('article').offsetTop;
-				window.addEventListener('resize', e => {
-					scrollTop = $$('article').offsetTop
-				})
-
-				let nextBtn = document.createElement('button');
-				$(nextBtn).text('下一页');
-				nextBtn.classList.add('next');
-				nextBtn.classList.add('page-btn');
-				nextBtn.onclick = e => {
-					++this.current;
-
-					this.page[this.current].style.position = this.viewerTopMoreThanArticle() ? '' : 'absolute';
-					this.page[this.current].style.display = 'block';
-
-					setTimeout(() => {
-						this.page[this.current].classList.add('current-page')
-						pageEle.classList.remove('current-page')
-						setTimeout(() => {
-							console.warn(scrollTop)
-							if (this.viewerTopMoreThanArticle()) {
-								scrollTo(document.body, scrollTop)
-							}
-							this.page[this.current].classList.add('solid-page')
-							pageEle.classList.remove('solid-page')
-
-							pageEle.style.display = 'none'
-							this.page[this.current].style.position = ''
-						}, 700)
-					}, 100)
-				};
-
-				let previousBtn = document.createElement('button');
-				$(previousBtn).text('上一页');
-				previousBtn.classList.add('previous');
-				previousBtn.classList.add('page-btn');
-				previousBtn.onclick = e => {
-					--this.current;
-					this.page[this.current].style.position = this.viewerTopMoreThanArticle() ? '' : 'absolute';
-					this.page[this.current].style.display = 'block';
-					setTimeout(() => {
-						this.page[this.current].classList.add('current-page')
-						pageEle.classList.remove('current-page')
-						setTimeout(() => {
-							this.viewerTopMoreThanArticle() && scrollTo(document.body, scrollTop);
-
-							pageEle.classList.remove('solid-page')
-							this.page[this.current].classList.add('solid-page')
-							pageEle.style.display = 'none';
-						}, 700)
-					}, 100)
-				};
-				/* 翻页按钮栏 */
-				const pageBtnPanel = document.createElement('section')
-				pageBtnPanel.classList.add('page-btn-panel')
-				/* 非第一页 */
-				if (cursor) {
-					pageBtnPanel.appendChild(previousBtn)
-				}
-				/* 非最后一页 */
-				if ((totalHtml.length - 1) !== cursor) {
-					pageBtnPanel.appendChild(nextBtn)
-				}
-				pageEle.appendChild(pageBtnPanel)
+				this.setBottomBtn(pageEle, cursor, totalHtml)
 
 				this.page.push(pageEle);
 				if (this.page.length === 1) {
@@ -320,12 +600,21 @@ class SplitPage {
 				}, 100);
 			}
 		})
+
+		this.scrollTop = $$('article').offsetTop
+		window.addEventListener('resize', e => {
+			this.scrollTop = $$('article').offsetTop
+		})
+
+		this.setTopBtn()
+		this.setpageJumper()
+		this.setJumperEvent()
 	}
 	/* 弹出 page 元素 */
 	rebound(pageEle){
 		pageEle.classList.remove('solid-page')
 		pageEle.classList.remove('current-page')
-		let time = Number(getComputedStyle(pageEle, null).transitionDuration.replace(/s/g))
+		let time = Number(getComputedStyle(pageEle, null).transitionDuration.replace(/s/g, ''))
 		setTimeout(() => {
 			pageEle.style.display = 'none'
 		}, time * 1000)
@@ -343,6 +632,8 @@ class SplitPage {
 		this.createSplitPage()
 	}
 }
+PamEventEmitter.use(SplitPage.prototype)
+
 
 class FrontFrame {
 	constructor(){
@@ -356,4 +647,3 @@ class FrontFrame {
 }
 
 let ff = new FrontFrame;
-document.body.style.opacity = '';

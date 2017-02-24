@@ -31,12 +31,8 @@ class PamEventEmitter {
 	}
 }
 PamEventEmitter.use = function (obj) {
-	Object.assign(obj, {
-		on: this.prototype.on,
-		emit: this.prototype.emit,
-		clear: this.prototype.clear,
-		remove: this.prototype.remove,
-		$checkPool: this.prototype.$checkPool,
+	['on', 'emit', 'clear', 'remove', '$checkPool'].forEach(p => {
+		obj[p] = this.prototype[p];
 	});
 };
 

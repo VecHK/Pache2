@@ -1,35 +1,72 @@
 @import "base.less";
 
 .page-btn-panel {
-	.flex-frame(center, center);
-	display: flex;
-	display: -webkit-flex;
-	margin: 4em 0 0;
+	&.top {
+		.flex-frame(center, flex-start);
+		display: flex;
+		display: -webkit-flex;
+		.page-btn {
+			border: 0;
+			border-bottom-left-radius: 4px;
+			border-bottom-right-radius: 4px;
+		}
+	}
+	&.bottom {
+		.flex-frame(center, flex-end);
+		display: flex;
+		display: -webkit-flex;
+		.page-btn {
+			border: 0;
+			border-top-left-radius: 4px;
+			border-top-right-radius: 4px;
+		}
+	}
+	width: 100%;
+
+	height: 32px;
+
+	/*
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	*/
+
+	@button-shadow-offset: 1px;
+	.page-btn:active {
+		background: hsl(240, 9%, 45%) 80%;
+		text-shadow: 0px @button-shadow-offset 0px @pache-color;
+	}
+	.page-code {
+		padding: 0 8px 0;
+		min-width: 32px;
+		height: 28px;
+		text-align: center;
+	}
+	.page-btn:not(.page-code) {
+		//height: 20px;
+	}
+	.page-btn {
+		outline: none;
+		position: relative;
+		margin: 0 0.5em;
+
+		color: azure;
+
+		background: #3a3a45;
+		//background: -webkit-linear-gradient(top, hsl(240, 9%, 45%), @pache-color 80%);
+		text-shadow: 0px -@button-shadow-offset 0px @pache-color;
+		box-shadow: 0px 1px 1px #999;
+		font-family: courier;
+		line-height: 1em;
+
+		cursor: pointer;
+
+		.flex-frame(center, center);
+	}
 }
 .page-btn-panel.left-mode {
 	flex-direction: row-reverse;
 	-webkit-flex-direction: row-reverse;
-}
-
-@button-shadow-offset: 1px;
-.page-btn:active {
-	background: -webkit-linear-gradient(top, @pache-color, hsl(240, 9%, 45%) 80%);
-	text-shadow: 0px @button-shadow-offset 0px @pache-color;
-}
-.page-btn {
-	outline: none;
-	position: relative;
-	margin: 0 1em;
-
-	color: azure;
-
-	border: 0;
-	border-radius: 4px;
-
-	background: #3a3a45;
-	background: -webkit-linear-gradient(top, hsl(240, 9%, 45%), @pache-color 80%);
-	text-shadow: 0px -@button-shadow-offset 0px @pache-color;
-	box-shadow: 0px 1px 1px #999;
 }
 
 .page {
@@ -42,7 +79,7 @@
 
 	transition-duration: .618s;
 	transition-property: transform, opacity, left, top, height;
-	padding: 1.5em;
+	padding: 1em 1.5em 0em;
 	width: ~"calc(100% - 1.5em - 1.5em)";
 	background: white;
 }
