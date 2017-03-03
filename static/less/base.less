@@ -89,3 +89,26 @@ header {
 		}
 	}
 }
+
+.triangle-direct(top, @color){
+	border-bottom-color: @color;
+}
+.triangle-direct(bottom, @color){
+	border-top-color: @color;
+}
+.triangle-direct(left, @color){
+	border-right-color: @color;
+}
+.triangle-direct(right, @color){
+	border-left-color: @color;
+}
+.triangle(@_, @width:10px, @color:grey){
+	width: 0;
+	height: 0;
+
+	overflow: hidden;
+
+	border: solid transparent @width;
+
+	.triangle-direct(@_, @color);
+}

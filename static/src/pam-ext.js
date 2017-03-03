@@ -238,33 +238,57 @@ class Scroller {
 		}
 	}
 	setTouchEvent(touchEle) {
+		let 滑動靈敏度 = 75
 		let status = {
 			x: 0,
 			y: 0,
 		}
-		touchEle.addEventListener('touchstart', e => {
+		let directMiddle = e => {
+			if (status.lastY > e.touches[0].clientY) {
+				/* 上一次觸點比這一次高（上滑方向） */
+				if (status.scrollUpDirect !== true) {
+					status.y = e.touches[0].clientY
+					status.scrollUpDirect = true
+				}
+			} else {
+				if (status.scrollUpDirect !== false) {
+					status.y = e.touches[0].clientY
+					status.scrollUpDirect = false
+				}
+			}
+		}
+		window.addEventListener('touchstart', e => {
 			this.isTouch = true
 			status.x = e.touches[0].clientX
 			status.y = e.touches[0].clientY
-			console.warn(e)
+			status.startY = e.touches[0].clientY
+
+			directMiddle(e)
 		})
-		touchEle.addEventListener('touchend', e => {
+		window.addEventListener('touchend', e => {
 			this.isTouch = false
 		})
-		touchEle.addEventListener('touchmove', e => {
-			//console.info(e.touches[0].clientX, e.touches[0].clientY)
-			e.preventDefault()
+		window.addEventListener('touchmove', e => {
+			directMiddle(e)
+			status.lastY = e.touches[0].clientY
+
+			if (!this._canScroll) {
+				e.preventDefault()
+			}
+
 			let diffY = status.y - e.touches[0].clientY
-			if (Math.abs(diffY) < 50) {
+			if (Math.abs(diffY) < 滑動靈敏度) {
 				return
 			}
 			status.y = e.touches[0].clientY
+
+			/* 觸摸點在開始點上方 */
 			if (diffY > 0) {
 				this.emit('上滑')
 			} else {
 				this.emit('下滑')
 			}
-		})
+		}, { passive: false })
 
 	}
 	constructor(scrollEle = window, touchEle = window) {
@@ -293,17 +317,14 @@ class PageJumper {
 		}
 		this.emit('jumper-open')
 
-		const container = this.pageJumperContainer
-		let $pjf = $('.page-jumper-content', container).css('top', '')
+		let $pjf = $(this.pageJumperContainer).css('bottom', '0em')
 		let time = Number(getComputedStyle($pjf[0], null).transitionDuration.replace(/s/g, ''))
-		$(container).css('display', 'flex')
+
 		setTimeout(() => {
-			$('.page-jumper-content', container).css('top', '0px')
-			setTimeout(() => {
-				this.isOpen = true
-				this.animating = false
-			}, time * 1000)
-		}, 32)
+			this.isOpen = true
+			this.animating = false
+			this.emit('jumper-opened')
+		}, time * 1000)
 	}
 	closePageJumper() {
 		if (this.animating) {
@@ -314,13 +335,11 @@ class PageJumper {
 		this.emit('jumper-close')
 
 		this.isOpen = false
-		const container = this.pageJumperContainer
 
-		let $pjf = $('.page-jumper-content', container).css('top', '')
+		let $pjf = $(this.pageJumperContainer).css('bottom', '')
 		let time = Number(getComputedStyle($pjf[0], null).transitionDuration.replace(/s/g, ''))
 
 		setTimeout(() => {
-			$(container).css('display', '')
 			this.animating = false
 			this.scroller._canScroll = true
 			this.emit('jumper-closed')
@@ -328,43 +347,69 @@ class PageJumper {
 	}
 	setPageJumperBtn() {
 		const container = this.pageJumperContainer;
-		$$('.page-jumper-bg', container).addEventListener('click', e => {
+
+		this.on('jumper-opened', () => {
+			$('.page-jumper-bg').css('display', 'block')
+		})
+		this.on('jumper-close', () => {
+			$('.page-jumper-bg').css('display', '')
+		})
+		$$('.page-jumper-bg').addEventListener('click', e => {
 			this.closePageJumper()
 		})
 	}
 
 	pageCodeClick() { this.openPageJumper() }
 
-	scrollDown() {
+	scrollDown(canBackToTop) {
 		console.info('down')
-		if (this.scrollNum >= this.page.length - 1) {
-			this.scrollNum = 0
+		if (canBackToTop) {
+			if (this.scrollNum >= this.page.length - 1) {
+				this.scrollNum = 0
+			} else {
+				++this.scrollNum
+			}
 		} else {
-			++this.scrollNum
+			if (this.scrollNum >= this.page.length - 1) {
+				this.scrollNum = this.page.length - 1
+			} else {
+				++this.scrollNum
+			}
 		}
 	}
-	scrollUp() {
+	scrollUp(canBackToBottom) {
 		console.info('up')
-		if (this.scrollNum <= 0) {
-			this.scrollNum = this.page.length - 1
+		if (canBackToBottom) {
+			if (this.scrollNum <= 0) {
+				this.scrollNum = this.page.length - 1
+			} else {
+				--this.scrollNum
+			}
 		} else {
-			--this.scrollNum
+			if (this.scrollNum <= 0) {
+				this.scrollNum = 0
+			} else {
+				--this.scrollNum
+			}
 		}
 	}
 	scrollNumChange(scrollNum) {
+		const totalHeight = $$('.page-select-list', this.pageJumperContainer).offsetHeight;
+		const scrollHeight = this.pageJumperContainer.offsetHeight;
+
 		const $items = $('.page-select-item', this.pageJumperContainer)
-		let height = $items[scrollNum].offsetHeight * scrollNum
+		let height = $items[scrollNum].offsetHeight;
 		console.warn(scrollNum)
+
+		$('.page-select-list', this.pageJumperContainer).css({
+			margin: `calc((${scrollHeight / 2}px) - (${height / 2}px) - ${height * (scrollNum)}px) 0`
+		})
 
 		$('.page-select-list .current', this.pageJumperContainer).classRemove('current')
 		$($items[scrollNum]).class('current')
-
-		$('.page-select-list', this.pageJumperContainer).css({
-			marginTop: `calc(96px - ${height}px - 31px)`
-		})
 	}
 
-	setpageJumper(container = $$('.page-jumper')) {
+	setpageJumper(container = $$('.page-jumper-frame')) {
 		this.scroller = new Scroller(window, $$('.page-jumper-content', container));
 		console.info(this.scroller)
 		this.pageJumperContainer = container
@@ -381,13 +426,16 @@ class PageJumper {
 				return _scrollNum
 			},
 		})
-		this.scrollNum = this.current
+
+		const 調整頁碼 = pagecode => this.scrollNum = pagecode;
+		this.on('換頁', 調整頁碼)
+		調整頁碼(this.current)
 
 		this.scroller.on('滾輪-上', () => {
-			this.isOpen && this.scrollUp()
+			this.isOpen && this.scrollUp(true)
 		})
 		this.scroller.on('滾輪-下', () => {
-			this.isOpen && this.scrollDown()
+			this.isOpen && this.scrollDown(true)
 		})
 
 		this.scroller.on('上滑', () => {
@@ -558,10 +606,9 @@ class SplitPage extends PageJumper {
 	}
 
 	createSplitPage(){
-		let containerHTML = this.container.innerHTML
-		this.container.innerHTML = '';
+		let containerHTML = this.container.innerHTML;
 
-		(() => {
+		let pageEles = (() => {
 			if (this.splitElements.length) {
 				console.log(containerHTML.split(this.splitElements[0].outerHTML))
 				console.info(containerHTML);
@@ -585,7 +632,10 @@ class SplitPage extends PageJumper {
 				pageEle.classList.add('page');
 				pageEle.innerHTML = html;
 
-				this.setBottomBtn(pageEle, cursor, totalHtml)
+				/* 要兩頁以上才會顯示跳頁按鈕 */
+				if (totalHtml.length > 1) {
+					this.setBottomBtn(pageEle, cursor, totalHtml)
+				}
 
 				this.page.push(pageEle);
 				if (this.page.length === 1) {
@@ -594,12 +644,12 @@ class SplitPage extends PageJumper {
 					this.rebound(pageEle)
 				}
 				let pageEleHan = Han(pageEle).render()
-				this.container.appendChild(pageEle)
-				setTimeout(() => {
-					const splitLayer = new SplitLayer(pageEle)
-				}, 100);
+				const splitLayer = new SplitLayer(pageEle)
+				return pageEle
 			}
 		})
+		this.container.innerHTML = '';
+		$(this.container).append(pageEles)
 
 		this.scrollTop = $$('article').offsetTop
 		window.addEventListener('resize', e => {

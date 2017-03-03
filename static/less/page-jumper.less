@@ -13,6 +13,7 @@
 	display: none;
 }
 .page-jumper-bg {
+	display: none;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -20,56 +21,91 @@
 	height: 100%;
 
 	cursor: pointer;
-
+	-webkit-tap-highlight-color: transparent;
 }
 .page-jumper-frame {
-	z-index: 10;
-	position: relative;
-	height: 192px;
+	position: fixed;
+	bottom: -8em;
+	height: 8em;
 	width: 100%;
+
+	transition-property: bottom;
+	transition-duration: .618s;
 }
 
 .page-jumper-content {
 	margin: auto;
-	padding: 1em;
-	width: ~"calc(100% - 2em)";
-	height: ~"calc(100% - 2em)";
-	position: absolute;
-	top: calc(100% + 16px);
+	padding: 0 1em;
+	width: ~"calc(4em - 2em)";
+	height: ~"calc(100%)";
+	overflow: hidden;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	margin: auto;
+	position: relative;
 	left: 0;
-	box-shadow: 0px 0px 4px #999;
 
-	background: rgba(255, 255, 255, 0.95);
+	//box-shadow: 0px 0px 4px #999;
+
+	background: @pache-color;//rgba(255, 255, 255, 0.95);
 	transition-property: top;
-	transition-duration: .382s;
+	transition-duration: .618s;
+
+	.jumper-triangle {
+		.triangle(right, 8px, white);
+		position: absolute;
+		left: 0;
+		top: ~"calc(50% - (8px))";
+	}
+
+	&:before, &:after {
+		content: " ";
+		height: 32px;
+		width: 100%;
+		position: absolute;
+		left: 0;
+
+		box-shadow: 0px 0px 64px #333;
+		z-index: 99;
+	}
+	&:before {
+		top: -32px;
+	}
+	&:after {
+		bottom: -32px;
+	}
 }
 
 .page-select-list {
 	padding: 0;
 	margin: 0;
-	margin-top: calc(96px - 31px / 2);
-	transition-property: margin-top;
-	transition-duration: .1s;
+	transition-property: margin;
+	transition-duration: .618s;
 
-	.current {
-		background: ~"hsla(201, 48%, 35%, .382)"
-	}
 	.page-select-item {
+		color: #BBB;
+		font-family: Arial;
 		text-align: center;
-		transition-property: background;
-		transition-duration: .1s;
+		transition-property: background, color;
+		transition-duration: .618s;
 		font-size: 1.5em;
+		border-bottom: 1px solid grey;
+		padding: .5em 0;
+	}
+	.page-select-item:last-child {
+		border-bottom: 1px solid transparent
+	}
+	.current {
+		color: white;
+		//background: ~"hsla(201, 48%, 35%, .382)"
 	}
 }
 
 @media screen and (min-width: 800px) {
 	.page-jumper-frame {
-		width: 480px;
+		//width: 480px;
 	}
-	.page-jumper-content {
-		border-top-left-radius: 8px;
-		border-top-right-radius: 8px;
-	}
+
 }
 
 // (360px 以上，但小于 800px)的设备

@@ -4,6 +4,7 @@ const envir = require('./envir');
 const path = require('path');
 const logger = require('morgan');
 
+const favicon = require('serve-favicon');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -20,6 +21,9 @@ app.use(express.static(staticDir));
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+/* Pache icon */
+app.use(favicon(path.join(__dirname, 'static', 'favicon.ico')));
 
 //-----------------前台-----------------
 app.use('/', router_front);
