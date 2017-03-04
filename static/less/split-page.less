@@ -74,7 +74,16 @@
 		.flex-frame(center, center);
 	}
 }
-
+/* split-page 分頁后，會給 article 元素加上 .split 類 */
+.article:not(.splited) {
+	padding: 1em 1.5em 0em;
+}
+.article:not(.splited) {
+	width: ~"calc(100% - 1.5em - 1.5em)";
+}
+.splited .page {
+	padding: 1em 1.5em 0em;
+}
 .page {
 	opacity: 0;
 	position: fixed;
@@ -85,8 +94,6 @@
 
 	transition-duration: .618s;
 	transition-property: transform, opacity, left, top, height;
-	padding: 1em 1.5em 0em;
-	width: ~"calc(100% - 1.5em - 1.5em)";
 	background: white;
 }
 

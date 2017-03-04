@@ -402,7 +402,7 @@ class PageJumper {
 		console.warn(scrollNum)
 
 		$('.page-select-list', this.pageJumperContainer).css({
-			margin: `calc((${scrollHeight / 2}px) - (${height / 2}px) - ${height * (scrollNum)}px) 0`
+			margin: `calc((${scrollHeight}px / 2) - (${height}px / 2) - ${height * (scrollNum)}px) 0`
 		})
 
 		$('.page-select-list .current', this.pageJumperContainer).classRemove('current')
@@ -659,6 +659,7 @@ class SplitPage extends PageJumper {
 		this.setTopBtn()
 		this.setpageJumper()
 		this.setJumperEvent()
+		this.container.classList.add('splited')
 	}
 	/* 弹出 page 元素 */
 	rebound(pageEle){
