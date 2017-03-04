@@ -464,10 +464,6 @@ class SplitPage extends PageJumper {
 		return scrollableElementScrollTop > this.container.offsetTop
 	}
 
-	getSplitElements() {
-		return $('.split-page', this.container).filter(ele => ele.parentNode === this.container)
-	}
-
 	previousPage(current, previous){
 		$(previous).css({
 			position: this.viewerTopMoreThanArticle() ? '' : 'absolute',
@@ -605,52 +601,33 @@ class SplitPage extends PageJumper {
 		})
 	}
 
-	createSplitPage(){
+	setSplitPage(){
 		let containerHTML = this.container.innerHTML;
 
-		let pageEles = (() => {
-			if (this.splitElements.length) {
-				console.log(containerHTML.split(this.splitElements[0].outerHTML))
-				console.info(containerHTML);
-				console.warn(this.splitElements[0].outerHTML);
-				return containerHTML.split(this.splitElements[0].outerHTML)
+		$('.page', this.container).forEach((pageEle, pageCursor, pageTotal) => {
+			const resizeHandle = e => {
+				let 剩余高度 = $$('html').clientHeight - $$('.top-block').offsetHeight
+				pageEle.style.minHeight = 剩余高度 + 'px'
+			};
+			window.addEventListener('resize', resizeHandle)
+			resizeHandle()
+
+			/* 要兩頁以上才會顯示跳頁按鈕 */
+			if (pageTotal.length > 1) {
+				this.setBottomBtn(pageEle, pageCursor, pageTotal)
+			}
+
+			this.page.push(pageEle);
+
+			if (pageEle.className.indexOf('current-page') !== -1) {
+				this.show(pageEle)
 			} else {
-				return [containerHTML]
+				this.rebound(pageEle)
 			}
-		})()
-		.map((html, cursor, totalHtml) => {
-			if (html.length) {
-				let pageEle = document.createElement('div');
 
-				const resizeHandle = e => {
-					let 剩余高度 = $$('html').clientHeight - $$('.top-block').offsetHeight
-					pageEle.style.minHeight = 剩余高度 + 'px'
-				};
-				window.addEventListener('resize', resizeHandle)
-				resizeHandle()
-
-				pageEle.classList.add('page');
-				pageEle.innerHTML = html;
-
-				/* 要兩頁以上才會顯示跳頁按鈕 */
-				if (totalHtml.length > 1) {
-					this.setBottomBtn(pageEle, cursor, totalHtml)
-				}
-
-				this.page.push(pageEle);
-				if (this.page.length === 1) {
-					this.show(pageEle)
-				} else {
-					this.rebound(pageEle)
-				}
-				let pageEleHan = Han(pageEle).render()
-				const splitLayer = new SplitLayer(pageEle)
-				return pageEle
-			}
+			let pageEleHan = Han(pageEle).render()
+			const splitLayer = new SplitLayer(pageEle)
 		})
-		this.container.innerHTML = '';
-		$(this.container).append(pageEles)
-
 		this.scrollTop = $$('article').offsetTop
 		window.addEventListener('resize', e => {
 			this.scrollTop = $$('article').offsetTop
@@ -659,6 +636,7 @@ class SplitPage extends PageJumper {
 		this.setTopBtn()
 		this.setpageJumper()
 		this.setJumperEvent()
+
 		this.container.classList.add('splited')
 	}
 	/* 弹出 page 元素 */
@@ -679,8 +657,8 @@ class SplitPage extends PageJumper {
 	}
 	position(){}
 	split(){
-		this.splitElements = this.getSplitElements()
-		this.createSplitPage()
+		//this.splitElements = this.getSplitElements()
+		this.setSplitPage()
 	}
 }
 PamEventEmitter.use(SplitPage.prototype)

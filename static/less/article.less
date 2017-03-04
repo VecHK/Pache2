@@ -327,13 +327,13 @@ article * {
 	.info {
 		display: block;
 	}
-	.info, .article, .page {
+	.info, .page {
 		padding: 0;
 		width: 760px;
 		padding: ~"1em calc(50% - (760px / 2)) 0em";
 		font-size: 1.2em;
 	}
-	.page, .article {
+	.page {
 		ul, ol {
 			margin: 1em 1em;
 			> li {
@@ -358,20 +358,20 @@ article * {
 
 // (360px 以上，但小于 800px)的设备
 @media screen and (max-width: 800px) and (min-width: 360px) {
-	.page, .info, .article {
+	.page, .info {
 		font-size: 1em;
 	}
-	.page, .article {
+	.page {
 		img { max-height: 400px }
 	}
 }
 
 // 360px 以下的设备
 @media screen and (max-width: 359px) {
-	.info, .page, .article {
+	.info, .page {
 		font-size: 1em;
 	}
-	.page, .article {
+	.page {
 		img { max-height: 320px }
 	}
 }

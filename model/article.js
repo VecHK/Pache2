@@ -1,3 +1,6 @@
+const jsdom = require( 'jsdom' );
+const cheerio = require('cheerio');
+const fs = require('fs');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -58,6 +61,24 @@ const contentFormat = function () {
 	} else {
 		this.format = 'unknown contentType';
 	}
+
+	/* 分頁處理 */
+	const splited = this.format.split(`<div class="split-page"></div>`);
+	this.format = splited.map(eleHTML => `<div class="page">${eleHTML}</div>`).join('\n');
+
+	/* 將首頁固定 */
+	let $ = cheerio.load(this.format)
+	$($('.page')[0]).addClass('current-page').addClass('solid-page')
+
+	//應該需要轉義的
+	//this.format = entities.decode($.html())
+
+	this.format = $.html()
+
+	/* 取出腳註 */
+	//let $ = cheerio.load(this.format);
+	//let footnotesHTML = $('section.footnotes').html()
+	//$('section.footnotes').remove()
 };
 
 ArticleSchema.pre('save', function (next) {

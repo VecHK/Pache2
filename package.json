@@ -1,6 +1,6 @@
 {
   "name": "node-pache",
-  "version": "0.5.123",
+  "version": "0.5.124",
   "description": "vec 自家用 blog",
   "main": "master.js",
   "bin": {
@@ -27,6 +27,7 @@
     "han-css": "^3.3.0",
     "highlight.js": "^9.9.0",
     "html-entities": "^1.2.0",
+    "jsdom": "^9.11.0",
     "markdown-it": "^8.2.2",
     "markdown-it-footnote": "^3.0.1",
     "mongoose": "^4.7.4",
