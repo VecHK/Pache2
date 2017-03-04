@@ -172,6 +172,7 @@ PamEventEmitter.use(Layer.prototype)
 
 class SplitLayer extends SplitLayerFootnote {
 	getAnthorContent(footnote){
+		$('.footnotes').css('display', 'none')
 		var anthor = $$(`[href="#${footnote.a.id}"]`, $$('.footnotes'));
 		return anthor.parentNode.innerHTML;
 	}

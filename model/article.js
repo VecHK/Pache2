@@ -67,18 +67,22 @@ const contentFormat = function () {
 	this.format = splited.map(eleHTML => `<div class="page">${eleHTML}</div>`).join('\n');
 
 	/* 將首頁固定 */
-	let $ = cheerio.load(this.format)
-	$($('.page')[0]).addClass('current-page').addClass('solid-page')
+	let $ = cheerio.load(this.format);
+	$($('.page')[0]).addClass('current-page').addClass('solid-page');
 
 	//應該需要轉義的
 	//this.format = entities.decode($.html())
 
-	this.format = $.html()
+	this.format = $.html();
 
 	/* 取出腳註 */
-	//let $ = cheerio.load(this.format);
-	//let footnotesHTML = $('section.footnotes').html()
-	//$('section.footnotes').remove()
+	$ = cheerio.load(this.format);
+	let footnotesHTML = $('section.footnotes').html();
+	if ($('section.footnotes').length) {
+		$('section.footnotes').remove();
+		this.format = $.html() + `\n<section class="footnotes">${footnotesHTML}</section>`;
+	}
+
 };
 
 ArticleSchema.pre('save', function (next) {

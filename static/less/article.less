@@ -152,6 +152,11 @@ article * {
 		max-width: 100%;
 		overflow: auto;
 	}
+	pre.source-code {
+		width: ~"calc(100% + 1.5em * 2)";
+		position: relative;
+		left: ~"calc(-1.5em)";
+	}
 
 	pre.text-type, p, li {
 		.justify-text;
@@ -312,6 +317,12 @@ article * {
 .info {
 	display: none;
 }
+
+section.footnotes {
+	font-size: .75em;
+	padding: 0 2em;
+}
+
 // 大于 800px 的设备
 @media screen and (min-width: 800px) {
 	.article-details {
@@ -327,13 +338,21 @@ article * {
 	.info {
 		display: block;
 	}
-	.info, .page {
+	.info, .page, section.footnotes {
 		padding: 0;
 		width: 760px;
 		padding: ~"1em calc(50% - (760px / 2)) 0em";
 		font-size: 1.2em;
 	}
+	section.footnotes {
+		font-size: 1em;
+	}
 	.page {
+		pre.source-code {
+			width: 100%;
+			position: static;
+			left: 0;
+		}
 		ul, ol {
 			margin: 1em 1em;
 			> li {
