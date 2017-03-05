@@ -311,6 +311,7 @@ class PageJumper {
 	}
 	openPageJumper() {
 		this.scroller._canScroll = false;
+		this.opened = true;
 		if (this.animating) {
 			return ;
 		} else {
@@ -318,8 +319,13 @@ class PageJumper {
 		}
 		this.emit('jumper-open')
 
-		let $pjf = $(this.pageJumperContainer).css('bottom', '0em')
-		let time = Number(getComputedStyle($pjf[0], null).transitionDuration.replace(/s/g, ''))
+		let $frame = $(this.pageJumperContainer)
+		let time = Number(getComputedStyle($frame[0], null).transitionDuration.replace(/s/g, ''))
+
+		let cssHeight = '8em'
+		$frame.css('height', '8em')
+
+		this.scrollNumChange(this.current, '3em')
 
 		setTimeout(() => {
 			this.isOpen = true
@@ -328,6 +334,7 @@ class PageJumper {
 		}, time * 1000)
 	}
 	closePageJumper() {
+		this.opened = false;
 		if (this.animating) {
 			return
 		} else {
@@ -337,15 +344,21 @@ class PageJumper {
 
 		this.isOpen = false
 
-		let $pjf = $(this.pageJumperContainer).css('bottom', '')
+		let $pjf = $(this.pageJumperContainer).css('height', '').css('bottom', '-2em')
 		let time = Number(getComputedStyle($pjf[0], null).transitionDuration.replace(/s/g, ''))
+
+		this.scrollNumChange(this.current, '-3em')
 
 		setTimeout(() => {
 			this.animating = false
 			this.scroller._canScroll = true
 			this.emit('jumper-closed')
+			setTimeout(() => {
+				$pjf.css('bottom', '')
+			}, 300)
 		}, time * 1000)
 	}
+
 	setPageJumperBtn() {
 		const container = this.pageJumperContainer;
 
@@ -394,7 +407,7 @@ class PageJumper {
 			}
 		}
 	}
-	scrollNumChange(scrollNum) {
+	scrollNumChange(scrollNum, plusItem = '0px') {
 		const totalHeight = $$('.page-select-list', this.pageJumperContainer).offsetHeight;
 		const scrollHeight = this.pageJumperContainer.offsetHeight;
 
@@ -403,7 +416,7 @@ class PageJumper {
 		console.warn(scrollNum)
 
 		$('.page-select-list', this.pageJumperContainer).css({
-			margin: `calc((${scrollHeight}px / 2) - (${height}px / 2) - ${height * (scrollNum)}px) 0`
+			margin: `calc((${scrollHeight}px / 2) - (${height}px / 2) - ${height * (scrollNum)}px + ${plusItem}) 0`
 		})
 
 		$('.page-select-list .current', this.pageJumperContainer).classRemove('current')
@@ -415,6 +428,12 @@ class PageJumper {
 		console.info(this.scroller)
 		this.pageJumperContainer = container
 		this.setPageJumperBtn()
+
+		$$('.page-jumper-content', container).addEventListener('click', e => {
+			if (!this.opened) {
+				this.openPageJumper()
+			}
+		})
 
 		this.renderList(this.page.length)
 
@@ -481,8 +500,8 @@ class SplitPage extends PageJumper {
 					scrollTo(document.body, this.scrollTop)
 				}
 				$(current).classRemove('solid-page').css('display', 'none')
-			}, 700)
-		}, 100)
+			}, 618)
+		}, 32)
 
 		this.emit('換頁', this.current, this)
 	}
@@ -505,8 +524,8 @@ class SplitPage extends PageJumper {
 					scrollTo(document.body, this.scrollTop)
 				}
 				$(current).classRemove('solid-page').css('display', 'none')
-			}, 650)
-		}, 100)
+			}, 618)
+		}, 32)
 
 		this.emit('換頁', this.current, this)
 	}
@@ -607,15 +626,15 @@ class SplitPage extends PageJumper {
 
 		$('.page', this.container).forEach((pageEle, pageCursor, pageTotal) => {
 			const resizeHandle = e => {
-				let 剩余高度 = $$('html').clientHeight - $$('.top-block').offsetHeight
-				pageEle.style.minHeight = 剩余高度 + 'px'
+				let 剩余高度 = screen.height;
+				pageEle.style.minHeight = `calc(${剩余高度}px - 2em)`
 			};
-			window.addEventListener('resize', resizeHandle)
+//			window.addEventListener('resize', resizeHandle)
 			resizeHandle()
 
-			/* 要兩頁以上才會顯示跳頁按鈕 */
-			if (pageTotal.length > 1) {
-				this.setBottomBtn(pageEle, pageCursor, pageTotal)
+			/* 不到兩頁的情況下不顯示跳頁對話框及其跳頁對話框按鈕 */
+			if (pageTotal.length <= 1) {
+				$('.page-jumper').css('display', 'none')
 			}
 
 			this.page.push(pageEle);
