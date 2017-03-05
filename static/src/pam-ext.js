@@ -310,6 +310,7 @@ class PageJumper {
 		}
 	}
 	openPageJumper() {
+		this.lastPageCode = this.current;
 		this.scroller._canScroll = false;
 		this.opened = true;
 		if (this.animating) {
@@ -325,7 +326,10 @@ class PageJumper {
 		let cssHeight = '8em'
 		$frame.css('height', '8em')
 
-		this.scrollNumChange(this.current, '3em')
+		this.scrollNumChange(this.current, `3em`)
+		$('.page-jumper-content', this.pageJumperContainer).class('open')
+
+		$('.jumper-triangle', this.pageJumperContainer).css('top', 'calc(50% - (8px))')
 
 		setTimeout(() => {
 			this.isOpen = true
@@ -344,10 +348,17 @@ class PageJumper {
 
 		this.isOpen = false
 
-		let $pjf = $(this.pageJumperContainer).css('height', '').css('bottom', '-2em')
+		let $pjf = $(this.pageJumperContainer).css('height', '');
+		if (this.lastPageCode !== this.current) {
+			$pjf.css('bottom', '-2em')
+		}
 		let time = Number(getComputedStyle($pjf[0], null).transitionDuration.replace(/s/g, ''))
 
+		//this.scrollNumChange(this.current, '-3em')
 		this.scrollNumChange(this.current, '-3em')
+		$('.page-jumper-content', this.pageJumperContainer).classRemove('open')
+
+		$('.jumper-triangle', this.pageJumperContainer).css('top', '')
 
 		setTimeout(() => {
 			this.animating = false
