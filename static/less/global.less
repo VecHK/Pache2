@@ -1,5 +1,18 @@
 @import "base.less";
 
+/*
+	使用 Sofia Pro 的 WebFont
+	use "Sofia Pro" WebFont
+
+	links: https://www.fontspring.com/fonts/mostardesign/sofia-pro/sofia-pro-light
+ */
+@font-face {
+	font-family: 'sofia_prolight';
+	src: url('/font/sofiapro-light-webfont.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
 @page-code-height: 1.6em;
 @list-space-height: 3em;
 
@@ -12,14 +25,53 @@ body, html {
 	margin: 0;
 	min-height: 100%;
 }
-
+.title {
+	position: relative;
+}
 .title a {
 	font-size: 1.75em;
-	font-family: @pache-title-link-font-family;
+	font-family: sofia_prolight, @pache-title-link-font-family;
 	text-decoration: blink;
 	color: @pache-title-color;
-	text-shadow: 0px 0px 1px hsla(240, 8%, 30%, 0.382);
-	text-shadow: 0px 1px 0 rgba(200, 200, 200, 0.41);
+
+	.border-direct(top, @set) { border-top: @set }
+	.border-direct(bottom, @set) { border-bottom: @set }
+	.border-direct(left, @set) { border-left: @set }
+	.border-direct(right, @set) { border-right: @set }
+	.border(@direct, @set: 2px solid @pache-grey) {
+		.border-direct(@direct, @set)
+	}
+	&:hover:before, &:hover:after {
+		opacity: 1;
+		height: .8em;
+		width: .5em;
+	}
+	&:before, &:after {
+		opacity: 0;
+		transition-delay: .382s;
+		transition-property: height width opacity;
+		transition-duration: .382s;
+		width: 0em;
+		height: 0em;
+
+		position: absolute;
+	}
+	&:before {
+		content: " ";
+		left: -.5em;
+		top: -.3em;
+
+		.border(top);
+		.border(left);
+	}
+	&:after {
+		content: " ";
+		right: -.5em;
+		bottom: -.3em;
+
+		.border(bottom);
+		.border(right);
+	}
 }
 .time {
 	font-family: @pache-time-label-font-family;
