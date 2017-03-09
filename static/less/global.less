@@ -7,7 +7,7 @@
 	links: https://www.fontspring.com/fonts/mostardesign/sofia-pro/sofia-pro-light
  */
 @font-face {
-	font-family: 'sofia_prolight';
+	font-family: 'Sofia Pro light';
 	src: url('/font/sofiapro-light-webfont.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
@@ -26,54 +26,90 @@ body, html {
 	min-height: 100%;
 }
 .title {
+	display: inline-block;
 	position: relative;
 }
+
 .title a {
 	font-size: 1.75em;
-	font-family: sofia_prolight, @pache-title-link-font-family;
+	font-family: @pache-title-link-font-family;
 	text-decoration: blink;
 	color: @pache-title-color;
 
-	.border-direct(top, @set) { border-top: @set }
-	.border-direct(bottom, @set) { border-bottom: @set }
-	.border-direct(left, @set) { border-left: @set }
-	.border-direct(right, @set) { border-right: @set }
-	.border(@direct, @set: 2px solid @pache-grey) {
-		.border-direct(@direct, @set)
+	&.sofia-font {
+		font-family: "Sofia Pro light", @pache-title-link-font-family
 	}
-	&:hover:before, &:hover:after {
-		opacity: 1;
-		height: .8em;
-		width: .5em;
+}
+
+@media screen and (min-width: 800px) and (orientation: landscape) {
+
+	/*** Hover 箭頭 > 標題 <
+
+	angle: 夾角大小
+	line-color: 線條顏色
+	line-width: 線寬
+	square: 塊長寬
+	@title-interval: 箭頭與標題之間隔
+	*/
+	@angle: 48deg;
+	@line-color: @pache-grey;
+	@line-width: 1.5px;
+	@square: 32px;
+	@title-interval: 2px;
+
+	.title a:hover {
+		.right-arrow, .left-arrow {
+			opacity: 1;
+		}
+		.right-arrow {
+			right: calc(100% + @title-interval);
+		}
+		.left-arrow {
+			left: calc(100% + @title-interval);
+		}
 	}
-	&:before, &:after {
+
+	.line(@direct, @rotate-deg) {
+		height: @line-width;
+		width: 100%;
+		background: @line-color;
+		transform-origin: @direct 50%;
+		transform: rotate(calc(@rotate-deg));
+	}
+	.right-arrow, .left-arrow {
 		opacity: 0;
-		transition-delay: .382s;
-		transition-property: height width opacity;
-		transition-duration: .382s;
-		width: 0em;
-		height: 0em;
+		.flex-frame;
+		display: -webkit-flex;
+		display: flex;
 
 		position: absolute;
-	}
-	&:before {
-		content: " ";
-		left: -.5em;
-		top: -.3em;
+		top: ~"calc(50% - ("@square~") / 2)";
 
-		.border(top);
-		.border(left);
-	}
-	&:after {
-		content: " ";
-		right: -.5em;
-		bottom: -.3em;
+		width: @square;
+		height: @square;
 
-		.border(bottom);
-		.border(right);
+		transition-property: opacity, right, left;
+		transition-duration: .618s;
+
+		.line-2 {
+			position: relative;
+			left: calc(-(@square / 2));
+		}
+	}
+
+	.right-arrow {
+		right: calc(100% + @title-interval + 2px);
+		.line-1 { .line(right, @angle) }
+		.line-2 { .line(right, -@angle) }
+	}
+	.left-arrow {
+		left: calc(100% + @title-interval  + 2px);
+		.line-1 { .line(right, 180deg - @angle) }
+		.line-2 { .line(right, 180deg + @angle) }
 	}
 }
 .time {
+	display: block;
 	font-family: @pache-time-label-font-family;
 	color: @pache-time-label-color;
 }
