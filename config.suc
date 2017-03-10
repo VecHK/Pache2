@@ -1,44 +1,78 @@
 # Pache 配置
-# 采用的是 Suc 配置文件的语法
+# 採用的是 Suc 配置文件的語法
 #
 # propertyName >*
-# 这上面形式的是要求输入【字符串】，大于号右边开始接受输入的字符串，左侧的propertyName
-# 则是属性名，回车结束输入
+# 這上面形式的是要求輸入【字符串】，從大於號右邊開始接受輸入的字符串，
+# 左側的 propertyName 則是屬性名，按下回車結束輸入
+#
 # test > abc
-# 相当于 { test: " abc" }
+# 相當於 { test: " abc" }
 #
 # [propertyName] 9
-# 这上面形式的是要求输入【数字】或者【布尔值】，由中括号[]括起来的则是属性名
-# 右侧的数值为数字，注意，如果输入的不是【数字】或者【布尔值】，Suc 则会报警
+# 這上面形式的是要求輸入【數字】或者【布爾值】，由中括號[]括起來的則是屬性名
+# 右側的數值為數字，注意，如果輸入的不是【數字】或者【布爾值】，Suc 解析器則會報錯
+#
 # [test] 999
-# 相当于 { test: 999 }
+# 相當於 { test: 999 }
+#
 # [b] false
-# 相当于 { b: false }
+# 相當於 { b: false }
 
-# HTTP 监听端口
-[port] 3382
+
 
 # MongoDB URL
 db >mongodb://127.0.0.1:27017/pache
 
-# 用户密码
+# HTTP 監聽端口
+[port] 3382
+
+# 需要啟用 HTTPS 請將 enable_https 設置為 true
+[enable_https] false
+
+# private_key 是私钥文件的路径
+private_key >/不存在的路径/private_key.pem
+
+# certificate 是证书文件的路径
+certificate >/不存在的路径/certificate.crt
+
+# HTTPS 端口，默認為 443
+[https_port] 443
+
+# 是否強制 HTTPS
+# 啟用后，以 HTTP 方式訪問 Pache 則會強制跳轉到 HTTPS 的連接上（重定向）
+[force_https] false
+
+# 用戶密碼
 pass >7355608
 
-# session 密钥
-# 开发测试的时候似乎没那么重要了
-# 正式使用时请务必修改，因为它与用户密码同等重要
+# session 密鑰
+# 開發測試的時候似乎沒那麼重要
+# 正式使用的時候請務必修改
 session_secret >reimu_marisa
 
-# 单页最大文章数
+# 單頁最大文章數
 [limit] 10
 
-# 是否启用 Page Action Extends
-# Page Action Extends 可以使 Pache 页面达到单页的效果
-# 代价就是页面加载量增多
-[ENABLE_PAE] true
+# cluster 線程數
+# 通常多線程的性能會比單線程要好
+# 如果設置為 0 則為當前的 CPU 數量，CPU 數量應該說是操作系統的核心數（或者說 CPU 線程數）
+# 線程數不是越多越好，通常最佳值是當前的 CPU 數量
+[cluster_fork_num] 1
 
-# cluster 线程数
-# 通常多线程的性能会比单线程要好
-# 0 为当前 CPU 数量，CPU 数量应该说是操作系统核心数
-# 线程数不是越多越好，通常最佳值是当前的 CPU 数量
-[cluster_fork_num] 0
+# ESD 設置
+# 擴展的靜態目錄
+# ************注意 CAUTION************
+# 如沒有什麼需求，請不要開啟此選項，因為 Pache 會將 ESD 列表中的
+# 路徑作為備選靜態目錄，謹慎謹慎
+[ESD_enable] false
+
+# ESD 列表
+# 靜態目錄的訪問策略是從列表的第一個目錄開始訪問，最頂層的是 Pache 路由
+# 例如：
+# 訪問 /test.js，如果 Pache 路由沒有命中，則會在 /home/不存在的目錄A 中查找，
+# 若還找不到，則會在 /home/不存在的目錄B 中查找。如果都沒有找到，
+# 則返回一個 HTTP 404
+# 為避免出錯最好使用絕對路徑
+[ESD_list]
+/home/不存在的目錄A
+/home/不存在的目錄B

@@ -1,3 +1,4 @@
+const fs = require('fs');
 const cluster = require('cluster');
 const envir = require('./envir');
 
@@ -49,5 +50,24 @@ app.use(sessinHandle);
 const router_back = require('./router/back');
 app.use('/admin', router_back);
 
+if (envir.ESD_enable && Array.isArray(envir.ESD_list)) {
+	envir.ESD_list.forEach((esd_path, item_count) => {
+		try {
+			const staticDir = path.join(esd_path);
+			fs.statSync(staticDir);
+			app.use(express.static(staticDir));
+		} catch (e) {
+			console.error(e);
+			if (/ENOENT/.test(e.message)) {
+				console.error(`ESD_list 中的第 ${item_count + 1}個目錄 ` +
+					`[ ${envir.ESD_list[item_count]} ] 無法訪問，請確認權限或者存在性`
+				);
+			} else {
+				console.error(`ESD_list 錯誤`);
+			}
+			process.exit();
+		}
+	})
+}
 
 module.exports = app;
