@@ -27,7 +27,15 @@
 						<%= item.title %>
 					</a>
 				</div>
-				<time class="time"><%= item.date.toLocaleDateString() %></time>
+				<div class="time-frame">
+					<time class="time">
+						<div class="bottom-arrow">
+							<div class="line-1"></div>
+							<div class="line-2"></div>
+						</div>
+						<%= item.date.toLocaleDateString() %>
+					</time>
+				</div>
 			</li>
 		<% }) %>
 	</ul>

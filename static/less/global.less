@@ -41,7 +41,77 @@ body, html {
 		font-family: "Sofia Pro light", @pache-ie-title-link-font-family~"\9\0";
 	}
 }
+.time-frame {
+	position: relative;
 
+	.flex-frame;
+	display: flex;
+	display: -webkit-flex;
+	width: 100%;
+	justify-content: center;
+}
+.time {
+	display: inline-block;
+	position: relative
+}
+@media screen and (max-width: 800px) {
+	.title .right-arrow, .title .left-arrow {
+		display: none;
+	}
+
+	/*** Hover 箭頭
+
+	angle: 夾角大小
+	@interbu: 缺口補正
+	line-color: 線條顏色
+	line-width: 線寬
+	height: 高度
+	width: 寬度
+	*/
+	@angle: 21.25deg;
+	@interbu: @line-width * .5;
+	@line-color: @pache-grey;
+	@line-width: 1px;
+	@height: 48px;
+	@width: 1em;
+
+	.title:hover + .time-frame .bottom-arrow {
+		opacity: 1;
+		top: 100%;
+	}
+	.bottom-arrow {
+		opacity: 0;
+		position: absolute;
+		left: ~"calc(50% - "@width / 2~")";
+		top: 125%;
+		width: @width;
+		height: @height;
+
+		transition-property: top, opacity;
+		transition-duration: .382s;
+	}
+	.line-public() {
+		position: absolute;
+		top: .8em;
+		height: @line-width;
+		width: 100%;
+		background: @line-color;
+
+		transform-origin: top 50%;
+	}
+	.line-1 {
+		.line-public();
+		right: ~"calc(50% -" @interbu ~")";
+
+		transform: rotate(180deg - @angle)
+	}
+	.line-2 {
+		.line-public();
+		left: ~"calc(50% -" @interbu ~")";
+
+		transform: rotate(@angle)
+	}
+}
 @media screen and (min-width: 800px) and (orientation: landscape) {
 
 	/*** Hover 箭頭 > 標題 <
@@ -63,11 +133,9 @@ body, html {
 			opacity: 1;
 		}
 		.right-arrow {
-			//right: ~"calc(100% + "@title-interval~")";
 			margin-right: -(.2em + @title-interval)
 		}
 		.left-arrow {
-			//left: ~"calc(100% + "@title-interval~")";
 			margin-left: -(.2em + @title-interval)
 		}
 	}
@@ -112,7 +180,6 @@ body, html {
 	}
 }
 .time {
-	display: block;
 	font-family: @pache-time-label-font-family;
 	color: @pache-time-label-color;
 }
