@@ -1,7 +1,10 @@
 @torzo-blue: hsl(201, 47%, 35%);
 @pache-grey: hsl(0, 0%, 80%);
 @pache-hover-color: hsla(0, 0%, 80%, 0.382);
-@title-font: "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体", sans-serif;
+
+@ie-title-font: DengXian, "微软雅黑", "黑体", sans-serif;
+@title-font: "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", @ie-title-font;
+
 @pache-header-font-family: "微软雅黑", "黑体";
 @pache-article-font-family: "Noto Sans CJK SC", "Source Han Sans CN", "Helvetica Neue", Helvetica, "Han Heiti", "微软雅黑", "黑体", sans-serif;
 @pache-color: hsl(240, 9%, 25%);
@@ -9,6 +12,8 @@
 @pache-time-label-font-family: ISOCPEUR, "Segoe UI", "华文细黑", consolas, courier, Arial;
 @pache-time-label-color: hsla(240, 9%, 30%, 50%);
 @pache-title-link-font-family: ISOCPEUR, "Segoe UI", @title-font;
+@pache-ie-title-link-font-family: ISOCPEUR, "Segoe UI", @ie-title-font;
+
 
 .local:not(.error):hover {
 }
@@ -111,4 +116,19 @@ header {
 	border: solid transparent @width;
 
 	.triangle-direct(@_, @color);
+}
+
+::selection {
+	background-color: hsla(17, 81%, 54%, .3);
+	transition-property: background-color;
+	transition-duration: .618s;
+}
+::-moz-selection {
+	background-color: hsla(17, 81%, 54%, .3);
+}
+::selection:window-inactive {
+	background-color: hsla(17, 81%, 54%, .15);
+}
+::-moz-selection:window-inactive {
+	background-color: hsla(17, 81%, 54%, .15);
 }
