@@ -1,11 +1,5 @@
 @import "./base.less";
 
-.icon(@icon-url) {
-	background: url(@icon-url);
-	background-repeat: space;
-	background-size: cover;
-}
-
 .editor {
 	position: absolute;
 	top: 0;
@@ -26,10 +20,50 @@
 		position: fixed;
 		bottom: 1em;
 		left: 1em;
-		* > {
+		> *:not(.category) > {
 			margin: 8px 0;
 			width: @side-icon-size;
 			height: @side-icon-size;
+		}
+		.category {
+			.flex;
+	    max-height: 256px;
+	    max-width: 256px;
+	    color: darkred;
+			span {
+				display: block;
+				writing-mode: vertical-rl;
+    		text-align: center;
+				background: #f0f0f0;
+				padding: .5em 0em;
+				font-family: "Book Antiqua", "黑体";
+				cursor: pointer;
+			}
+			span:empty:before {
+				content: '未分类';
+				color: grey;
+			}
+			.set-article-category.show {
+				opacity: 1;
+				left: 100%;
+			}
+			.set-article-category {
+				opacity: 0;
+		    position: absolute;
+		    left: 80%;
+				transition-property: opacity, left;
+				transition-duration: .618s;
+
+				.category-list:empty:before {
+					content: "暫無標籤"
+				}
+				.category-list {
+					writing-mode: vertical-rl;
+					list-style-type: none;
+					padding: 0;
+					margin: 0;
+				}
+			}
 		}
 		.help {
 			.icon("../resource/help.png");

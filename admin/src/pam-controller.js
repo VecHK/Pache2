@@ -33,7 +33,7 @@ editor.on('action-submit', status => {
 	}
 });
 
-/* 核心 modified */
+/* 核心 modified 事件 */
 CORE.on('article-modified', obj => {
 	console.info('已修改');
 });
@@ -84,7 +84,8 @@ editor.on('editor-show', () => {
 
 auth.on('success', (authFadeOut) => {
 	authFadeOut(function () {
-		CORE.getArticles(1);
+		CORE.freshCategories()
+		CORE.getArticles(1)
 	})
 })
 auth.start();

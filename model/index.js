@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const envir = require('../envir');
 
 let model = {
+	Category: require('./category') && mongoose.model('Category'),
 	Article: require('./article') && mongoose.model('Article'),
 	connect(){
 		return new Promise((resolve, reject) => {

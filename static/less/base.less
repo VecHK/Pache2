@@ -1,22 +1,24 @@
 @torzo-blue: hsl(201, 47%, 35%);
-@title-font: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+@pache-grey: hsl(0, 0%, 80%);
+@pache-hover-color: hsla(0, 0%, 80%, 0.382);
+
+@ie-title-font: DengXian, "微软雅黑", "黑体", sans-serif;
+@title-font: "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", @ie-title-font;
+
+@pache-header-font-family: "微软雅黑", "黑体";
+@pache-article-font-family: "Noto Sans CJK SC", "Source Han Sans CN", "Helvetica Neue", Helvetica, "Han Heiti", "微软雅黑", "黑体", sans-serif;
+@pache-color: hsl(240, 9%, 25%);
+@pache-title-color: hsl(240, 9%, 30%);
+@pache-time-label-font-family: "Segoe UI", "华文细黑", consolas, courier, Arial;
+@pache-time-label-color: hsla(240, 9%, 30%, 50%);
+@pache-title-link-font-family: ISOCPEUR, "Segoe UI", @title-font;
+@pache-ie-title-link-font-family: ISOCPEUR, "Segoe UI", @ie-title-font;
+
 
 .local:not(.error):hover {
 }
 .local {
-	margin: 0 .382em 0 0em;
-	padding: 0;
 
-	width: 2.5em;
-
-	font-family: ISOCPEUR,  "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "黑体";
-	color: grey;
-	text-align: center;
-
-	cursor: pointer;
-
-	transition-property: text-shadow, color;
-	transition-duration: .618s;
 }
 
 .error {
@@ -24,54 +26,109 @@
 	color: #f1f1f1;
 }
 
-header {
+.page-shadow {
+	position: absolute;
+	left: 0;
+	top: -32px;
+
+	width: 100%;
+	height: 32px;
+
+	box-shadow: 0px 0px 12px #999;
+}
+.flex-frame(
+	@justify-c: center,
+	@align-i: center,
+	@align-c: @align-i
+) {
 	display: inline-flex;
-	align-content: center;
-	align-items: center;
+	justify-content: @justify-c;
+	align-items: @align-i;
+	align-content: @align-c;
 
 	display: -webkit-inline-flex;
-	-webkit-align-content: center;
-	-webkit-align-items: center;
+	-webkit-justify-content: @justify-c;
+	-webkit-align-items: @align-i;
+	-webkit-align-content: @align-c;
+}
+header {
+	.flex-frame();
 
-	width: ~"calc(100% - 1em)";
-	margin: 1em 0em 1em 1em;
+	width: 100%;
+	margin: 0;
 
-	> *:not(.local):hover {
-		border-bottom-color: #D7D7D7
+	> .current {
+		padding-top: .1em;
+		padding-bottom: .1em;
+		min-height: 1.5em;
+		background: @pache-color;
+		color: azure;
+		box-shadow: 0px 0px 1px @pache-color;
+
+		transition: box-shadow .618s;
+		&:hover {
+			box-shadow: 0px 0px 8px @pache-color;
+		}
 	}
-	> * img {
-		height: 100%;
-	}
-	> *:not(.local) {
-		height: 1.5em;
-	}
-	> * {
-		color: @torzo-blue;
-		background: transparent;
+
+	> a {
+		.flex-frame();
+
+		margin: 0em .5em 0em;
+		padding: 0em .5em 0em;
+
+		font-size: 1;
+
 		text-decoration: none;
-		margin: 0 .382em 0 .382em;
-		padding: 1px .5em 1px .5em;
-		font-family: consolas, "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "黑体";
-		font-weight: bold;
+		font-family: @pache-header-font-family;
+		font-weight: 300;
 
-		border: 1px solid transparent;
-		transition-property: border-color;
-		transition-duration: .182s;
+		background: transparent;
+		color: grey;
 
-		height: 100%;
-		line-height: 16px;
-		font-size: 16px;
-		display: flex;
-		align-content: flex-end;
-		align-items: flex-end;
-		justify-content: center;
+		border-bottom-left-radius: 4px;
+		border-bottom-right-radius: 4px;
 
-		display: -webkit-flex;
-		-webkit-align-content: flex-end;
-		-webkit-align-items: flex-end;
-		-webkit-justify-content: center;
+		&:not(.current):hover {
+			color: hsl(174, 100%, 29%);
+		}
 	}
-	.current {
-		background: #f1f1f1;
-	}
+}
+
+.triangle-direct(top, @color){
+	border-bottom-color: @color;
+}
+.triangle-direct(bottom, @color){
+	border-top-color: @color;
+}
+.triangle-direct(left, @color){
+	border-right-color: @color;
+}
+.triangle-direct(right, @color){
+	border-left-color: @color;
+}
+.triangle(@_, @width:10px, @color:grey){
+	width: 0;
+	height: 0;
+
+	overflow: hidden;
+
+	border: solid transparent @width;
+
+	.triangle-direct(@_, @color);
+}
+
+::selection {
+	background-color: hsla(17, 81%, 54%, .3);
+	transition-property: background-color;
+	transition-duration: .618s;
+}
+::-moz-selection {
+	background-color: hsla(17, 81%, 54%, .3);
+}
+::selection:window-inactive {
+	background-color: hsla(17, 81%, 54%, .15);
+}
+::-moz-selection:window-inactive {
+	background-color: hsla(17, 81%, 54%, .15);
 }

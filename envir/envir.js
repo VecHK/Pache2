@@ -1,3 +1,4 @@
+const pkg = require('../package')
 const fs = require('fs');
 const path = require('path');
 const Suc = require('node-suc').Suc;
@@ -14,13 +15,30 @@ const printKeyValue = function (jumpChar, key, value) {
 class Envir {
 	printInfo(){
 		const jump = 18;
+		process.stdout.write(`--- Pache ${pkg.version}\n`)
 		process.stdout.write(`--- ${this.CONFIG_PATH}\n`)
 		printKeyValue(jump, 'MongoDB 地址:', this.db)
 		printKeyValue(jump, 'http 端口:', this.port)
+
+		printKeyValue(jump, 'https 是否启用', envir.enable_https)
+		if (envir.enable_https) {
+			printKeyValue(jump, '私钥路径', envir.private_key)
+			printKeyValue(jump, '证书路径', envir.certificate)
+			printKeyValue(jump, '是否强制 https', envir.force_https)
+		}
+
 		printKeyValue(jump, '密码:', this.pass.split('').fill('*').join(''))
 		printKeyValue(jump, '单页最大文章数:', this.limit)
 		printKeyValue(jump, '是否启用 PAE:', this.ENABLE_PAE)
 		printKeyValue(jump, 'cluster 线程数:', this.cluster_fork_num)
+
+		printKeyValue(jump, 'ESD 是否启用:', this.ESD_enable)
+		if (this.ESD_enable) {
+			this.ESD_list.forEach(esd_path => {
+				printKeyValue(jump, '', esd_path);
+			})
+		}
+
 	}
 	reload(){
 		try {

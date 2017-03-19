@@ -14,6 +14,45 @@
 	};
 
 	const DOMMethod = {
+		fadeIn(cb, time = 618) {
+			this.forEach(ele => {
+				ele.style.opacity = 0;
+				ele.style.transition = 'opacity '+ time +'ms';
+				ele.style.webkitTransition = 'opacity '+ time +'ms';
+
+				ele.style.display = '';
+				ele.style.display = getComputedStyle(ele, null).getPropertyValue('display');
+
+				setTimeout(function (){
+					ele.style.opacity = 1;
+					setTimeout(function (){
+						cb && cb();
+					}, time);
+				}, 16.8);
+			})
+		},
+		fadeOut(cb, time = 618) {
+			this.forEach(ele => {
+				ele.style.opacity = 1;
+				ele.style.transition = 'opacity '+ time +'ms';
+				ele.style.webkitTransition = 'opacity '+ time +'ms';
+
+				setTimeout(function (){
+					ele.style.opacity = 0;
+					setTimeout(function (){
+						ele.style.display = 'none';
+						console.warn(cb);
+						cb && cb();
+					}, time);
+				}, 16.8);
+			})
+		},
+		remove(){
+			this.forEach(ele => {
+				ele.parentNode.removeChild(ele)
+			})
+			return this
+		},
 		html(value){
 			if (typeof(value) !== 'undefined') {
 				this.forEach(ele => {
@@ -30,6 +69,7 @@
 				this.forEach(ele => {
 					ele.innerText = value;
 				});
+				return this;
 			} else {
 				let textArr = this.map(ele => ele.innerText);
 				if (textArr.length === 1) {
@@ -38,46 +78,84 @@
 				return textArr;
 			}
 		},
+		cssSingle(cssObj){
+			Object.keys(cssObj).forEach(property => this.setCss(property, cssObj[property]))
+			return this
+		},
+		setCss(property, value){
+			this.forEach(ele => ele.style[property] = value)
+			return this
+		},
+		css(){
+			if (arguments.length === 0) {
+			} else if (arguments.length === 1) {
+				return this.cssSingle(...arguments)
+			} else if (arguments.length >= 2) {
+				return this.setCss(...arguments)
+			}
+		},
 
-		append(ele){
-			this[this.length - 1].appendChild(ele);
+		class(...classArr){
+			this.forEach(ele => {
+				classArr.forEach(className => ele.classList.add(className))
+			})
+			return this;
+		},
+		classRemove(...classArr) {
+			this.forEach(ele => {
+				classArr.forEach(className => ele.classList.remove(className))
+			})
+			return this;
+		},
+		append(...eleArr) {
+			eleArr.forEach(ele => {
+				if (Array.isArray(ele)) {
+					this.append(...ele)
+				} else {
+					this[0].appendChild(ele)
+				}
+			})
+			return this
 		},
 		getAttributesValue(attrEle, name){
 			let attr = attrEle.attributes.getNamedItem(name);
 			if (attr === null) {
-				return null;
+				return null
 			} else {
-				return attr.value;
+				return attr.value
 			}
 		},
 		getAttr(name){
 			let elementAttributesArr = this.map(ele =>
 				vools(`[${name}]`, ele).map(attr => this.getAttributesValue(attr, name)).map(valueArr => {
 					if (valueArr.length === 1) {
-						valueArr = valueArr[0];
+						valueArr = valueArr[0]
 					}
-					return valueArr;
+					return valueArr
 				})
-			);
+			)
 
 			if (elementAttributesArr.length === 1) {
-				return elementAttributesArr[0];
+				return elementAttributesArr[0]
 			} else {
-				return elementAttributesArr;
+				return elementAttributesArr
 			}
 		},
 		setAttr(name, value){
-
+			this.forEach(ele => {
+				ele.setAttribute(name, value)
+			})
+			return this
 		},
 		attr(name, value){
 			if (arguments.length === 0) {
 				return this.map(attrEle => {
 					return this.getAttributesValue(attrEle)
-				});
+				})
 			} else if (arguments.length === 1) {
-				return this.getAttr(name);
+				return this.getAttr(name)
 			} else if (arguments.length > 1) {
-				return this.setAttr(name, value);
+				return this.setAttr(name, value)
 			}
 		},
 	};
@@ -92,6 +170,10 @@
 		domArr.forEach(element => doms.push(element));
 
 		return doms;
+	};
+
+	vools.create = eleName => {
+		return vools(document.createElement(eleName))
 	};
 
 	const stringifyRequest = (() => {
@@ -172,6 +254,8 @@
 			}
 		};
 	})();
+
+	vools.browser
 
 	const voolsEvent = function (){};
 	ObjecExtends(voolsEvent.prototype, {

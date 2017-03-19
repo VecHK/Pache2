@@ -1,6 +1,7 @@
 const express = require('express');
 const envir = require('../../envir');
 const article = require('../../lib/article');
+const libCategory = require('../../lib/category');
 
 const router = express.Router();
 
@@ -29,6 +30,15 @@ router.get('/topic', (req, res) => {
 		})
 })
 
+router.post('/article', (req, res, next) => {
+	const is_post = req.body.is_repost ? req.body.is_repost.toLowerCase() : '';
+	if (is_post === 'false') {
+		req.body.is_repost = false;
+	} else if (is_post === 'true') {
+		req.body.is_repost = true;
+	}
+	next();
+})
 router.post('/article', (req, res) => {
 	article.insert(req.body)
 		.then(result => res.json({
@@ -76,6 +86,15 @@ router.delete('/articles', (req, res) => {
 		})
 });
 
+router.patch('/article/:id', (req, res, next) => {
+	const is_post = req.body.is_repost ? req.body.is_repost.toLowerCase() : '';
+	if (is_post === 'false') {
+		req.body.is_repost = false;
+	} else if (is_post === 'true') {
+		req.body.is_repost = true;
+	}
+	next();
+})
 router.patch('/article/:id', (req, res) => {
 	article.mod(req.params.id, req.body)
 		.then(result => res.json({
@@ -112,7 +131,7 @@ router.use('/articles', (req, res, next) => {
 
 router.get(['/articles/*', '/articles/'], (req, res, next) => {
 	let list;
-	article.getlist(req.pagecode)
+	article.list(req.pagecode)
 		.then(listResult => {
 			list = listResult;
 			return article.count();
@@ -159,5 +178,102 @@ router.get('/article/*', (req, res, next) => {
 			})
 		})
 });
+
+router.delete('/category/:categoryid', (req, res, next) => {
+	req.categoryid = req.params.categoryid
+	next()
+})
+router.delete('/category/*', (req, res, next) => {
+	if (req.categoryid) {
+		libCategory.del([req.categoryid])
+		.then(result => res.json({
+			code: 0,
+			msg: 'ok',
+			result,
+		}))
+		.catch(err => {
+			console.error(err);
+			res.status(err.status || 500);
+			res.json({
+				code: 2,
+				msg: err.message,
+				err,
+			});
+		})
+	} else {
+		const err = new Error('沒有指定 categoryid');
+		res.json({
+			code: 1,
+			msg: err.message,
+			err,
+		})
+	}
+})
+
+router.patch('/category/:categoryid', (req, res, next) => {
+	req.categoryid = req.params.categoryid
+	next()
+})
+router.patch('/category/*', (req, res) => {
+	if (req.categoryid) {
+		libCategory.mod(req.categoryid, req.body)
+		.then(result => res.json({
+			code: 0,
+			msg: 'ok',
+			result,
+		}))
+		.catch(err => {
+			console.error(err);
+			res.status(err.status || 500);
+			res.json({
+				code: 2,
+				msg: err.message,
+				err,
+			});
+		})
+	} else {
+		const err = new Error('沒有指定 categoryid');
+		res.json({
+			code: 1,
+			msg: err.message,
+			err,
+		})
+	}
+})
+router.post('/category', (req, res) => {
+	libCategory.create(req.body)
+		.then(result => res.json({
+			code: 0,
+			msg: 'ok',
+			result,
+		}))
+		.catch(err => {
+			console.error(err);
+			res.status(err.status || 500);
+			res.json({
+				code: 1,
+				msg: err.message,
+				err,
+			});
+		})
+})
+
+router.get('/categories', (req, res) => {
+	libCategory.getAll()
+		.then(result => res.json({
+			code: 0,
+			msg: 'ok',
+			result,
+		}))
+		.catch(err => {
+			console.error(err);
+			res.status(err.status || 500);
+			res.json({
+				code: 1,
+				msg: err.message,
+				err,
+			});
+		})
+})
 
 module.exports = router;

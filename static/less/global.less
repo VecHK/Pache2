@@ -1,82 +1,304 @@
 @import "base.less";
 
+/*
+	使用 Sofia Pro 的 WebFont
+	use "Sofia Pro" WebFont
+
+	links: https://www.fontspring.com/fonts/mostardesign/sofia-pro/sofia-pro-light
+ */
+@font-face {
+	font-family: 'Sofia Pro light';
+	src: url('/font/sofiapro-light-webfont.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@page-code-height: 1.6em;
+@list-space-height: 3em;
+
+html {
+	height: 100%;
+}
 body, html {
+	position: relative;
 	padding: 0;
 	margin: 0;
+	min-height: 100%;
+}
+.title {
+	display: inline-block;
+	position: relative;
 }
 
 .title a {
-	font-size: 1.5em;
-	font-family: "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+	font-size: 1.75em;
+	font-family: @pache-title-link-font-family;
 	text-decoration: blink;
-	color: hsl(201, 47%, 35%);
+	color: @pache-title-color;
+
+	&.sofia-font {
+		font-family: "Sofia Pro light", @pache-title-link-font-family;
+		font-family: "Sofia Pro light", @pache-ie-title-link-font-family~"\9\0";
+	}
+}
+
+.tag-list {
+	.flex-frame;
+	display: -webkit-flex;
+	display: flex;
+
+	padding: 0;
+	margin: 0;
+
+	> *:before {
+		content: '＃';
+		color: #999;
+	}
+	> *:last-child {
+		margin-right: 0em;
+	}
+	> * {
+		display: inline-block;
+		margin: 0;
+		padding: 0;
+		margin-right: 1.5em;
+		font-size: .8em;
+	}
+
+	a:visited, a:hover, a:active, a {
+		color: #999;
+		text-decoration: none;
+	}
+}
+
+.time-frame {
+	position: relative;
+
+	.flex-frame;
+	display: flex;
+	display: -webkit-flex;
+	width: 100%;
+	justify-content: center;
+}
+.time {
+	display: inline-block;
+	position: relative
+}
+@media screen and (max-width: 800px) {
+	.title .right-arrow, .title .left-arrow {
+		display: none;
+	}
+
+	/*** Hover 箭頭
+
+	angle: 夾角大小
+	@interbu: 缺口補正
+	line-color: 線條顏色
+	line-width: 線寬
+	height: 高度
+	width: 寬度
+	*/
+	@angle: 21.25deg;
+	@interbu: @line-width * .5;
+	@line-color: @pache-grey;
+	@line-width: 1px;
+	@height: 48px;
+	@width: 1em;
+
+	.title:hover + * + .time-frame .bottom-arrow {
+		opacity: 1;
+		top: 100%;
+	}
+	.bottom-arrow {
+		opacity: 0;
+		position: absolute;
+		left: ~"calc(50% - "@width / 2~")";
+		top: 125%;
+		width: @width;
+		height: @height;
+
+		transition-property: top, opacity;
+		transition-duration: .382s;
+	}
+	.line-public() {
+		position: absolute;
+		top: .8em;
+		height: @line-width;
+		width: 100%;
+		background-color: @line-color;
+
+		transform-origin: top 50%;
+	}
+	.line-1 {
+		.line-public();
+		right: ~"calc(50% -" @interbu ~")";
+
+		transform: rotate(180deg - @angle)
+	}
+	.line-2 {
+		.line-public();
+		left: ~"calc(50% -" @interbu ~")";
+
+		transform: rotate(@angle)
+	}
+}
+@media screen and (min-width: 800px) and (orientation: landscape) {
+
+	/*** Hover 箭頭 > 標題 <
+
+	angle: 夾角大小
+	line-color: 線條顏色
+	line-width: 線寬
+	square: 塊長寬
+	@title-interval: 箭頭與標題之間隔
+	*/
+	@angle: 48deg;
+	@line-color: @pache-grey;
+	@line-width: 1.5px;
+	@square: 32px;
+	@title-interval: .1em;
+
+	.title a:hover {
+		.right-arrow, .left-arrow {
+			opacity: 1;
+		}
+		.right-arrow {
+			margin-right: -(.2em + @title-interval)
+		}
+		.left-arrow {
+			margin-left: -(.2em + @title-interval)
+		}
+	}
+
+	.line(@direct, @rotate-deg) {
+		height: @line-width;
+		width: 100%;
+		background-color: @line-color;
+		transform-origin: @direct 50%;
+		transform: rotate(@rotate-deg);
+	}
+	.right-arrow, .left-arrow {
+		opacity: 0;
+		.flex-frame;
+		display: -webkit-flex;
+		display: flex;
+
+		position: absolute;
+		top: ~"calc(50% - ("@square~") / 2)";
+
+		width: @square;
+		height: @square;
+
+		transition-property: opacity, margin-left, margin-right;
+		transition-duration: .618s;
+
+		.line-2 {
+			position: relative;
+			left: calc(-(@square / 2));
+		}
+	}
+
+	.right-arrow {
+		right: ~"calc(100% +" @title-interval ~"+ 2px)";
+		.line-1 { .line(right, @angle) }
+		.line-2 { .line(right, -@angle) }
+	}
+	.left-arrow {
+		left: ~"calc(100% +" @title-interval ~"+ 2px)";
+		.line-1 { .line(right, 180 - @angle) }
+		.line-2 { .line(right, 180 + @angle) }
+	}
+}
+.time {
+	font-family: @pache-time-label-font-family;
+	color: @pache-time-label-color;
 }
 
 body > .list {
+	> li {
+		&:first-child {
+			margin-top: 0;
+		}
+		&:last-child {
+			margin-bottom: 0;
+		}
+		margin: 2.5em 0;
+		text-align: center;
+	}
+
 	list-style: none;
 	list-style-type: none;
-	padding: 0;
-	margin: 0 0 0 .5em;
-}
+	margin: auto;
 
-
-.list > li {
-	margin: 1.5em 0;
-	text-align: center;
-}
-body > .list:first-child {
-	margin-top: 0;
-}
-.list > li:first-child {
-	margin-top: 0;
-}
-.list > li:last-child {
-	margin-bottom: 0;
-}
-
-.time {
-	font-family: ISOCTEUR, consolas, courier;
-	font-size: medium;
-	color: rgba(121, 86, 73, 0.618);
+	padding: @list-space-height .5em calc(@list-space-height + @page-code-height);
 }
 
 .pagecode {
-	margin: 2em 0.5em;
-	display: flex;
-	justify-content: center;
-	align-content: center;
-	align-items: center;
+	.flex-frame(center, flex-end);
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 100%;
 
-	display: -webkit-flex;
-	-webkit-justify-content: center;
-	-webkit-align-content: center;
-	-webkit-align-items: center;
+	.current {
+		background: @pache-color;
+		color: azure;
+		box-shadow: 0px 0px 1px @pache-color;
+
+		transition: box-shadow .618s;
+
+		padding: 0.25em .5em 0.1em;
+
+		&:hover {
+			box-shadow: 0px 0px 8px @pache-color;
+		}
+	}
+	> *:not(.current):hover {
+		color: hsl(174, 100%, 29%);
+	}
 
 	> * {
-		margin: 0px 4px;
-		width: 20px;
-		cursor: pointer;
-		text-align: center;
-		font-family: ISOCPEUR, Arial;
+		.flex-frame();
+
+		margin: 0em .5em 0em;
+		padding: 1em .5em 0.1em;
+
+		min-width: 24px;
+
 		text-decoration: none;
-		color: rgba(121, 86, 73, 0.618);
+		font-family: ISOCTEUR, Arial;
+		font-weight: 300;
+
+		background: transparent;
+		color: grey;
+
+		border-top-left-radius: 4px;
+		border-top-right-radius: 4px;
+
 	}
-	.current {
-		color: #607D8B;
+	&:not(.current):hover {
+		color: hsl(174, 100%, 29%);
 	}
 }
-footer {
-	margin: 1em ~"calc(1em + 7px)";
 
-	color: #777;
-	font-weight: 300;
-	font-family: ISOCPEUR, "Noto Sans CJK SC", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+// 大于 800px 的设备
+@media screen and (min-width: 800px) {
+	.list {
+		width: ~"calc(18em * 2.5)";
+	}
+	.title a { font-size: 2.5em }
+	.time { font-size: medium }
+}
 
-	address::before {
-		content: '——';
+// (360px 以上，但小于 800px)的设备
+@media screen and (max-width: 800px) and (min-width: 360px) {
+	body > .list {
+		padding: @list-space-height 1.5em calc(@list-space-height + @page-code-height);
 	}
-	address {
-		font-size: 12px;
-		font-family: Arial, 黑体, 宋体;
-	}
+	.time { font-size: small }
+}
+
+// 360px 以下的设备
+@media screen and (max-width: 359px) {
+	.time { font-size: small }
 }
