@@ -13,7 +13,12 @@
 	<% include public/pae-header %>
 	<ul class="list">
 		<% list.forEach(item => {  %>
-			<li>
+			<style>
+			[article-id="<%= item._id.toString() %>"] [class^="line-"] {
+				background-color: <%= item.fusion_color %>;
+			}
+			</style>
+			<li category-id="<%= item.category %>" article-id="<%= item._id.toString() %>">
 				<div class="title">
 					<a href="/article/<%= item._id %>">
 						<div class="right-arrow">
@@ -27,6 +32,11 @@
 						<%= item.title %>
 					</a>
 				</div>
+				<ul class="tag-list">
+					<% for (let tag of item.tags) {%>
+						<li><a href="/tag/<%= tag %>"><%= tag %></a></li>
+					<% }%>
+				</ul>
 				<div class="time-frame">
 					<time class="time">
 						<div class="bottom-arrow">
