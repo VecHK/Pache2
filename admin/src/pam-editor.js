@@ -63,7 +63,7 @@ class PamEditorCategoryCompoent {
 		this.start();
 		this.plugin();
 		this.tagStart();
-		this.categoryStart();
+		//this.categoryStart();
 		this.setButton();
 	}
 }

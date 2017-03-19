@@ -23,6 +23,13 @@
 # MongoDB URL
 db >mongodb://127.0.0.1:27017/pache
 
+# 主域名
+master_domain > 不存在的域名
+
+# 重定向到主域名
+# 開啟后，非主域名訪問的地址將會強制跳轉到主域名上
+[force_redirect_to_master_domain] false
+
 # HTTP 監聽端口
 [port] 3382
 
@@ -52,6 +59,10 @@ session_secret >reimu_marisa
 
 # 單頁最大文章數
 [limit] 10
+
+# 轉載文章的顏色
+# 打上注釋將會使用缺省顏色
+repost_color >#46c01b
 
 # cluster 線程數
 # 通常多線程的性能會比單線程要好

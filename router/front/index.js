@@ -79,10 +79,10 @@ router.get('/', (req, res, next) => {
 })
 
 const homeRender = (req, res, next) => {
-	let category;
+	let category, list, categories;
 	(() => {
 		if (typeof(req.con.category) === 'string') {
-			return libCategory.get(req.con.category)
+			return libCategory.getByName(req.con.category)
 				.then((result) => {
 					if (result !== null) {
 						category = result
@@ -93,6 +93,8 @@ const homeRender = (req, res, next) => {
 			return Promise.resolve()
 		}
 	})()
+		.then(() => libCategory.getAll())
+		.then((res) => categories = res)
 		.then(() => libArticle.list(req.con.pagecode, {category: req.con.category, tags: req.con.tags}))
 		.then(listResult => list = listResult)
 		.then(() => libArticle.count(req.con.tags, req.con.category))
@@ -105,6 +107,7 @@ const homeRender = (req, res, next) => {
 				limit: envir.limit,
 				page: req.con.pagecode,
 				conditions: req.con,
+				categories,
 				count,
 				list,
 			})

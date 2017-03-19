@@ -17,8 +17,8 @@ describe('get articles list', allDone => {
 			libArticle.getlist(value)
 				.then(result => reject())
 				.catch(err => {
-					err.should.equal('page must be Integer and greater or equal to 1');
-					resolve();
+					should(err.message.toString()).containEql('page must be Integer and greater or equal to 1');
+					resolve()
 				})
 		}));
 		Promise.all(promises)
@@ -253,7 +253,7 @@ describe('new articles list', () => {
 		let categoryId;
 		model.removeCollection('articles').catch(info => { console.warn(info) })
 			.then(result => model.removeCollection('categories')).catch(() => {})
-			.then(() => libCategory.set('list'))
+			.then(() => libCategory.create({ name: 'list' }))
 			.then(result => categoryId = result._id.toString())
 
 			.then(() => libArticle.insert({ title: '111', category: categoryId }))
@@ -269,7 +269,7 @@ describe('new articles list', () => {
 	})
 	it('有分类的列表（反序）', function (done) {
 		let categoryId;
-		libCategory.get('list')
+		libCategory.getByName('list')
 			.then(result => categoryId = result._id.toString())
 
 			.then(() => libArticle.insert({ title: '111', category: categoryId }))
@@ -598,15 +598,15 @@ describe('countArticle', function (allDone) {
 	})
 	it('count articles by category', done => {
 		let category;
-		libCategory.set('countByCategory')
-			.then(newCategory => { category = newCategory; console.error(category) })
-			.then(() => libArticle.insert({title: 't', category: category._id.toString()}))
-			.then(() => libArticle.insert({title: 't', category: category._id.toString()}))
-			.then(() => libArticle.insert({title: 't', category: category._id.toString()}))
-			.then(() => libArticle.count(null, category._id.toString()))
-			.then(count => should(count).equal(3))
-			.then(() => done())
-			.catch(err => { console.error(err); throw err })
+		libCategory.create({ name: 'countByCategory' })
+		.then(newCategory => { category = newCategory; console.error(category) })
+		.then(() => libArticle.insert({title: 't', category: category._id.toString()}))
+		.then(() => libArticle.insert({title: 't', category: category._id.toString()}))
+		.then(() => libArticle.insert({title: 't', category: category._id.toString()}))
+		.then(() => libArticle.count(null, category._id.toString()))
+		.then(count => should(count).equal(3))
+		.then(() => done())
+		.catch(err => { console.error(err); throw err })
 	})
 });
 describe('remove article', function () {

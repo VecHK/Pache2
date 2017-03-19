@@ -84,7 +84,8 @@ editor.on('editor-show', () => {
 
 auth.on('success', (authFadeOut) => {
 	authFadeOut(function () {
-		CORE.getArticles(1);
+		CORE.freshCategories()
+		CORE.getArticles(1)
 	})
 })
 auth.start();

@@ -1,3 +1,4 @@
+const pkg = require('../package')
 const fs = require('fs');
 const path = require('path');
 const Suc = require('node-suc').Suc;
@@ -14,6 +15,7 @@ const printKeyValue = function (jumpChar, key, value) {
 class Envir {
 	printInfo(){
 		const jump = 18;
+		process.stdout.write(`--- Pache ${pkg.version}\n`)
 		process.stdout.write(`--- ${this.CONFIG_PATH}\n`)
 		printKeyValue(jump, 'MongoDB 地址:', this.db)
 		printKeyValue(jump, 'http 端口:', this.port)

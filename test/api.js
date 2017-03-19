@@ -8,6 +8,7 @@ const TEST_DB = 'pache_test';
 envir.db = `mongodb://127.0.0.1:27017/${TEST_DB}`;
 
 const libArticle = require('../lib/article');
+const libCategory = require('../lib/category');
 const model = require('../model');
 
 const should = require('should');
@@ -397,5 +398,91 @@ describe('GET /article', function () {
 			.then(() => libArticle.get = oldGet)
 			.then(() => done())
 			.catch(err => { console.error(err); throw err })
+	})
+})
+
+describe('POST /category', function () {
+	it('create success', done => {
+		model.removeCollection('categories').catch(() => {})
+		.then(() => request(app).post('/category').send({name: 'POSTNEWCATEGORY'}))
+		.then(JsonMiddle)
+		.then(res => {
+			should(res.status).equal(200);
+			should(res.json.result.name).equal('POSTNEWCATEGORY')
+			done();
+		})
+	})
+	it('create fail - no name', done => {
+		model.removeCollection('categories').catch(() => {})
+		.then(() => request(app).post('/category').send({}))
+		.then(JsonMiddle)
+		.then(res => {
+			should(res.status).not.equal(200);
+			should(res.json.code).equal(1);
+			done()
+		})
+
+	})
+})
+describe('PATCH /category', function () {
+	it('修改一個分類的名稱', done => {
+		let id;
+		model.removeCollection('categories').catch(() => {})
+		.then(() => libCategory.create({ name: 'SOURCE_NAME' }))
+		.then(res => {
+			id = res._id.toString()
+		})
+		.then(() => request(app).patch(`/category/${id}`).send({ name: 'PATCH_NEW_NAME' }))
+		.then(JsonMiddle)
+		.then(res => {
+			const json = res.json
+			should(res.status).equal(200)
+		})
+		.then(() => libCategory.getByName('PATCH_NEW_NAME'))
+		.then(res => {
+			should(res._id.toString()).equal(id)
+		})
+		.then(() => done())
+		.catch(e => { console.error(e); throw e})
+	})
+})
+
+describe('GET /categories', function () {
+	it('get all category', done => {
+		model.removeCollection('categories').catch(() => {})
+		.then(() => libCategory.create({ name: 'CATE_1' }))
+		.then(() => libCategory.create({ name: 'CATE_2' }))
+		.then(() => libCategory.create({ name: 'CATE_3' }))
+		.then(() => request(app).get('/categories'))
+		.then(JsonMiddle)
+		.then((res) => {
+			should(res.status).equal(200)
+			should(res.json.code).equal(0)
+
+			const result = res.json.result
+			should(result[0].name).equal('CATE_1')
+			should(result[1].name).equal('CATE_2')
+			should(result[2].name).equal('CATE_3')
+		})
+		.then(() => done())
+	})
+})
+
+describe('DELETE /category', function () {
+	it('刪除一個分類', done => {
+		model.removeCollection('categories').catch(() => {})
+		.then(() => libCategory.create({ name: '我是將要被刪除的分類'} ))
+		.then(res => request(app).delete(`/category/${res._id}`))
+		.then(JsonMiddle)
+		.then(res => {
+			should(res.status).equal(200)
+			should(res.json.code).equal(0)
+		})
+		.then(() => libCategory.getByName('我是將要被刪除的分類'))
+		.then(res => {
+			should(res).equal(null)
+			done()
+		})
+		.catch(err => { console.error(err); throw err })
 	})
 })

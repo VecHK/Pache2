@@ -36,8 +36,19 @@ process.on('message', (message) => {
 			/* 檢查是否是強制使用 https 的配置 */
 			if (envir.force_https) {
 				app = express();
+				if (envir.force_redirect_to_master_domain) {
+					app.all('*', (req, res, next) => {
+						if (req.headers['host'].trim() === envir.master_domain.trim()) {
+							next()
+						} else {
+							res.redirect("http://" + envir.master_domain + req.url);
+							res.end('')
+						}
+					})
+				}
 				app.all('*', (req, res) => {
-					return res.redirect("https://" + req.headers["host"] + req.url);
+					res.redirect("https://" + req.headers['host'] + req.url);
+					return res.end()
 				});
 			}
 		}
