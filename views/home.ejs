@@ -34,7 +34,16 @@
 				</div>
 				<ul class="tag-list">
 					<% for (let tag of item.tags) {%>
-						<li><a href="/tag/<%= tag %>"><%= tag %></a></li>
+						<% if (conditions.tags) { %>
+							<% if (conditions.tags.includes(tag)) { %>
+								<% var n_tag = conditions.tags.filter(t => t !== tag) %>
+									<li><a href="/tag/<%= n_tag %>"><%= tag %></a></li>
+							<% } else { %>
+									<li><a href="/tag/<%= conditions.tags %>,<%= tag %>"><%= tag %></a></li>
+							<% } %>
+						<% } else { %>
+							<li><a href="/tag/<%= tag %>"><%= tag %></a></li>
+						<% } %>
 					<% }%>
 				</ul>
 				<div class="time-frame">

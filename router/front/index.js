@@ -99,8 +99,6 @@ const homeRender = (req, res, next) => {
 		.then(listResult => list = listResult)
 		.then(() => libArticle.count(req.con.tags, req.con.category))
 		.then(count => {
-			console.log('count:', count)
-			console.log(req.con)
 			res.render('home', {
 				code: 0,
 				tags: req.tags,
