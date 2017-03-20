@@ -301,6 +301,16 @@ describe('insertArticle', function () {
 		})
 		.catch(err => { throw err })
 	});
+	it('insert sourcecode markdown article', done => {
+		libArticle.insert({content: "```javascript\nvar obj = {}\n```", type: 'markdown'})
+		.then(result => {
+			should(result.title).equal('(title)')
+			should(result.format).containEql('var')
+			should(result.format).containEql('obj')
+		})
+		.then(() => done())
+		.catch(err => { throw err })
+	})
 	it('错误的参数类型', done => {
 		const badTypes = [null, undefined, 2, true, [], 'string']
 		const promises = badTypes.map(value => new Promise((resolve, reject) => {

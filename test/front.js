@@ -119,7 +119,7 @@ describe('front-list', function () {
 		let category, inserted;
 		model.removeCollection('articles').catch(() => {})
 		.then(() => model.removeCollection('categories')).catch(() => {})
-		.then(() => libCategory.set('categoryList'))
+		.then(() => libCategory.create({ name: 'categoryList' }))
 		.then(result => {category = result})
 		.then(() => libArticle.insert({
 			title: '测试：分类标题',
