@@ -107,7 +107,7 @@ const homeRender = (req, res, next) => {
 				limit: envir.limit,
 				page: req.con.pagecode,
 				conditions: req.con,
-				categories,
+				categories: categories || [],
 				count,
 				list,
 			})
