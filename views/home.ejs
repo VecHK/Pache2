@@ -13,12 +13,12 @@
 	<% include public/pae-header %>
 	<ul class="list">
 		<% list.forEach(item => {  %>
-			<style>
-			[article-id="<%= item._id.toString() %>"] [class^="line-"] {
-				background-color: <%= item.fusion_color %>;
-			}
-			</style>
 			<li category-id="<%= item.category %>" article-id="<%= item._id.toString() %>">
+				<style>
+				[article-id="<%= item._id.toString() %>"] [class^="line-"] {
+					background-color: <%= item.fusion_color %>;
+				}
+				</style>
 				<div class="title">
 					<a href="/article/<%= item._id %>">
 						<div class="right-arrow">
@@ -34,7 +34,16 @@
 				</div>
 				<ul class="tag-list">
 					<% for (let tag of item.tags) {%>
-						<li><a href="/tag/<%= tag %>"><%= tag %></a></li>
+						<% if (conditions.tags) { %>
+							<% if (conditions.tags.includes(tag)) { %>
+								<% var n_tag = conditions.tags.filter(t => t !== tag) %>
+									<li><a href="/tag/<%= n_tag %>"><%= tag %></a></li>
+							<% } else { %>
+									<li><a href="/tag/<%= conditions.tags %>,<%= tag %>"><%= tag %></a></li>
+							<% } %>
+						<% } else { %>
+							<li><a href="/tag/<%= tag %>"><%= tag %></a></li>
+						<% } %>
 					<% }%>
 				</ul>
 				<div class="time-frame">
