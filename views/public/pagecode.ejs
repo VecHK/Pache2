@@ -22,7 +22,7 @@ if (right > countPage){
 for (; cursor<=right; ++cursor){
 	if ( page === cursor ){
 		%>
-		<a class="current"><%= cursor %></a><%
+		<a current><%= cursor %></a><%
 	} else {
 		if (tags.length){
 			var tagHref = '/tag/' + tags.join(',') + '/';

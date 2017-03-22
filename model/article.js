@@ -51,16 +51,12 @@ const ArticleSchema = new Schema({
 
 	repost: { type: Object, default: null },
 	category: { type: String, default: null },
+	is_draft: { type: Boolean, default: false },
 	is_repost: { type: Boolean, default: false },
 	fusion_color: { type: String, default: '#CCC' },
 });
 
-let repost_color;
-if (envir.repost_color) {
-	repost_color = Cutl.init(envir.repost_color)
-} else {
-	repost_color = Cutl.init('#46c01b')
-}
+const repost_color = Cutl.init(envir.repost_color || '#46c01b');
 const contentRepost = function (source, set = source) {
 	let prom;
 

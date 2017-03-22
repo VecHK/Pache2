@@ -131,10 +131,14 @@ router.use('/articles', (req, res, next) => {
 
 router.get(['/articles/*', '/articles/'], (req, res, next) => {
 	let list;
-	article.list(req.pagecode)
+	article.find(
+		(req.pagecode - 1) * envir.limit,
+		envir.limit,
+		{}
+	)
 		.then(listResult => {
 			list = listResult;
-			return article.count();
+			return article.count({});
 		})
 		.then(count => {
 			res.json({
