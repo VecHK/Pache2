@@ -10,6 +10,12 @@
 	<link rel="stylesheet" href="/style/global.css" />
 </head>
 <body>
+	<%
+	var category_prefix = ''
+	if ('category_name' in conditions) {
+		category_prefix = `/category/${conditions.category_name}`
+	}
+	%>
 	<% include public/pae-header %>
 	<ul class="list">
 		<% list.forEach(item => {  %>
@@ -35,14 +41,11 @@
 				<ul class="tag-list">
 					<% for (let tag of item.tags) {%>
 						<% if (conditions.tags) { %>
-							<% if (conditions.tags.includes(tag)) { %>
-								<% var n_tag = conditions.tags.filter(t => t !== tag) %>
-									<li><a href="/tag/<%= n_tag %>"><%= tag %></a></li>
-							<% } else { %>
-									<li><a href="/tag/<%= conditions.tags %>,<%= tag %>"><%= tag %></a></li>
+							<% if (!conditions.tags.includes(tag)) { %>
+								<li><a href="<%= category_prefix %>/tag/<%= conditions.tags %>,<%= tag %>"><%= tag %></a></li>
 							<% } %>
 						<% } else { %>
-							<li><a href="/tag/<%= tag %>"><%= tag %></a></li>
+							<li><a href="<%= category_prefix %>/tag/<%= tag %>"><%= tag %></a></li>
 						<% } %>
 					<% }%>
 				</ul>

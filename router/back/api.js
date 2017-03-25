@@ -1,6 +1,7 @@
 const express = require('express');
 const envir = require('../../envir');
 const article = require('../../lib/article');
+const Model = require('../../model');
 const libCategory = require('../../lib/category');
 
 const router = express.Router();
@@ -28,6 +29,60 @@ router.get('/topic', (req, res) => {
 				err,
 			})
 		})
+})
+
+router.patch('/articles/', (req, res, next) => {
+	const checkRequest = new Promise((resolve, reject) => {
+		if (!('json' in req.body)) {
+			const err = new Error('fail json');
+			err.status = 400;
+			return reject(err);
+		} else {
+			try {
+				req.json = JSON.parse(req.body.json)
+			} catch (e) {
+				const err = new Error('错误的 JSON');
+				err.status = 400;
+				return reject(err);
+			}
+		}
+
+		if ((typeof(req.body.ids) === 'string') || Array.isArray(req.body.ids)) {
+			return resolve();
+		} else {
+			const err = new Error('no ids, or ids is not string or array');
+			err.status = 400;
+			return reject(err);
+		}
+	});
+	checkRequest.then(() => {
+		let ids = req.body.ids;
+		let json_obj = req.json
+		if (!Array.isArray(ids)) {
+			ids = [ ids ];
+		}
+
+		return Model.Article.update(
+			{ _id: {$in: ids} },
+			json_obj,
+			{ multi: true }
+		)
+	})
+	.then(result => res.json({
+		code: 0,
+		msg: 'ok',
+		result,
+	}))
+	.catch(err => {
+		res.status(err.status || 500);
+		res.json({
+			code: 1,
+			msg: err.message,
+			err: {
+				message: err.message,
+			}
+		})
+	})
 })
 
 router.post('/article', (req, res, next) => {
@@ -131,29 +186,33 @@ router.use('/articles', (req, res, next) => {
 
 router.get(['/articles/*', '/articles/'], (req, res, next) => {
 	let list;
-	article.list(req.pagecode)
-		.then(listResult => {
-			list = listResult;
-			return article.count();
+	article.find(
+		(req.pagecode - 1) * envir.limit,
+		envir.limit,
+		{}
+	)
+	.then(listResult => {
+		list = listResult;
+		return article.count({});
+	})
+	.then(count => {
+		res.json({
+			code: 0,
+			page: req.pagecode,
+			count,
+			limit: envir.limit,
+			list,
 		})
-		.then(count => {
-			res.json({
-				code: 0,
-				page: req.pagecode,
-				count,
-				limit: envir.limit,
-				list,
-			})
+	})
+	.catch(err => {
+		console.error(err);
+		res.status(err.status || 500);
+		res.json({
+			code: 1,
+			msg: err.message,
+			err: err,
 		})
-		.catch(err => {
-			console.error(err);
-			res.status(err.status || 500);
-			res.json({
-				code: 1,
-				msg: err.message,
-				err: err,
-			})
-		})
+	})
 });
 
 router.get('/article/:articleid', (req, res, next) => {

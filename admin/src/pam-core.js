@@ -1,3 +1,12 @@
+const CategoriesMethod = {
+	getById(id) {
+		return this.find(c => c._id === id) || null
+	},
+	getByName(name) {
+		return this.find(c => c.name === name) || null
+	}
+}
+
 class PamModel extends PamEventEmitter {
 	JsonRouter(str){
 		let obj = JSON.parse(str);
@@ -78,16 +87,43 @@ class PamModel extends PamEventEmitter {
 	}
 	freshCategories() {
 		this.getCategories().then(res => {
+			// const cm = Object.create(CategoriesMethod)
+			res.result.__proto__.__proto__ = CategoriesMethod;
 			this.categories = res.result
+
 			this.emit('categories-fresh', res)
 		})
+	}
+
+	patchArticlesFields(ids, patch_obj) {
+		return $.patch('api/articles', { ids, json: JSON.stringify(patch_obj) })
+			.then(res => {
+				const obj = this.JsonRouter(res)
+				this.emit('patch-articles-fields', obj, ids, patch_obj)
+				this.emit('list-modify', {
+					type: 'articles-deleted',
+					value: obj,
+					ids,
+					patch_obj,
+				})
+				return Promise.resolve(obj)
+			})
+			.catch(err => {
+				this.emit('error', err)
+				throw err
+			})
 	}
 
 	/* 批量删除文章 */
 	removeArticle(ids){
 		return $.delete(`api/articles`, {ids})
 			.then(res => {
-				this.emit('articles-deleted', this.JsonRouter(res));
+				const obj = this.JsonRouter(res)
+				this.emit('articles-deleted', obj);
+				this.emit('list-modify', {
+					type: 'articles-deleted',
+					value: obj,
+				})
 			})
 			.catch(err => {
 				this.emit('error', err)
@@ -97,6 +133,12 @@ class PamModel extends PamEventEmitter {
 	modArticle(id, article){
 		return $.patch(`api/article/${id}`, article)
 			.then(res => {
+				const obj = this.JsonRouter(res)
+				this.emit('article-modified', obj);
+				this.emit('list-modify', {
+					type: 'article-modified',
+					value: obj,
+				})
 				this.emit('article-modified', this.JsonRouter(res));
 			})
 			.catch(err => {
@@ -107,7 +149,12 @@ class PamModel extends PamEventEmitter {
 	insertArticle(article){
 		return $.post(`api/article`, article)
 			.then(res => {
-				this.emit('article-created', this.JsonRouter(res));
+				const obj = this.JsonRouter(res)
+				this.emit('article-created', obj);
+				this.emit('list-modify', {
+					type: 'article-created',
+					value: obj,
+				})
 			})
 			.catch(err => {
 				this.emit('error', err)
@@ -132,7 +179,6 @@ class Pam extends PamModel {
 		styleEle.href = href;
 		$$('body').appendChild(styleEle);
 	}
-
 
 	start(){
 		this.article = {

@@ -64,6 +64,12 @@ session_secret >reimu_marisa
 # 打上注釋將會使用缺省顏色
 repost_color >#46c01b
 
+# 已格式化的 Markdown 文章是否强制转换为 HTML 实体字符
+# 如果 [markdown_entitles] 为 TRUE，则汉字(utf-8)也会被转换为 HTML 实体字符
+# 如果设置为 FALSE，网页的数位体积会减少一些，更多的疑问，具体见 cheerio issue:
+# https://github.com/yeoman/generator/issues/638
+[markdown_entitles] FALSE
+
 # cluster 線程數
 # 通常多線程的性能會比單線程要好
 # 如果設置為 0 則為當前的 CPU 數量，CPU 數量應該說是操作系統的核心數（或者說 CPU 線程數）

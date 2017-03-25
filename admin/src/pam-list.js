@@ -120,7 +120,11 @@ class PamList extends Array {
 				<input type="checkbox" name="id" value="${articleItem._id}" />
 				<div class="link">
 					<div p-action="title" class="item-title"></div>
-					<ul class="item-tags"></ul>
+					<div class="meta-box">
+						<span class="item-is-draft">${articleItem.is_draft ? '✎' : ''}</span>
+						<span class="item-category"></span>
+						<ul class="item-tags"></ul>
+					</div>
 				</div>
 			`;
 			{//checkbox
@@ -136,6 +140,20 @@ class PamList extends Array {
 				$$('.item-title', li).addEventListener('click', e => {
 					this.emit('title-click', articleItem);
 				});
+
+				$(li).css({
+					'border-left': `solid 4px ${articleItem.fusion_color}`
+				});
+			}
+
+			{//category
+				const category_container = $$('.item-category', li);
+				const current_category = CORE.categories.getById(articleItem.category);
+				if (current_category) {
+					$(category_container).text(current_category.name)
+				} else {
+					$(category_container).text('')
+				}
 			}
 
 			{//tag

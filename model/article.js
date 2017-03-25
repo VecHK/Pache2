@@ -51,16 +51,12 @@ const ArticleSchema = new Schema({
 
 	repost: { type: Object, default: null },
 	category: { type: String, default: null },
+	is_draft: { type: Boolean, default: false },
 	is_repost: { type: Boolean, default: false },
 	fusion_color: { type: String, default: '#CCC' },
 });
 
-let repost_color;
-if (envir.repost_color) {
-	repost_color = Cutl.init(envir.repost_color)
-} else {
-	repost_color = Cutl.init('#46c01b')
-}
+const repost_color = Cutl.init(envir.repost_color || '#46c01b');
 const contentRepost = function (source, set = source) {
 	let prom;
 
@@ -74,6 +70,10 @@ const contentRepost = function (source, set = source) {
 		// 無分類非轉載 默認色
 		// 有分類有轉載 【分類|轉載】融合色
 		// 有分類非轉載 分類色
+		if (!('is_repost' in set)) {
+			return
+		}
+		
 		if (category === null) {
 			if (set.is_repost) {
 				set.fusion_color = repost_color.getColorCode()
@@ -112,7 +112,9 @@ const contentFormat = function () {
 	this.format = splited.map(eleHTML => `<div class="page">${eleHTML}</div>`).join('\n');
 
 	/* 將首頁固定 */
-	let $ = cheerio.load(this.format);
+	let $ = cheerio.load(this.format, {
+		decodeEntities: envir.markdown_entitles ? true : false
+	});
 	$($('.page')[0]).addClass('current-page').addClass('solid-page');
 
 	//應該需要轉義的

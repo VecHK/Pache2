@@ -263,6 +263,40 @@ describe('PATCH /article', function () {
 	})
 })
 
+describe('PATCH /articles', function () {
+	it('批量更新任意文章字段', done => {
+		let inserted = [];
+		libArticle.insert({ title: 'repost_1', is_repost: false, is_draft: false })
+		.then(res => inserted.push(res))
+		.then(() => libArticle.insert({ title: 'repost_2', is_repost: false, is_draft: false }))
+		.then(res => inserted.push(res))
+		.then(() => libArticle.insert({ title: 'repost_3', is_repost: false, is_draft: false }))
+		.then(res => inserted.push(res))
+		.then(() => request(app).patch('/articles/').send({
+			ids: inserted.map(a => a._id.toString()),
+			json: JSON.stringify({
+				is_repost: true,
+				is_draft: true,
+			}),
+		}))
+		.then(JsonMiddle)
+		.then(res => {
+			should(res.status).equal(200)
+			should(res.json.code).equal(0)
+			should(res.json.code).equal(0)
+		})
+		.then(() => libArticle.get(inserted.map(a => a._id.toString())))
+		.then(results => {
+			results.forEach(doc => {
+				should(doc.is_repost).equal(true)
+				should(doc.is_draft).equal(true)
+			})
+		})
+		.then(() => done())
+		.catch(err => { console.error(err); throw err })
+	})
+})
+
 describe('GET /articles', function () {
 	envir.limit = 2;
 	it('not page param, they use page "1"', done => {
@@ -321,25 +355,6 @@ describe('GET /articles', function () {
 			})
 			.catch(err => { console.error(err); throw err })
 	});
-
-	it('get artiles error', done => {
-		const oldList = libArticle.list;
-		libArticle.list = function () {
-			const err = new Error('get-error');
-			err.stack = '';
-			return Promise.reject(err);
-		};
-		request(app).get('/articles')
-			.then(JsonMiddle)
-			.then(res => {
-				should(res.status).equal(500);
-				should(res.json.code).is.not.equal(0);
-				should(res.json.msg).equal('get-error');
-			})
-			.then(() => libArticle.list = oldList)
-			.then(() => done())
-			.catch(err => { console.error(err); throw err })
-	})
 })
 
 describe('GET /article', function () {
@@ -412,6 +427,7 @@ describe('POST /category', function () {
 			should(res.json.result.name).equal('POSTNEWCATEGORY')
 			done();
 		})
+		.catch(e => { console.error(e); throw e })
 	})
 	it('create fail - no name', done => {
 		model.removeCollection('categories').catch(() => {})
@@ -422,9 +438,10 @@ describe('POST /category', function () {
 			should(res.json.code).equal(1);
 			done()
 		})
-
+		.catch(e => { console.error(e); throw e })
 	})
 })
+
 describe('PATCH /category', function () {
 	it('修改一個分類的名稱', done => {
 		let id;

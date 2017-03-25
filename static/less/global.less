@@ -25,6 +25,41 @@ body, html {
 	margin: 0;
 	min-height: 100%;
 }
+
+.conditions {
+	margin: 2em 0;
+	.tag-selected {
+		.flex-frame();
+		display: flex;
+		display: -webkit-flex;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		> li {
+			.flex-frame();
+			list-style: none;
+			padding: 2px 8px;
+			background: #f1f1f1;
+			font-size: .8em;
+			font-family: ISOCPEUR, "Book Antiqua", "Lucida Sans", "Hiragino Sans GB", "Microsoft JhengHei", "WenQuanYi Microhei", "黑体";
+			margin: 0px 4px;
+			outline: none;
+			cursor: pointer;
+			a:hover {
+				color: #2f6683;
+			}
+			a, a:visited {
+				color: grey;
+				text-decoration: none;
+			}
+		}
+	}
+}
+.conditions + * {
+	margin-top: 0 !important;
+	padding-top: 0 !important;
+}
+
 .title {
 	display: inline-block;
 	position: relative;
@@ -143,6 +178,9 @@ body, html {
 	}
 }
 @media screen and (min-width: 800px) and (orientation: landscape) {
+	.conditions .tag-selected > li {
+		font-size: 1em;
+	}
 
 	/*** Hover 箭頭 > 標題 <
 
