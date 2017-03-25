@@ -46,9 +46,14 @@ CORE.on('article-created', obj => {
 });
 
 /* 核心的 deleted 事件 */
+CORE.on('list-modify', () => {
+	CORE.getArticles(1)
+})
+/*
 CORE.on(['articles-deleted', 'article-created', 'article-modified'], () => {
 	CORE.getArticles(1);
 });
+*/
 
 list.on('title-click', articleObj => {
 	console.info('title-click', articleObj);

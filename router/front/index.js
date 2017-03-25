@@ -30,15 +30,17 @@ router.get('/article/*', (req, res, next) => {
 					你或許可以：
 					<ul>
 						<li>聯繫站長</li>
-						<li>等到有生之年</li>
 						<li>看看 WebArchive</li>
+						<li>等到有生之年</li>
 						<li>使用抽屜型時光機</li>
 						<li>發動「リハイハル」或者是「<ruby>運命探知の魔眼<rt>Reading Steiner</rt></ruby>」</li>
 						<li>取消收藏/書籤</li>
 						<li>對站長實施人身鄙視（不建議）</li>
 					</ul>
 					</p>`+
-					`<pre class="hljs source-code">\n<code>文章ＩＤ：${article._id.toString()}\n`+
+					`<pre class="hljs source-code">\n`+
+					`<code>文章的一些元數據\n`+
+					`文章ＩＤ：${article._id.toString()}\n`+
 					`文章標題：${article.title}\n`+
 					`文章標籤：${article.tags}\n`+
 					`分類ＩＤ：${article.category}\n`+

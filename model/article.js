@@ -70,6 +70,10 @@ const contentRepost = function (source, set = source) {
 		// 無分類非轉載 默認色
 		// 有分類有轉載 【分類|轉載】融合色
 		// 有分類非轉載 分類色
+		if (!('is_repost' in set)) {
+			return
+		}
+		
 		if (category === null) {
 			if (set.is_repost) {
 				set.fusion_color = repost_color.getColorCode()
@@ -108,7 +112,9 @@ const contentFormat = function () {
 	this.format = splited.map(eleHTML => `<div class="page">${eleHTML}</div>`).join('\n');
 
 	/* 將首頁固定 */
-	let $ = cheerio.load(this.format);
+	let $ = cheerio.load(this.format, {
+		decodeEntities: envir.markdown_entitles ? true : false
+	});
 	$($('.page')[0]).addClass('current-page').addClass('solid-page');
 
 	//應該需要轉義的

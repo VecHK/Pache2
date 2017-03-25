@@ -5,7 +5,7 @@
 @ie-title-font: DengXian, "微软雅黑", "黑体", sans-serif;
 @title-font: "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", @ie-title-font;
 
-@pache-header-font-family: "微软雅黑", "黑体";
+@pache-header-font-family: Arial, "Noto Sans CJK SC", "Source Han Sans CN", "Helvetica Neue", Helvetica, "Han Heiti", "微软雅黑", "黑体", sans-serif;
 @pache-article-font-family: "Noto Sans CJK SC", "Source Han Sans CN", "Helvetica Neue", Helvetica, "Han Heiti", "微软雅黑", "黑体", sans-serif;
 @pache-color: hsl(240, 9%, 25%);
 @pache-title-color: hsl(240, 9%, 30%);
@@ -27,12 +27,14 @@
 }
 
 .page-shadow {
+	z-index: -1;
 	position: absolute;
 	left: 0;
 	top: -32px;
 
 	width: 100%;
 	height: 32px;
+
 
 	box-shadow: 0px 0px 12px #999;
 }
@@ -55,15 +57,18 @@ header {
 	.flex-frame();
 
 	width: 100%;
+	height: 28px;
 	margin: 0;
 
 	[current] {
+		z-index: 10;
 		padding-top: .1em;
 		padding-bottom: .1em;
 		min-height: 1.5em;
 		background: @pache-color;
 		color: azure;
 		box-shadow: 0px 0px 1px @pache-color;
+		font-weight: normal;
 
 		transition: box-shadow .618s;
 		&:hover {
@@ -75,7 +80,7 @@ header {
 		.flex-frame();
 
 		margin: 0em .5em 0em;
-		padding: 0em .5em 0em;
+		padding: 0 1em 0;
 
 		font-size: 1;
 
