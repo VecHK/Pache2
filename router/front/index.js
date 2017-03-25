@@ -124,6 +124,7 @@ const homeRender = (req, res, next) => {
 				.then((result) => {
 					if (result !== null) {
 						category = result
+						req.con.category_name = category.name
 						req.con.category = category._id.toString()
 					}
 				})

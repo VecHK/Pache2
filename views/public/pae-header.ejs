@@ -23,3 +23,13 @@ if (left.src && left.src._id.toString() === conditions.category) {
 	</header>
 
 	<div class="page-shadow"></div>
+
+<% if ('tags' in conditions) {%>
+	<div class="conditions">
+		<ul class="tag-selected">
+			<% conditions.tags.forEach(ct => { %>
+				<li><a href="/category/<%= conditions.category_name %>/tag/<%= conditions.tags.filter(sct => sct !== ct).toString() %>"><%= ct%></a></li>
+			<% }) %>
+		</ul>
+	</div>
+<% } %>
