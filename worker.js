@@ -11,7 +11,7 @@ process.on('message', (message) => {
 		console.log(`worker[${cluster.worker.id}] Envir was set`);
 	} else if (message.type === 'web') {
 		const http = require('http');
-		let app = require('./app');
+		let app = require('./app-t');
 
 		if (envir.enable_https) {
 			const credentials = {};
@@ -53,7 +53,7 @@ process.on('message', (message) => {
 			}
 		}
 
-		const server = http.createServer(app);
+		const server = http.createServer(app.callback());
 		server.listen(envir.port);
 		server.on('error', (err) => {
 			throw err;
