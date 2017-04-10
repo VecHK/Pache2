@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const envir = require('../envir');
-
+console.warn('數據庫：', envir.db)
 let model = {
 	Category: require('./category') && mongoose.model('Category'),
 	Article: require('./article') && mongoose.model('Article'),
-	connect(){
+	connect() {
 		return new Promise((resolve, reject) => {
 			mongoose.connect(envir.db, {
 				server: { poolSize: 20 },
