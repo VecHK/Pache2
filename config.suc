@@ -15,12 +15,14 @@
 # [test] 999
 # 相當於 { test: 999 }
 #
-# [b] false
-# 相當於 { b: false }
+# [b] FALSE
+# 相當於 { b: FALSE }
 
 
 
 # MongoDB URL
+# 建議使用有用戶的 MongoDB 配置
+# 或者禁止外網訪問的 MongoDB 配置
 db >mongodb://127.0.0.1:27017/pache
 
 # 主域名
@@ -28,13 +30,13 @@ master_domain > 不存在的域名
 
 # 重定向到主域名
 # 開啟后，非主域名訪問的地址將會強制跳轉到主域名上
-[force_redirect_to_master_domain] false
+[force_redirect_to_master_domain] FALSE
 
 # HTTP 監聽端口
 [port] 3382
 
-# 需要啟用 HTTPS 請將 enable_https 設置為 true
-[enable_https] false
+# 需要啟用 HTTPS 請將 enable_https 設置為 TRUE
+[enable_https] FALSE
 
 # private_key 是私钥文件的路径
 private_key >/不存在的路径/private_key.pem
@@ -47,7 +49,7 @@ certificate >/不存在的路径/certificate.crt
 
 # 是否強制 HTTPS
 # 啟用后，以 HTTP 方式訪問 Pache 則會強制跳轉到 HTTPS 的連接上（重定向）
-[force_https] false
+[force_https] FALSE
 
 # 用戶密碼
 pass >7355608
@@ -81,7 +83,7 @@ repost_color >#46c01b
 # ************注意 CAUTION************
 # 如沒有什麼需求，請不要開啟此選項，因為 Pache 會將 ESD 列表中的
 # 路徑作為備選靜態目錄，謹慎謹慎
-[ESD_enable] false
+[ESD_ENABLE] FALSE
 
 # ESD 列表
 # 靜態目錄的訪問策略是從列表的第一個目錄開始訪問，最頂層的是 Pache 路由
@@ -90,6 +92,6 @@ repost_color >#46c01b
 # 若還找不到，則會在 /home/不存在的目錄B 中查找。如果都沒有找到，
 # 則返回一個 HTTP 404
 # 為避免出錯最好使用絕對路徑
-[ESD_list]
+[ESD_LIST]
 /home/不存在的目錄A
 /home/不存在的目錄B
