@@ -32,3 +32,86 @@ try {
 } catch (e) {
 
 }
+
+(function () {
+	var EventModel = {
+	  /* 查找事件的訂閱池 */
+	  _findev: function (name) {
+	    /* 如果事件池不存在則創建它 */
+	    if (!this._evpool) {
+	      this._evpool = {}
+	    }
+	    /* 如果不存在該訂閱池則創建它 */
+	    if (!Array.isArray(this._evpool[name])) {
+	      this._evpool[name] = []
+	    }
+	    /* 返回訂閱池 */
+	    return this._evpool[name]
+	  },
+
+	  /* 訂閱事件 */
+	  on: function (ev_name, handle) {
+	    /* this._findev(ev_name) 則會返回對應的訂閱池（數組） */
+	    return this._findev(ev_name).push(handle)
+	  },
+
+	  /* 發佈事件 */
+	  emit: function (ev_name) {
+	    /* 保存上下文環境，用於回調函數用的上下文 */
+	    var self = this;
+
+	    var args = Array.prototype.slice.call(arguments)
+	    /* 獲取 ev_name 后的參數，作為回調函數用的參數 */
+	    args.shift()
+
+	    /* this._findev(ev_name) 則會返回對應的訂閱池（數組） */
+	    return this._findev(ev_name).forEach(function (handle) {
+	      handle.apply(self, args)
+	    })
+	  },
+
+	  /* 移除事件 */
+	  remove: function (ev_name, remove_handle) {
+	    this._evpool[ev_name] = this._findev(ev_name).filter(function (evHandle) {
+	      return evHandle !== remove_handle
+	    })
+	  },
+	};
+	if (window.define) {
+		window.define(EventModel)
+	} else {
+		window.EventModel = EventModel
+	}
+
+	var StorageModel = {
+	  reload: function () {
+	    try {
+	      this.source = JSON.parse(localStorage.storage_source)
+	    } catch (e) {
+	      this.source = {}
+	    }
+	    this.emit('reload', this.source)
+	  },
+	  set: function (name, value) {
+	    return this.source[name] = value
+	  },
+	  get: function (name) {
+	    return this.source[name] || null
+	  },
+	  remove: function (name) {
+	    return (delete this.source[name])
+	  },
+	  save: function () {
+	    localStorage.storage_source = JSON.stringify(this.source)
+	    this.emit('saved', localStorage.storage_source)
+	  },
+	  clear: function () {
+	    localStorage.removeItem('storage_source')
+	    var remove_source = this.source;
+	    this.source = {}
+	    this.emit('clear', remove_source)
+	  },
+	}
+
+	StorageModel.__proto__ = Object.create(EventModel)
+})()

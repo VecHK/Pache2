@@ -195,14 +195,24 @@
 					const err = new Error('status is not 200');
 					err.status = xhr.status;
 					err.responseText = xhr.responseText;
+					err.xhr = xhr;
 					reject(err);
 				}
 			};
 
 			xhr.open(args.method.toUpperCase(), url, true);
 			if (args.data !== undefined) {
-				xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-				if (typeof args.data === 'object') {
+				if (args.type === 'json') {
+					xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+				} else if ('type' in args) {
+					xhr.setRequestHeader("Content-Type", atgs.type);
+				} else {
+					xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+				}
+
+				if (/json/.test(args.type)) {
+					xhr.send(JSON.stringify(args.data))
+				} else if (typeof args.data === 'object') {
 					let formated = stringifyRequest(args.data);
 					xhr.send(formated);
 				} else {
@@ -261,12 +271,18 @@
 	ObjecExtends(voolsEvent.prototype, {
 
 	});
+	if (window.define) {
+		define(() => [
+			vools,
+			function () { return vools.apply(null, arguments).pop() }
+		])
+	} else {
+		window.voolsEvent = voolsEvent;
 
-	window.voolsEvent = voolsEvent;
-
-	window.vools = vools;
-	window.$ = vools;
-	window.$$ = function (){
-		return vools.apply(null, arguments)[0];
-	};
+		window.vools = vools;
+		window.$ = vools;
+		window.$$ = function (){
+			return vools.apply(null, arguments)[0];
+		};
+	}
 })();
