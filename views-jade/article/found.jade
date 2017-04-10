@@ -1,0 +1,48 @@
+doctype html
+html
+	head
+		meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no")
+		meta(http-equiv="content-type" content="text/html" charset="utf-8")
+		meta(http-equiv="X-UA-Compatible" content="IE=edge;chrome=1;")
+		meta(name="HandheldFriendly" content="true")
+		
+		include ../include/app-icon.jade
+		title=article.title
+
+		link(rel="stylesheet" media="all" href="/han/han.css")
+		link(rel="stylesheet" href="/style/article.css")
+
+	body
+		div(class="page-shadow")
+		div(class="top-block")
+			div(class="top page-btn-panel")
+			div(class="article-details")
+				div(class="title")=article.title
+				time=article.date.toLocaleDateString()
+
+		article(id="article" class="article")
+			!=article.format
+
+		div(class="page-jumper")
+			div(class="page-jumper-frame")
+				div(class="page-jumper-content")
+					div(class="jumper-triangle")
+					ul(class="page-select-list")
+
+		div(class="page-jumper-bg")
+
+		script(src="/han/han.min.js")
+		script.
+			try {
+				var titleHan = Han(document.querySelector('.title')).render();
+			} catch (e) {}
+		
+		script(type="text/javascript" src="/script/gro.js")
+		script(type="text/javascript" src="/admin/script/pam-event.js")
+		script(type="text/javascript" src="/vools.js")
+		script(type="text/javascript" src="/script/pam-ext.js")
+		
+		style.
+			section.footnotes {
+				display: block
+			}
