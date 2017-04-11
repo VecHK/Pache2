@@ -4,8 +4,8 @@ const views = require('koa-views')
 const Router = require('koa-router')
 const koa_static = require('koa-static')
 
-const session = require('koa-session');
-const convert = require('koa-convert');
+const session = require('koa-session-redis')
+const convert = require('koa-convert')
 
 const envir = require('./envir')
 const Model = require('./model')
@@ -16,14 +16,24 @@ const front = require('./front')
 const app = new Koa
 
 app.keys = [envir.session_secret];
-const SESSION_CONFIG = {
+
+const session_handle = convert(session({
   key: 'pache:sess', /** (string) cookie key (default is koa:sess) */
-  maxAge: 86400000, /** (number) maxAge in ms (default is 1 days) */
-  overwrite: true, /** (boolean) can overwrite or not (default true) */
-  httpOnly: true, /** (boolean) httpOnly or not (default true) */
-  signed: true, /** (boolean) signed or not (default true) */
-};
-app.use(convert(session(SESSION_CONFIG, app)));
+  cookie: {
+    maxage: 86400000, // cookie 有效期
+    maxAge: 86400000, // cookie 有效期
+    overwrite: true, /** (boolean) can overwrite or not (default true) */
+    httpOnly: true, /** (boolean) httpOnly or not (default true) */
+    signed: true, /** (boolean) signed or not (default true) */
+  },
+  store: {
+    host: process.env.SESSION_PORT_6379_TCP_ADDR || '127.0.0.1',
+    port: process.env.SESSION_PORT_6379_TCP_PORT || 6379,
+    ttl: 3600,
+  },
+}))
+
+app.use(session_handle);
 
 const backRouter = new Router
 
