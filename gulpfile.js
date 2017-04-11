@@ -10,7 +10,7 @@ const plumber = require('gulp-plumber');
 const beep = require('beeper');
 
 gulp.task('admin_es6toes5', () => {
-	return gulp.src("admin/src/*.js")
+	return gulp.src("static/admin/src/*.js")
 		.pipe(plumber({
 			errorHandler: function (err) {
 				beep('*-*-');
@@ -21,7 +21,7 @@ gulp.task('admin_es6toes5', () => {
 		.pipe(babel())
 		/* .pipe(concat("all.js")) */
 		.pipe(sourcemaps.write("."))
-		.pipe(gulp.dest("admin/script/"));
+		.pipe(gulp.dest("static/admin/script/"));
 });
 gulp.task('front_es6toes5', () => {
 	return gulp.src("static/src/*.js")
@@ -37,9 +37,23 @@ gulp.task('front_es6toes5', () => {
 		.pipe(sourcemaps.write("."))
 		.pipe(gulp.dest("static/script/"));
 })
+gulp.task('tools_es6toes5', () => {
+	return gulp.src("tools/*.js")
+		.pipe(plumber({
+			errorHandler: function (err) {
+				beep('*-*-');
+				notify.onError('Error: <%= error.message %>').apply(this, arguments);
+			}}
+		))
+		.pipe(sourcemaps.init())
+		.pipe(babel())
+		/* .pipe(concat("all.js")) */
+		.pipe(sourcemaps.write("."))
+		.pipe(gulp.dest("public/"));
+})
 
 gulp.task('admin-less', () => {
-	return gulp.src('admin/less/*.less')
+	return gulp.src('static/admin/less/*.less')
 		.pipe(plumber({
 			errorHandler: function (err) {
 				beep('*-*-');
@@ -47,9 +61,9 @@ gulp.task('admin-less', () => {
 			}}
 		))
 		.pipe(less({
-			paths: [ 'admin/less/' ],
+			paths: [ 'static/admin/less/' ],
 		}))
-		.pipe(gulp.dest('admin/style/'));
+		.pipe(gulp.dest('static/admin/style/'));
 });
 gulp.task('front-less', () => {
 	return gulp.src('static/less/*.less')
@@ -64,12 +78,29 @@ gulp.task('front-less', () => {
 		}))
 		.pipe(gulp.dest('static/style/'));
 });
+gulp.task('jade-less', () => {
+	return gulp.src('views-jade/less/*.less')
+		.pipe(plumber({
+			errorHandler: function (err) {
+				beep('*-*-');
+				notify.onError('Error: <%= error.message %>').apply(this, arguments);
+			}}
+		))
+		.pipe(less({
+			paths: [ 'views-jade/less/' ],
+		}))
+		.pipe(gulp.dest('views-jade/style/'));
+})
+
 
 gulp.task('watch', () => {
 	gulp.watch('static/src/*.js', ['front_es6toes5']);
-	gulp.watch('admin/src/*.js', ['admin_es6toes5']);
+	gulp.watch('static/admin/src/*.js', ['admin_es6toes5']);
+	gulp.watch('tools/*.js', ['tools_es6toes5']);
+
 	gulp.watch('static/less/*.less', ['front-less']);
-	gulp.watch('admin/less/*.less', ['admin-less']);
+	gulp.watch('static/admin/less/*.less', ['admin-less']);
+	gulp.watch('views-jade/less/*.less', ['jade-less']);
 });
 
 gulp.task('default', ['front_es6toes5', 'admin_es6toes5', 'minify', 'watch']);

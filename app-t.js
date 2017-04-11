@@ -7,6 +7,7 @@ const koa_static = require('koa-static')
 const session = require('koa-session-redis')
 const convert = require('koa-convert')
 
+const npmPackage = require('./package')
 const envir = require('./envir')
 const Model = require('./model')
 
@@ -33,7 +34,40 @@ const session_handle = convert(session({
   },
 }))
 
-app.use(session_handle);
+app.use(session_handle)
+
+app.use(views(path.join(__dirname, 'views-jade'), {
+  map: {
+    html: 'underscore'
+  }
+}));
+
+app.use(async (ctx, next) => {
+  try {
+    await next()
+  } catch (e) {
+    ctx.status = 500
+    await ctx.render('error-page.jade', {
+      error: e,
+      envir: Object.assign({}, envir),
+      npmPackage,
+    })
+    // ctx.body = '好像服務器方面出現了偏差: ' + e.message
+  }
+})
+
+// app.use(async ctx => {
+//   ctx.unkno()
+// })
+
+// 是否強制跳轉到主域名
+envir.force_redirect_to_master_domain && app.use(async (ctx, next) => {
+  if (ctx.request.headers['host'].trim() !== envir.master_domain.trim()) {
+    let protocol = envir.force_https ? 'https' : ctx.protocol
+    return res.redirect(`${protocol}://${envir.master_domain}${ctx.url}`)
+  }
+  await next()
+})
 
 const backRouter = new Router
 
