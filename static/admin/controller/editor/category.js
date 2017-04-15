@@ -41,6 +41,9 @@ define(function (require) {
     }
   })
 
+  if (Categories.records.length) {
+    renderCategoriesSelectList()
+  }
   Categories.on('records-refresh', () => {
     renderCategoriesSelectList()
   })
