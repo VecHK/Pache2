@@ -18,6 +18,7 @@ html
     ul.list
       each article in list
         li(category-id=article.category article-id=article._id.toString())
+          style!=`[article-id="${article._id.toString()}"] [class^="line-"] { background-color: ${article.fusion_color} }`
           div.title
             a(href='/article/' + article._id)
               div.right-arrow
