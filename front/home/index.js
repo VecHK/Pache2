@@ -45,7 +45,7 @@ router.get(['*/tag/:tag_raw/*', '*/tag/:tag_raw'], async (ctx, next) => {
 })
 
 router.get('*/:pagecode', async (ctx, next) => {
-  let pagecode = parseInt(ctx.params.pagecode)
+  let pagecode = Number(ctx.params.pagecode)
 
   if (Number.isInteger(pagecode) && pagecode > 0) {
     ctx.conditions.pagecode = pagecode
@@ -65,17 +65,22 @@ router.get('*', async (ctx, next) => {
   if (!ctx.conditions.pagecode) {
     return await next()
   }
-  let con = {
-    tags: ctx.conditions.tags,
-    category: ctx.conditions.category_id,
-    is_draft: {$ne: true},
+
+  const con = {}
+  if (ctx.conditions.tags) {
+    con.tags = ctx.conditions.tags
   }
+  if (ctx.conditions.category_id) {
+    con.category = ctx.conditions.category_id
+  }
+  con.is_draft = {$ne: true}
+
   let list = await libArticle.find(
     (ctx.conditions.pagecode - 1) * envir.limit,
     envir.limit,
     con
   )
-  let count = await libArticle.count(con)
+  let count = await Model.Article.find(con).count()
   let categories = await libCategory.getAll()
 
   ctx.status = 200;
