@@ -1,7 +1,7 @@
 const envir = require('../envir');
 const jsdom = require( 'jsdom' );
 const cheerio = require('cheerio');
-const Cutl = require('../admin/src/color-utils.js');
+const Cutl = require('../tools/color-utils.js');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
@@ -73,7 +73,7 @@ const contentRepost = function (source, set = source) {
 		if (!('is_repost' in set)) {
 			return
 		}
-		
+
 		if (category === null) {
 			if (set.is_repost) {
 				set.fusion_color = repost_color.getColorCode()
@@ -148,6 +148,10 @@ ArticleSchema.pre('save', function (next) {
 
 ArticleSchema.pre('update', function (next) {
 	let set = this._update.$set;
+	if (!set) {
+		return next()
+	}
+	
 	if (set.hasOwnProperty('tags') && !Array.isArray(set.tags)) {
 		set.tags = [ set.tags ];
 	}

@@ -26,7 +26,7 @@ CategorySchema.pre('update', function (next) {
 		return next(err);
 	}
 
-	console.warn('namenamenamename', set.name)
+	// console.warn('namenamenamename', set.name)
 	if (set.name) {
 		/* name 有无重复 */
 		CategoryModel.findOne({name: set.name})

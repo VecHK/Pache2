@@ -1,0 +1,31 @@
+- var countPage = Math.ceil(count / limit);
+
+- /* 只有一页的情况不显示页码 */
+if countPage > 1
+
+  - if (!Array.isArray(tags)) { tags = [] }
+  - var cursor = page - 2;
+  - var right = page + 2;
+  div.pagecode
+    if cursor <= 0
+      - right += Math.abs(cursor) + 1;
+      - cursor = 1;
+    
+    if right > countPage
+      - cursor -= Math.abs(right-countPage);
+      if (cursor <= 0)
+        - cursor = 1;
+      - right = countPage;
+    
+    - for (; cursor <= right; ++cursor){
+      if page === cursor
+        a(current)=cursor
+      else
+        if tags.length
+          - var tagHref = '/tag/' + tags.join(',') + '/';
+        else
+          - var tagHref = '';
+
+        a(href=`${tagHref}\/${cursor}`)
+          =cursor
+    - }

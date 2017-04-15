@@ -35,16 +35,22 @@ body, html {
 		margin: 0;
 		padding: 0;
 		list-style: none;
+
 		> li {
 			.flex-frame();
 			list-style: none;
 			padding: 2px 8px;
-			background: #f1f1f1;
+			// background: #f1f1f1;
 			font-size: .8em;
 			font-family: ISOCPEUR, "Book Antiqua", "Lucida Sans", "Hiragino Sans GB", "Microsoft JhengHei", "WenQuanYi Microhei", "黑体";
 			margin: 0px 4px;
 			outline: none;
 			cursor: pointer;
+
+			&:before {
+				content: '＃';
+				color: #999;
+			}
 			a:hover {
 				color: #2f6683;
 			}

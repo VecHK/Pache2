@@ -1,0 +1,49 @@
+doctype html
+html
+  head
+    title Pache
+    meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no")
+    meta(http-equiv="content-type" content="text/html" charset="utf-8")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge;chrome=1;")
+    meta(name="HandheldFriendly" content="true")
+    include ../include/app-icon.jade
+    link(rel="stylesheet" href="/style/global.css")
+
+  body
+    - var category_prefix = ''
+    - if ('category_name' in conditions) {
+    -   category_prefix = `/category/${conditions.category_name}`
+    - }
+    include ./header.jade
+    ul.list
+      each article in list
+        li(category-id=article.category article-id=article._id.toString())
+          style!=`[article-id="${article._id.toString()}"] [class^="line-"] { background-color: ${article.fusion_color} }`
+          div.title
+            a(href='/article/' + article._id)
+              div.right-arrow
+                div.line-1
+                div.line-2
+              div.left-arrow
+                div.line-1
+                div.line-2
+              =article.title
+          
+          ul.tag-list
+            each tag in article.tags
+              li
+                if conditions.tags
+                  a(href= `${category_prefix}/tag/${conditions.tags}, ${tag}`)=tag
+                  //- <a href="<%= category_prefix %>/tag/<%= conditions.tags %>,<%= tag %>"><%= tag %></a>
+                else
+                  a(href= `${category_prefix}/tag/${tag}`)=tag
+                  //- <li><a href="<%= category_prefix %>/tag/<%= tag %>"><%= tag %></a></li>
+          
+          div.time-frame
+            time.time
+              div.bottom-arrow
+                div.line-1
+                div.line-2
+              =article.date.toLocaleDateString()
+
+    include ./pagecode.jade

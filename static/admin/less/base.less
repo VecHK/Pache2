@@ -1,0 +1,57 @@
+@repost-green: rgb(45, 160, 83);
+@torzo-blue: hsl(201, 47%, 35%);
+@torzo-grey: hsl(0, 0%, 80%);
+@big-font-family: "Noto Sans CJK SC", "Source Han Sans", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+@normal-font-family: @big-font-family;
+@small-font-family: @big-font-family;
+@message-font-family: "ISOCPEUR", Courier, @small-font-family;
+
+.hide {
+	display: none;
+}
+.icon(@icon-url) {
+	background: url(@icon-url);
+	background-repeat: space;
+	background-size: cover;
+}
+
+html, body {
+}
+.flex(
+	@justify-c: center,
+	@align-i: center,
+	@align-c: @align-i
+) {
+	display: flex;
+	justify-content: @justify-c;
+	align-items: @align-i;
+	align-content: @align-c;
+
+	display: -webkit-flex;
+	-webkit-justify-content: @justify-c;
+	-webkit-align-items: @align-i;
+	-webkit-align-content: @align-c;
+}
+
+.menu-button {
+	&:hover {
+		background: @torzo-blue;
+		color: white;
+	}
+	& {
+		background: white;
+		color: #777;
+		box-shadow: 0px 0px 1px rgb(108, 108, 108);
+
+		font-family: @small-font-family;
+
+		padding: 0px 8px;
+
+		cursor: pointer;
+
+		border-radius: 0px;
+
+		transition-property: background, color, box-shadow;
+		transition-duration: .382s;
+	}
+}

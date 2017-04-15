@@ -1,0 +1,58 @@
+.page {
+	display: inline-flex;
+	display: -webkit-inline-flex;
+}
+
+.list {
+	margin: 0px .1em;
+	padding: 0;
+	font-family: "Noto Sans CJK SC", "Source Han Sans", "Source Han Sans CN", courier, "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+
+	.list-item {
+		display: inline-flex;
+		align-items: center;
+		align-content: center;
+		box-sizing: border-box;
+		width: 100%;
+	}
+	[type="checkbox"] {
+		width: 2em;
+		height: 2em;
+	}
+
+	.item-tags {
+		display: inline-flex;
+		.tag {
+			cursor: pointer;
+			margin-left: 1.5em;
+		}
+	}
+
+	.link {
+
+	}
+	.item-title {
+		cursor: pointer;
+		font-size: 2.5em;
+		font-weight: 100;
+		color: hsl(201, 47%, 35%);
+	}
+}
+
+.page {
+	> *:empty {
+		display: none;
+	}
+	> * {
+		margin: 0px 4px;
+		width: 20px;
+		cursor: pointer;
+		text-align: center;
+		font-family: ISOCPEUR, Arial;
+		color: hsla(16, 25%, 38%, 0.618);
+	}
+	.current-pagecode {
+		color: #607D8B;
+
+	}
+}

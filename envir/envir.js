@@ -1,4 +1,3 @@
-const pkg = require('../package')
 const fs = require('fs');
 const path = require('path');
 const Suc = require('node-suc').Suc;
@@ -13,34 +12,37 @@ const printKeyValue = function (jumpChar, key, value) {
 };
 
 class Envir {
-	printInfo(){
+	printInfo() {
 		const jump = 18;
-		process.stdout.write(`--- Pache ${pkg.version}\n`)
+		process.stdout.write(`--- Pache ${npmPackage.version}\n`)
 		process.stdout.write(`--- ${this.CONFIG_PATH}\n`)
-		printKeyValue(jump, 'MongoDB 地址:', this.db)
-		printKeyValue(jump, 'http 端口:', this.port)
+		printKeyValue(jump, 'MongoDB 地址:', this.db || '(Suc 屬性不存在)')
+		printKeyValue(jump, 'http 端口:', this.port || '(Suc 屬性不存在)')
 
 		printKeyValue(jump, 'https 是否启用', envir.enable_https)
 		if (envir.enable_https) {
-			printKeyValue(jump, '私钥路径', envir.private_key)
-			printKeyValue(jump, '证书路径', envir.certificate)
-			printKeyValue(jump, '是否强制 https', envir.force_https)
+			printKeyValue(jump, '私钥路径', envir.private_key || '(Suc 屬性不存在)')
+			printKeyValue(jump, '证书路径', envir.certificate || '(Suc 屬性不存在)')
+			printKeyValue(jump, '是否强制 https', envir.force_https ? '是' : '否')
 		}
 
 		printKeyValue(jump, '密码:', this.pass.split('').fill('*').join(''))
 		printKeyValue(jump, '单页最大文章数:', this.limit)
-		printKeyValue(jump, '是否启用 PAE:', this.ENABLE_PAE)
+		printKeyValue(jump, '圖片目錄:', this.IMAGE_PATH)
 		printKeyValue(jump, 'cluster 线程数:', this.cluster_fork_num)
 
-		printKeyValue(jump, 'ESD 是否启用:', this.ESD_enable)
-		if (this.ESD_enable) {
-			this.ESD_list.forEach(esd_path => {
-				printKeyValue(jump, '', esd_path);
+		let ESD_Property = 'ESD:'
+		if (this.ESD_ENABLE) {
+			this.ESD_LIST.forEach(esd_path => {
+				printKeyValue(jump, ESD_Property, esd_path);
+				ESD_Property = ''
 			})
+		} else {
+			printKeyValue(jump, ESD_Property, '禁用')
 		}
 
 	}
-	reload(){
+	reload() {
 		try {
 			Object.assign(this, suc.parse(
 				fs.readFileSync(this.CONFIG_PATH).toString()
@@ -59,7 +61,7 @@ class Envir {
 			});
 		}
 	}
-	get(propertyName, cb){
+	get(propertyName, cb) {
 		cb(this[propertyName]);
 	}
 }

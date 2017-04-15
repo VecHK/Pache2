@@ -1,0 +1,27 @@
+@import "base.less";
+.error-panel {
+  .flex(center, flex-start);
+  flex-direction: column;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1em;
+
+  > h1 {
+    font-weight: 400;
+    font-family: @big-font-family;
+  }
+  > .message {
+    color: hsl(0, 38.2%, 38.2%)
+  }
+  > pre {
+    font-family: consolas, Courier;
+    font-size: 10px;
+    color: #666;
+    max-height: 500px;
+  }
+  > .stack {
+  }
+}

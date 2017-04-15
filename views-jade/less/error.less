@@ -1,0 +1,87 @@
+@import "../../static/less/base.less";
+
+html, body {
+  font-family: "Source Han Sans", "Microsoft YaHei";
+  color: @pache-color;
+  margin: 0 auto 2em auto;
+}
+html {
+}
+
+h1 {
+  color: @pache-title-color;
+  font-family: @title-font;
+}
+
+pre {
+  margin: 0;
+  padding: 0;
+  font-family: ISOCPEUR, consolas;
+}
+pre.message {
+  font-weight: bold;
+  font-size: 1.25em;
+}
+pre.stack {
+  font-size: 14px;
+}
+
+.infomation pre {
+  font-family: "Source Han Sans";
+}
+
+ul, ol {
+  padding: 0;
+  margin: 0;
+}
+ul > li, ol > li {
+  list-style-position: outside;
+  margin: 0 0 0 1em;
+  line-height: 1.5em;
+}
+ul > li::before {
+  content: "-";
+  font-family: Courier, fantasy;
+  font-weight: 900;
+  color: #AAA;
+  margin: 0 0em 0em -1em;
+  padding: 0 .2em;
+  transition: color .382s;
+}
+ul {
+  list-style: none;
+}
+
+
+@media screen and (min-width: 800px) {
+  body {
+    width: @pache-article-width;
+  }
+  ul, ol {
+    margin: 1em 0em 1em 1em;
+  }
+  ul > li, ol > li {
+    list-style-position: outside;
+  }
+}
+/* 手機、平板豎屏 */
+@media screen and (max-width: 800px) {
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    padding: 1.618em;
+  }
+  h1 {
+    text-align: center;
+  }
+  pre.message {
+    margin-left: ~"calc(-1.618em * 0.75)";
+  }
+  pre.stack {
+    overflow: auto;
+    width: ~"calc(100% + 1.618em * 2)";
+    margin-left: -1.618em;
+  }
+}

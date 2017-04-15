@@ -1,0 +1,85 @@
+<!doctype HTML>
+<html>
+<head>
+	<title>PAM v2</title>
+	<meta http-equiv="content-type" content="text/html" charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1;" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<meta name="HandheldFriendly" content="true" />
+	<link rel="stylesheet" href="style/global.css" />
+	<script type="application/javascript" src="/random-string.js"></script>
+	<script type="application/javascript" src="src/md5/md5.min.js"></script>
+	<script data-main="src/app" type="application/javascript" src="/requirejs/require.min.js"></script>
+</head>
+<body>
+	<main>
+		<header>
+			<div class="page">page</div>
+			<div class="panel">
+				<div p-command="categories" style="">分類</div>
+				<div p-command="new">新建</div>
+				<div p-command="delete" style="display: none;">刪除</div>
+				<div p-command="repost" style="display: none;">设为转载</div>
+				<div p-command="draft" style="display: none;">设为草稿</div>
+				<div p-command="logout" class="logout"></div>
+			</div>
+		</header>
+		<ul class="list"></ul>
+	</main>
+	<div class="editor" style="display: none">
+		<div class="category-frame"></div>
+		<div class="tag">
+			<div class="tag-list"></div>
+			<form class="tag-new"><input name="tag" placeholder="TagMe" /></form>
+		</div>
+		<form>
+			<input name="title" placeholder="标题" />
+			<div class="text-frame">
+				<pre class="height-fill"></pre>
+				<textarea name="content" placeholder="正文"></textarea>
+			</div>
+		</form>
+		<div class="editor-panel">
+			<div p-action="set-category" class="category">
+				<span></span>
+				<div class="set-article-category">
+					<ul class="category-list"></ul>
+					<form style="display: none" class="category-new"><input name="category" placeholder="創建分類" /></form>
+				</div>
+			</div>
+			<label p-action="repost" class="repost">
+				<input type="checkbox" />
+				<div class="circle"></div>
+			</label>
+			<a target="_blank" p-action="preview" type="button">覽</a>
+			<div p-action="help" class="help"></div>
+			<div p-action="profile" class="profile"></div>
+			<div p-action="submit" class="submit"></div>
+		</div>
+	</div>
+	<div class="article-profile" style="display: none">
+		<form>
+			<label>文章类型<select class="content-type">
+				<option value="markdown">Markdown</option>
+				<option value="html">HTML</option>
+				<option value="text">Text</option>
+			</select></label>
+			<label>
+				<input name="is_draft" type="checkbox" />這是一篇草稿文章
+			</label>
+		</form>
+		<div class="profile-ok">
+			<div class="click-able"></div>
+			<embed src="resource/ok.svg" width="92" height="100" type="image/svg+xml" pluginspage="http://www.adobe.com/svg/viewer/install/" />
+		</div>
+	</div>
+	<div class="categories-manager" style="display: none">
+		<ul class="categories-panel">
+			<li>創建</li> <li>刪除</li>
+		</ul>
+		<ul class="categories-list">
+		</ul>
+	</div>
+</body>
+</html>

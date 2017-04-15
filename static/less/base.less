@@ -3,17 +3,18 @@
 @pache-hover-color: hsla(0, 0%, 80%, 0.382);
 
 @ie-title-font: DengXian, "微软雅黑", "黑体", sans-serif;
-@title-font: "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", @ie-title-font;
+@source-sans-font: "Source Han Sans", "Source Han Sans CN";
+@title-font: "Noto Sans CJK SC", @source-sans-font, "Microsoft JhengHei", @ie-title-font;
 
-@pache-header-font-family: Arial, "Noto Sans CJK SC", "Source Han Sans CN", "Helvetica Neue", Helvetica, "Han Heiti", "微软雅黑", "黑体", sans-serif;
-@pache-article-font-family: "Noto Sans CJK SC", "Source Han Sans CN", "Helvetica Neue", Helvetica, "Han Heiti", "微软雅黑", "黑体", sans-serif;
+@pache-header-font-family: Arial, "Noto Sans CJK SC", @source-sans-font, "Helvetica Neue", Helvetica, "Han Heiti", "微软雅黑", "黑体", sans-serif;
+@pache-article-font-family: "Noto Sans CJK SC", @source-sans-font, "Helvetica Neue", Helvetica, "Han Heiti", "微软雅黑", "黑体", sans-serif;
 @pache-color: hsl(240, 9%, 25%);
 @pache-title-color: hsl(240, 9%, 30%);
 @pache-time-label-font-family: "Segoe UI", "华文细黑", consolas, courier, Arial;
 @pache-time-label-color: hsla(240, 9%, 30%, 50%);
 @pache-title-link-font-family: ISOCPEUR, "Segoe UI", @title-font;
 @pache-ie-title-link-font-family: ISOCPEUR, "Segoe UI", @ie-title-font;
-
+@pache-article-width: 760px;
 
 .local:not(.error):hover {
 }

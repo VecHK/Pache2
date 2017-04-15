@@ -1,6 +1,6 @@
 const fs = require('fs');
 const https = require('https');
-const express = require('express');
+const koa = require('koa')
 const envir = require('./envir');
 const cluster = require('cluster');
 
@@ -11,7 +11,7 @@ process.on('message', (message) => {
 		console.log(`worker[${cluster.worker.id}] Envir was set`);
 	} else if (message.type === 'web') {
 		const http = require('http');
-		let app = require('./app');
+		let app = require('./app-t');
 
 		if (envir.enable_https) {
 			const credentials = {};
@@ -21,41 +21,41 @@ process.on('message', (message) => {
 					cert: fs.readFileSync(envir.certificate, 'utf8'),
 				})
 			} catch (e) {
-				console.error('無法讀取 private_key/certificate 路徑')
+				console.error('無法讀取 private_key/certificate 文件')
 				throw e
 			}
 
-			const httpsServer = https.createServer(credentials, app);
+			const httpsServer = https.createServer(credentials, app.callback())
 			httpsServer.listen(envir.https_port);
 			httpsServer.on('error', (err) => {
+				console.error('https Server 錯誤', e.message)
 				throw err;
 			});
-			httpsServer.on('listening', () => {
-			});
+			httpsServer.on('listening', () => { });
 
-			/* 檢查是否是強制使用 https 的配置 */
 			if (envir.force_https) {
-				app = express();
+				/* 檢查是否是強制使用 https 的配置，如果是就替換 app 為跳轉到 https 的路由 */
+				app = new koa()
+
 				if (envir.force_redirect_to_master_domain) {
-					app.all('*', (req, res, next) => {
-						if (req.headers['host'].trim() === envir.master_domain.trim()) {
-							next()
-						} else {
-							res.redirect("http://" + envir.master_domain + req.url);
-							res.end('')
-						}
+					app.use(async (ctx, next) => {
+						if (ctx.host.trim() !== envir.master_domain.trim()) {
+					    return ctx.redirect(`https://${envir.master_domain}${ctx.url}`)
+					  }
+						await next()
 					})
 				}
-				app.all('*', (req, res) => {
-					res.redirect("https://" + req.headers['host'] + req.url);
-					return res.end()
-				});
+
+				app.use(async ctx => {
+					ctx.redirect('https://' + ctx.host + ctx.url)
+				})
 			}
 		}
 
-		const server = http.createServer(app);
+		const server = http.createServer(app.callback());
 		server.listen(envir.port);
 		server.on('error', (err) => {
+			console.error('http Server 錯誤', e.message)
 			throw err;
 		});
 		server.on('listening', () => {

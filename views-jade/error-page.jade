@@ -1,0 +1,57 @@
+// 因為服務器當掉了可能會影響到靜態頁訪問，故樣式、腳本都使用 include 來引用
+doctype html
+html
+  head
+    meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no")
+    meta(http-equiv="content-type" content="text/html" charset="utf-8")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge;chrome=1;")
+    meta(name="HandheldFriendly" content="true")
+    
+    include include/app-icon.jade
+    
+    style
+      include style/error.css
+    
+    title="Pache 500"
+
+  body
+    h1="Pache 500"
+    .about
+      ="這裡是 Pache 的錯誤頁面。如果您訪問到了這邊，這可能意味著："
+      ul
+        li="數據庫連接又 timeout 了"
+        li="純粹的 bug"
+        li="有人在地獄通信"
+        li="你在干壞事"
+        li="……"
+    
+    h1="那我要怎麼辦"
+    .how
+      p=`如果你是瀏覽者，建議你聯繫站長。或者對站長實施人身鄙視也可以。另外你可以試試刷新一下，看看錯誤會不會更加惡化。`
+      p=`如果你是站長，但你又不知道問題原因，你可以求助開發者。可以到這兒發帖：`
+        a(target="_blank" href="https://github.com/VecHK/Pache2/issues")="GitHub Issues"
+      p=`如果你是開發者……額，甭廢話了`
+
+    h1="錯誤信息"
+    .error-infomation
+      pre.message=error.message
+      pre.stack=error.stack
+      
+    h1="基本信息"
+    .infomation
+      pre=`Pache 版本: ${npmPackage.version}`
+      pre=`HTTP 監聽端口：${envir.port}`
+
+      if envir.enable_https
+        pre=`HTTPS 監聽端口：${envir.https_port}`
+        pre=`強制重定向至 HTTPS 連接：${envir.force_https ? '是' : '否'}`
+      
+      pre=`單頁最大文章數：${envir.limit}`
+      pre=`cluster 線程數：${envir.cluster_fork_num}`
+      pre=`ESD 狀態：已${envir.ESD_ENABLE ? '啟用' : '禁用'}`
+      
+      pre=`強制跳轉到主域名：${envir.force_redirect_to_master_domain ? '是' : '否'}`
+      if envir.force_redirect_to_master_domain
+        pre=`主域名：${envir.master_domain}`
+      
+      pre=`轉載文章的顏色：'${envir.repost_color}'`

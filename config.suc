@@ -15,12 +15,14 @@
 # [test] 999
 # 相當於 { test: 999 }
 #
-# [b] false
-# 相當於 { b: false }
+# [b] FALSE
+# 相當於 { b: FALSE }
 
 
 
 # MongoDB URL
+# 建議使用有用戶的 MongoDB 配置
+# 或者禁止外網訪問的 MongoDB 配置
 db >mongodb://127.0.0.1:27017/pache
 
 # 主域名
@@ -28,13 +30,13 @@ master_domain > 不存在的域名
 
 # 重定向到主域名
 # 開啟后，非主域名訪問的地址將會強制跳轉到主域名上
-[force_redirect_to_master_domain] false
+[force_redirect_to_master_domain] FALSE
 
 # HTTP 監聽端口
 [port] 3382
 
-# 需要啟用 HTTPS 請將 enable_https 設置為 true
-[enable_https] false
+# 需要啟用 HTTPS 請將 enable_https 設置為 TRUE
+[enable_https] FALSE
 
 # private_key 是私钥文件的路径
 private_key >/不存在的路径/private_key.pem
@@ -47,7 +49,7 @@ certificate >/不存在的路径/certificate.crt
 
 # 是否強制 HTTPS
 # 啟用后，以 HTTP 方式訪問 Pache 則會強制跳轉到 HTTPS 的連接上（重定向）
-[force_https] false
+[force_https] FALSE
 
 # 用戶密碼
 pass >7355608
@@ -60,28 +62,34 @@ session_secret >reimu_marisa
 # 單頁最大文章數
 [limit] 10
 
+# 圖片存儲目錄
+# 默認存儲在 Pache 目錄的 img_pool 文件夾中
+# 打上注釋即為使用默認值
+# 最好設置到其它目錄中
+# IMAGE_PATH >G:\pache-img
+
 # 轉載文章的顏色
 # 打上注釋將會使用缺省顏色
 repost_color >#46c01b
 
-# 已格式化的 Markdown 文章是否强制转换为 HTML 实体字符
-# 如果 [markdown_entitles] 为 TRUE，则汉字(utf-8)也会被转换为 HTML 实体字符
-# 如果设置为 FALSE，网页的数位体积会减少一些，更多的疑问，具体见 cheerio issue:
+# 已格式化的 Markdown 文章是否強制轉換為 HTML 實體字符
+# 如果 [markdown_entitles] 為 TRUE，則漢字（UTF-8）也會被轉換為 HTML 實體字符
+# 如果設置為 FALSE，格式化后的數據體積會減少一些，更多疑問，請見 cheerio issues:
 # https://github.com/yeoman/generator/issues/638
 [markdown_entitles] FALSE
 
 # cluster 線程數
 # 通常多線程的性能會比單線程要好
-# 如果設置為 0 則為當前的 CPU 數量，CPU 數量應該說是操作系統的核心數（或者說 CPU 線程數）
+# 如果設置為 0 則為當前的 CPU 數量
 # 線程數不是越多越好，通常最佳值是當前的 CPU 數量
 [cluster_fork_num] 1
 
 # ESD 設置
 # 擴展的靜態目錄
-# ************注意 CAUTION************
-# 如沒有什麼需求，請不要開啟此選項，因為 Pache 會將 ESD 列表中的
-# 路徑作為備選靜態目錄，謹慎謹慎
-[ESD_enable] false
+#### 注意 CAUTION
+#### 如沒有什麼需求，請不要開啟此選項，因為 Pache 會將 ESD 列表中的
+#### 路徑作為備選靜態目錄，謹慎謹慎
+[ESD_ENABLE] FALSE
 
 # ESD 列表
 # 靜態目錄的訪問策略是從列表的第一個目錄開始訪問，最頂層的是 Pache 路由
@@ -90,6 +98,6 @@ repost_color >#46c01b
 # 若還找不到，則會在 /home/不存在的目錄B 中查找。如果都沒有找到，
 # 則返回一個 HTTP 404
 # 為避免出錯最好使用絕對路徑
-[ESD_list]
+[ESD_LIST]
 /home/不存在的目錄A
 /home/不存在的目錄B

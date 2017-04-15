@@ -1,0 +1,8 @@
+mixin print_arr(arr)
+  ul#list
+    - for (let cursor in arr) {
+      if cursor % 2
+        li(style="background-color: rgba(0,0,0,.1)")=arr[cursor]
+      else
+        li=arr[cursor]
+    - }
