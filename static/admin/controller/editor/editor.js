@@ -105,8 +105,46 @@ define(function (require) {
     },
   })
 
-  // 圖片複製控件
+  /**
+   * TODO 需要支持多圖上傳
+   */
+  // 圖片複製
+  // 圖片拖拽
   Object.assign(Editor, {
+    setDragDrop() {
+      let textarea = $$('[name="content"]', this.container)
+      textarea.addEventListener('dragstart', e => {
+        console.info('拖拽開始', e)
+        this.emit('dragstart', e)
+      })
+      textarea.addEventListener('dragenter', e => {
+        this.emit('dragenter', e)
+      })
+      textarea.addEventListener('dragleave', e => {
+        this.emit('dragleave', e)
+      })
+      textarea.addEventListener('dragover', e => {})
+      textarea.addEventListener('dragend', e => {})
+      textarea.addEventListener('drop', e => {
+        e.preventDefault()
+        console.info('落下', e)
+        for (var i = 0 ; i < e.dataTransfer.items.length ; i++) {
+          var item = e.dataTransfer.items[i];
+          console.log("Item type: " + item.type);
+          if (item.type.indexOf("image") != -1) {
+            const file = item.getAsFile()
+            const blob = new Blob([file], {type: file.type})
+            this.uploadImageByBlob(blob)
+          } else if (item.type.indexOf('text') != -1) {
+            console.info('text:', item.getAsString(function (e) {
+              console.warn(e)
+            }))
+          } else {
+            console.log("Discarding non-image paste data");
+          }
+        }
+      })
+    },
     imagePaste(e) {
       for (var i = 0 ; i < e.clipboardData.items.length ; i++) {
         var item = e.clipboardData.items[i];
@@ -138,6 +176,7 @@ define(function (require) {
       $$('[name="content"]', this.container).addEventListener('paste', e => {
         this.imagePaste(e)
       })
+      this.setDragDrop()
     },
     _sign: Editor.on('start', function () { this.signUploadImage() })
   })
