@@ -1,7 +1,6 @@
 const fs = require('fs');
 const https = require('https');
 const koa = require('koa')
-const express = require('express');
 const envir = require('./envir');
 const cluster = require('cluster');
 
@@ -38,8 +37,17 @@ process.on('message', (message) => {
 				/* 檢查是否是強制使用 https 的配置，如果是就替換 app 為跳轉到 https 的路由 */
 				app = new koa()
 
+				if (envir.force_redirect_to_master_domain) {
+					app.use(async (ctx, next) => {
+						if (ctx.host.trim() !== envir.master_domain.trim()) {
+					    return ctx.redirect(`https://${envir.master_domain}${ctx.url}`)
+					  }
+						await next()
+					})
+				}
+
 				app.use(async ctx => {
-					ctx.redirect('https://' + ctx.request.headers['host'] + ctx.url)
+					ctx.redirect('https://' + ctx.host + ctx.url)
 				})
 			}
 		}

@@ -1,3 +1,4 @@
+const fs = require('fs')
 const Koa = require('koa')
 const path = require('path')
 const views = require('koa-views')
@@ -45,31 +46,24 @@ app.use(views(path.join(__dirname, 'views-jade'), {
 app.use(async (ctx, next) => {
   try {
     await next()
-  } catch (e) {
+  } catch (error) {
     ctx.status = 500
     await ctx.render('error-page.jade', {
-      error: e,
-      envir: Object.assign({}, envir),
+      error,
       npmPackage,
+      envir: Object.assign({}, envir),
     })
-    // ctx.body = '好像服務器方面出現了偏差: ' + e.message
   }
 })
-
-// app.use(async ctx => {
-//   ctx.unkno()
-// })
 
 // 是否強制跳轉到主域名
 envir.force_redirect_to_master_domain && app.use(async (ctx, next) => {
-  if (ctx.request.headers['host'].trim() !== envir.master_domain.trim()) {
+  if (ctx.host.trim() !== envir.master_domain.trim()) {
     let protocol = envir.force_https ? 'https' : ctx.protocol
-    return res.redirect(`${protocol}://${envir.master_domain}${ctx.url}`)
+    return ctx.redirect(`${protocol}://${envir.master_domain}${ctx.url}`)
   }
   await next()
 })
-
-const backRouter = new Router
 
 app
   .use(back.routes())
@@ -79,13 +73,45 @@ app
   .use(front.routes())
   .use(front.allowedMethods())
 
+app.use(async (ctx, next) => {
+  if ('/admin' === ctx.path) {
+    /* /admin 和 /admin/ 的區別性問題: https://github.com/VecHK/Pache2/issues/2 */
+    ctx.redirect('/admin/')
+  } else {
+    await next()
+  }
+})
+
 app.use(koa_static(path.join(__dirname, 'static/')))
 app.use(koa_static(path.join(__dirname, 'public/')))
 
-if (envir.ESD_ENABLE) {
-  envir.ESD_LIST.forEach(esd_path => {
-    app.use(koa_static(path.join(esd_path)))
-  })
-}
+const send = require('koa-send');
+const cacheControl = require('koa-cache-control')
+const ROOT_DIR = __dirname
+const IMG_POOL_PATH = envir.IMAGE_PATH || path.join(__dirname, '/img_pool')
+
+app.use(cacheControl({
+  // 緩存時間一小時
+  maxAge: 5,
+}))
+app.use(async (ctx, next) => {
+  ctx.cacheControl = {
+    // 緩存時間一小時
+    maxAge: 60 * 60 * 60
+  };
+
+  let {dir, base} = path.parse(ctx.path)
+  if ('/img-pool' !== dir) {
+    return await next()
+  } else if (!fs.existsSync(path.join(IMG_POOL_PATH, base))) {
+    await next()
+  } else {
+    await send(ctx, base, { root: IMG_POOL_PATH })
+  }
+})
+
+envir.ESD_ENABLE && envir.ESD_LIST.forEach(esd_path => {
+  app.use(koa_static(path.join(esd_path)))
+})
 
 module.exports = app
