@@ -9,7 +9,8 @@ define(function (require) {
   setStyle('style/pam-article-profile.css')
 
   const AutoTextArea = require('controller/editor/auto-textarea.js')
-
+  const TextCursor = require('controller/editor/cursor.js')
+  const UMG = require('model/upload-image.js')
   // Layer
   Object.assign(Editor, {
     show() {
@@ -98,7 +99,47 @@ define(function (require) {
         $$('[name="content"]', ele),
         $$('.height-fill', ele)
       )
+
+      this.textCursor = new TextCursor($$('textarea', this.container))
+      this.emit('start')
     },
+  })
+
+  // 圖片複製控件
+  Object.assign(Editor, {
+    imagePaste(e) {
+      for (var i = 0 ; i < e.clipboardData.items.length ; i++) {
+        var item = e.clipboardData.items[i];
+        console.log("Item type: " + item.type);
+        if (item.type.indexOf("image") != -1) {
+          this.uploadImageByBlob(item.getAsFile());
+        } else if (item.type.indexOf('text') != -1) {
+          console.info('text:', item.getAsString(function (e) {
+            console.warn(e)
+          }))
+        } else {
+          console.log("Discarding non-image paste data");
+        }
+      }
+    },
+    async uploadImageByBlob(blob) {
+      const {textCursor} = this
+
+      const randomText = `![image](watting.${randomString(10)})`
+      textCursor.insert(randomText)
+
+      const uimg = new UMG(blob, '/api/img')
+      var result = await uimg.upload()
+
+      console.warn(result)
+      textCursor.replace(randomText, `![image](/img-pool/${result.result})`)
+    },
+    signUploadImage() {
+      $$('[name="content"]', this.container).addEventListener('paste', e => {
+        this.imagePaste(e)
+      })
+    },
+    _sign: Editor.on('start', function () { this.signUploadImage() })
   })
 
   Editor.addProperty({
