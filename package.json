@@ -1,6 +1,6 @@
 {
   "name": "node-pache",
-  "version": "0.5.182",
+  "version": "0.5.185",
   "description": "vec 自家用 blog",
   "main": "master.js",
   "bin": {
@@ -47,6 +47,7 @@
     "redis": "^2.6.3",
     "striptags": "^2.1.1",
     "utility": "^1.9.0",
+    "supertest": "^2.0.1",
     "yargs": "^6.6.0"
   },
   "devDependencies": {
@@ -64,7 +65,6 @@
     "mocha": "3.0.2",
     "should": "^11.1.2",
     "superagent": "^3.3.1",
-    "supertest": "^2.0.1",
     "supertest-koa-agent": "^0.3.0"
   }
 }

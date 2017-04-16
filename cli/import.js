@@ -1,5 +1,4 @@
 const Collect = require('collect-info');
-const mover = require('../lib/mover');
 const fs = require('fs');
 
 let sqlinfo = {
@@ -18,12 +17,12 @@ const SelectForm = new Collect([
 ]);
 
 const APIForm = new Collect([
-	{ name: 'callback',
-		prompt: 'Pache 目录：',
+	{ name: 'url',
+		prompt: 'Pache URL：',
 		catch: '不能有空值：',
 		type: String,
 	},
-	{ name: 'pass',
+	{ name: 'pw',
 		prompt: '后台密码：',
 		catch: '不能有空值：',
 		type: String,
@@ -70,6 +69,7 @@ const SQLForm = new Collect([
 ]);
 
 const importFromMySQL = () => {
+	const mover = require('../lib/mover');
 	return SQLForm.start()
 		.then(obj => {
 			console.log('开始从 SQL 存储中收集数据')
@@ -95,28 +95,59 @@ const importFromMySQL = () => {
 			process.exit(0);
 		})
 };
-const importFromWebAPI = () => {
-	return APIForm.start()
-		.then(obj => mover.getSqlArticles(obj, obj.pache_article, obj.pache_tag))
-		.then(collection => {
-			console.log('已收集： ', collection.articles.length);
-		})
-		.catch(err => {
-			//console.error(err);
-		})
+const importFromWebAPI = async () => {
+	const info = await APIForm.start()
+
+	const Pache = require('./php-pache')
+	const shell = new Pache(info)
+
+	console.info('開始下載文章')
+	shell.on('push-article', function (article) {
+		console.info(`[${shell.records.length}]已下載：`, article.title)
+	});
+	let res = await shell.syncData()
+	console.info('下載完成，開始轉換')
+	const PacheArticleData = shell.convert()
+
+	let ContentLength = 0
+	PacheArticleData.articles.forEach(art => ContentLength += art.content.length + art.format.length + art.title.length)
+
+	console.info(
+		`轉換完成，分類有：${Object.keys(PacheArticleData.categories)}\n` +
+		`一共有 ${PacheArticleData.articles.length} 篇文章\n` +
+		`\n`
+	)
+	let confirmContinue = new Collect([
+		{ name: 'continue',
+			prompt: '接下來將會開始保存轉換而來的文章，結果將不可逆，你確定嗎？(yes 確定)：',
+			type: String,
+		}
+	])
+
+	if ('yes' === (await confirmContinue.start()).continue) {
+		console.info('執行保存')
+		let saveResult = await PacheArticleData.saveAll()
+		console.info('已入庫，將開始保存已轉換的文章到 ./converted-article.json')
+		fs.writeFileSync('converted-article.json', JSON.stringify(saveResult, 1, '\t'))
+		console.info('已保存')
+	}
+
+	process.exit()
 };
 
-module.exports = function () {
+module.exports = async function () {
 	console.log('PHP-Pache 数据迁移程序')
 	console.warn('导入操作前，请务必做好先前文章的备份\n')
 
-	SelectForm.start()
-		.then(obj => {
-			if (obj.select) {
-				return importFromMySQL()
-			} else {
-				return importFromWebAPI()
-			}
-		})
-		.catch(err => { console.error('错误', err); throw err })
+	try {
+		var obj = await SelectForm.start()
+		if (obj.select) {
+			return await importFromMySQL()
+		} else {
+			return await importFromWebAPI()
+		}
+	} catch (err) {
+		console.error('错误', err)
+		throw err
+	}
 };

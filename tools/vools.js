@@ -182,6 +182,7 @@
 		const fetcher = (data, key) => Array.isArray(data[key]) ? stringifyArray(key, data[key]) : backValueKey(key, data[key]);
 		return data => Object.keys(data).map(key => fetcher(data, key)).join('&');
 	})();
+	vools.stringifyRequest = stringifyRequest
 	vools.pjax = function (url, args) {
 		const xhr = new XMLHttpRequest;
 		if (args.method === undefined) {
@@ -271,18 +272,22 @@
 	ObjecExtends(voolsEvent.prototype, {
 
 	});
-	if (window.define) {
-		define(() => [
-			vools,
-			function () { return vools.apply(null, arguments).pop() }
-		])
-	} else {
-		window.voolsEvent = voolsEvent;
+	try {
+		module.exports = vools
+	} catch (e) {
+		if (window.define) {
+			define(() => [
+				vools,
+				function () { return vools.apply(null, arguments).pop() }
+			])
+		} else {
+			window.voolsEvent = voolsEvent;
 
-		window.vools = vools;
-		window.$ = vools;
-		window.$$ = function (){
-			return vools.apply(null, arguments)[0];
-		};
+			window.vools = vools;
+			window.$ = vools;
+			window.$$ = function (){
+				return vools.apply(null, arguments)[0];
+			};
+		}
 	}
 })();

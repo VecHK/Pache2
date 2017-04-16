@@ -13,11 +13,25 @@ const yargs = require('yargs')
 		describe: '指派 config.suc 的位置（默认为 Pache 目录中的 ./config.suc）',
 	})
 
-	.command(['import'], '导入 Pache-Classic 的文章数据', {}, argv => {
-		const PacheImport = require('../cli/import')
-		PacheImport()
+	.command(['import [configpath]'], '导入 Pache-Classic 的文章数据', {}, argv => {
+		const envir = require('../envir')
+		let sucPath = argv.configpath || path.join(__dirname, '../config.suc')
+		envir.CONFIG_PATH = sucPath
+		envir.reload()
+
+		try {
+			const PacheImport = require('../cli/import')
+			PacheImport()
+		} catch (e) {
+			console.error(e)
+		}
 	})
-	.command(['export [filepath]'], '导出 Pache 的文章数据', {}, argv => {
+	.command(['export [configpath] [filepath]'], '导出 Pache 的文章数据', {}, argv => {
+		const envir = require('../envir')
+		let sucPath = argv.configpath || path.join(__dirname, '../config.suc')
+		envir.CONFIG_PATH = sucPath
+		envir.reload()
+
 		const pacheExport = require('../cli/export')
 
 		pacheExport(argv.filepath)
@@ -32,9 +46,7 @@ const yargs = require('yargs')
 			.catch(() => process.exit(1))
 	})
 	.command(['view [configpath]'], '查看 Pache 配置文件', {}, argv => {
-
 		const envir = require('../envir')
-
 		let sucPath = argv.configpath || path.join(__dirname, '../config.suc')
 		envir.CONFIG_PATH = sucPath
 

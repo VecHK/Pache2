@@ -77,11 +77,14 @@ try {
 	    })
 	  },
 	};
-	if (window.define) {
-		window.define(EventModel)
-	} else {
-		window.EventModel = EventModel
-	}
+	try {
+		if (window.define) {
+			window.define(EventModel)
+		} else {
+			window.EventModel = EventModel
+		}
+	} catch (e) {}
+
 
 	var StorageModel = {
 	  reload: function () {
