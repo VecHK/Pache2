@@ -35,16 +35,18 @@
 	bottom: 0;
 	width: 100%;
 	*/
-
 	.previous, .next {
 		font-size: 16px;
 		height: 90%;
 		padding: 0 .75em;
 		font-family: monospace, courier !important;
+		&:hover {
+			color: #009485;
+		}
 	}
 
 	@button-shadow-offset: 1px;
-	.page-btn:active {
+	.page-btn:not(.previous):not(.next):active {
 		background: hsl(240, 9%, 45%) 80%;
 		text-shadow: 0px @button-shadow-offset 0px @pache-color;
 	}
