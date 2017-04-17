@@ -29,6 +29,14 @@ define(function () {
       return this
     }
 
+    getSelectionStart() {
+      return this.container.selectionStart
+    }
+
+    getSelectionEnd() {
+      return this.container.selectionEnd
+    }
+
     /**
      * 在當前光標插入字符串
      * @param str
@@ -84,8 +92,29 @@ define(function () {
     }
     removeAfter() {}
 
-    replace(con, reptext) {
-      this.container.value = this.container.value.replace(con, reptext)
+
+    /** 替換字符（不會改變光標位置）
+     *
+     */
+    replace(sourceText, reptext) {
+      let cha = sourceText.length - reptext.length
+      let oldSectionStart = this.getSelectionStart()
+
+      let result = this.container.value.indexOf(sourceText)
+
+      this.container.value = this.container.value.replace(sourceText, reptext)
+
+      if ((oldSectionStart > result) && (oldSectionStart < (result + sourceText.length))) {
+        // 光標在被替換文本內
+        this.select(result + reptext.length, result + reptext.length)
+      } else if (result < oldSectionStart) {
+        // 光標在被替換文本后
+        this.select(oldSectionStart - cha, oldSectionStart - cha)
+      } else {
+        // 光標在被替換文本前
+        this.select(oldSectionStart, oldSectionStart)
+      }
+
       return this
     }
 

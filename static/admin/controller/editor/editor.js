@@ -163,14 +163,14 @@ define(function (require) {
     async uploadImageByBlob(blob) {
       const {textCursor} = this
 
-      const randomText = `![image](watting.${randomString(10)})`
+      const randomText = `![image](watting.${randomString(10)})\n`
       textCursor.insert(randomText)
 
       const uimg = new UMG(blob, '/api/img')
       var result = await uimg.upload()
 
-      console.warn(result)
-      textCursor.replace(randomText, `![image](/img-pool/${result.result})`)
+      // console.warn(result)
+      textCursor.replace(randomText, `![image](/img-pool/${result.result})\n`)
     },
     signUploadImage() {
       $$('[name="content"]', this.container).addEventListener('paste', e => {
