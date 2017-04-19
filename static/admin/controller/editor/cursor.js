@@ -93,20 +93,23 @@ define(function () {
     removeAfter() {}
 
 
-    /** 替換字符（不會改變光標位置）
-     *
+    /**
+     * 替換字符（不會改變光標位置）
+     * @param sourceText 將要被替換的字符
+     * @param repText 替換后的字符
+     * @return this
      */
-    replace(sourceText, reptext) {
-      let cha = sourceText.length - reptext.length
+    replace(sourceText, repText) {
+      let cha = sourceText.length - repText.length
       let oldSectionStart = this.getSelectionStart()
 
       let result = this.container.value.indexOf(sourceText)
 
-      this.container.value = this.container.value.replace(sourceText, reptext)
+      this.container.value = this.container.value.replace(sourceText, repText)
 
       if ((oldSectionStart > result) && (oldSectionStart < (result + sourceText.length))) {
         // 光標在被替換文本內
-        this.select(result + reptext.length, result + reptext.length)
+        this.select(result + repText.length, result + repText.length)
       } else if (result < oldSectionStart) {
         // 光標在被替換文本后
         this.select(oldSectionStart - cha, oldSectionStart - cha)
