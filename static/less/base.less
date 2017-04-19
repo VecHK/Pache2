@@ -59,12 +59,13 @@ header {
 
 	width: 100%;
 	height: 28px;
-	margin: 0;
+	margin: auto;
 
 	[current] {
 		z-index: 10;
 		padding-top: .1em;
 		padding-bottom: .1em;
+		margin: ~"0em calc(.382em + .382em) 0em";
 		min-height: 1.5em;
 		background: @pache-color;
 		color: azure;
@@ -77,11 +78,19 @@ header {
 		}
 	}
 
+	> a:first-child {
+		margin-left: 0;
+		padding-left: 0;
+	}
+	> a:last-child {
+		margin-right: 0;
+		padding-right: 0;
+	}
 	> a {
 		.flex-frame();
 
-		margin: 0em .5em 0em;
-		padding: 0 .618em 0;
+		margin: 0em .382em 0em;
+		padding: 0em .382em 0em;
 
 		font-size: 1;
 
