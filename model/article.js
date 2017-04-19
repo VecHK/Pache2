@@ -8,6 +8,8 @@ const Schema = mongoose.Schema;
 
 const CategoryModel = mongoose.model('Category');
 
+const mhook = require('./async-middle-hook')
+
 /* 过滤 HTML 标签 */
 const striptags = require('striptags');
 
@@ -57,42 +59,37 @@ const ArticleSchema = new Schema({
 });
 
 const repost_color = Cutl.init(envir.repost_color || '#46c01b');
-const contentRepost = function (source, set = source) {
-	let prom;
+const contentRepost = async function (source, set = source) {
+	let category
 
 	if (source.category !== null) {
-		prom = CategoryModel.findOne({ _id: source.category })
+		category = await CategoryModel.findOne({ _id: source.category })
 	} else {
-		prom = Promise.resolve(null)
+		category = null
 	}
-	return prom.then(category => {
-		// 無分類有轉載 轉載綠
-		// 無分類非轉載 默認色
-		// 有分類有轉載 【分類|轉載】融合色
-		// 有分類非轉載 分類色
-		if (!('is_repost' in set)) {
-			return
-		}
 
-		if (category === null) {
-			if (set.is_repost) {
-				set.fusion_color = repost_color.getColorCode()
-			} else {
-				set.fusion_color = '#CCC'
-			}
+	// 無分類有轉載 轉載綠
+	// 無分類非轉載 默認色
+	// 有分類有轉載 【分類|轉載】融合色
+	// 有分類非轉載 分類色
+	if (!('is_repost' in set)) {
+		return
+	}
+
+	if (category === null) {
+		if (set.is_repost) {
+			set.fusion_color = repost_color.getColorCode()
 		} else {
-			if (set.is_repost) {
-				const c_color = Cutl.init(category.color)
-				const f_color = Cutl.or(c_color, repost_color)
-				set.fusion_color = f_color.getColorCode()
-
-			} else {
-				set.fusion_color = category.color
-			}
+			set.fusion_color = '#CCC'
 		}
-	})
-	.catch(err => { console.error(err); return Promise.reject(err) })
-};
+	} else if (set.is_repost) {
+		const c_color = Cutl.init(category.color)
+		const f_color = Cutl.or(c_color, repost_color)
+		set.fusion_color = f_color.getColorCode()
+	} else {
+		set.fusion_color = category.color
+	}
+}
 
 const contentFormat = function () {
 	this.contentType = this.contentType.toLowerCase();
@@ -132,7 +129,7 @@ const contentFormat = function () {
 
 };
 
-ArticleSchema.pre('save', function (next) {
+ArticleSchema.pre('save', mhook(async function () {
 	contentFormat.apply(this);
 
 	this.tags = this.tags.filter(tag => tag.length)
@@ -141,17 +138,15 @@ ArticleSchema.pre('save', function (next) {
 		this.category = null
 	}
 
-	contentRepost(this)
-	.then(() => next())
-	.catch(err => { next(err) })
-});
+	await contentRepost(this)
+}));
 
-ArticleSchema.pre('update', function (next) {
+ArticleSchema.pre('update', mhook(async function () {
 	let set = this._update.$set;
 	if (!set) {
-		return next()
+		return
 	}
-	
+
 	if (set.hasOwnProperty('tags') && !Array.isArray(set.tags)) {
 		set.tags = [ set.tags ];
 	}
@@ -165,28 +160,24 @@ ArticleSchema.pre('update', function (next) {
 
 	set.mod = new Date;
 
-	this.findOne({_id: this._conditions._id}).exec()
-		.then(result => {
-			if (result === null) {
-				const err = new Error('article no found');
-				err.status = 404;
-				throw err
-			}
-			/* 如果有 content 项，则同时需要显式地声明了 contentType 项 */
-			else if (set.hasOwnProperty('content') && set.hasOwnProperty('contentType')) {
-				contentFormat.apply(set);
-			} else if (set.hasOwnProperty('contentType')) {
-				set.content = result.content;
-				contentFormat.apply(set);
-			} else {
-				delete set.contentType;
-				delete set.content;
-			}
-			return Promise.resolve(result)
-		})
-		.then(result => contentRepost(result, set))
-		.then(() => next())
-		.catch(err => { next(err) })
-});
+	let result = await this.findOne({_id: this._conditions._id})
+
+	if (result === null) {
+		const err = new Error('article no found')
+		err.status = 404;
+		throw err
+	} else if (set.hasOwnProperty('content') && set.hasOwnProperty('contentType')) {
+		/* 如果有 content 项，则同时需要显式地声明了 contentType 项 */
+		contentFormat.apply(set);
+	} else if (set.hasOwnProperty('contentType')) {
+		set.content = result.content;
+		contentFormat.apply(set);
+	} else {
+		delete set.contentType;
+		delete set.content;
+	}
+
+	await contentRepost(result, set)
+}));
 
 mongoose.model('Article', ArticleSchema);
