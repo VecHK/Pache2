@@ -35,3 +35,17 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+# jade 的 style 目錄（是由 Less 生成的）
+views-jade/style/*
+
+# admin 的一些目錄
+static/admin/script/*
+static/admin/style/*
+
+# static 的一些目錄
+static/script/*
+static/style/*
+
+# public 目錄是由 tools 生成的
+public/*
