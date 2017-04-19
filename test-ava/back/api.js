@@ -169,9 +169,8 @@ test('PATCH /api/articles', async t => {
   t.is(code, 0)
   t.not(msg.length, 0)
 
-  web = await ag.get('/articles/1').then(JsonMiddle)
-
-  web.json.result.forEach(art => {
+  const modelResult = await Model.Article.find({_id: {$in: patch_list_ids}})
+  modelResult.forEach(art => {
     t.is(art.tags.includes('Misaka10032'), true)
     t.is(art.tags.includes('Sisters'), true)
   })
