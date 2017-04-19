@@ -4,19 +4,26 @@
 if countPage > 1
 
   - if (!Array.isArray(tags)) { tags = [] }
-  - var cursor = page - 2;
-  - var right = page + 2;
+  - var cursor = page - 1;
+  - var right = page + 1;
   div.pagecode
     if cursor <= 0
       - right += Math.abs(cursor) + 1;
       - cursor = 1;
     
     if right > countPage
-      - cursor -= Math.abs(right-countPage);
+      - cursor -= Math.abs(right - countPage);
       if (cursor <= 0)
         - cursor = 1;
       - right = countPage;
     
+    if page === 1 && countPage > 2
+      a(href=`` style="visibility: hidden;")="　"
+      - right = right - 1;
+
+    if page === countPage && countPage > 2
+      - ++cursor;
+
     - for (; cursor <= right; ++cursor){
       if page === cursor
         a(current)=cursor
@@ -29,3 +36,6 @@ if countPage > 1
         a(href=`${tagHref}\/${cursor}`)
           =cursor
     - }
+    
+    if page === countPage
+      a(href=`` style="visibility: hidden;")="　"
