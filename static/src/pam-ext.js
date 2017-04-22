@@ -632,6 +632,32 @@ class SplitPage extends PageJumper {
 		})
 	}
 
+	setJumperButton() {
+		const container = this.pageJumperContainer
+
+		this.on('jumper-open', () => {
+			$('.previous, .next', container).fadeOut()
+		})
+		this.on('jumper-close', () => {
+			$('.previous, .next', container).fadeIn()
+		})
+
+		$$('.previous', container).addEventListener('click', e => {
+			setTimeout(() => {
+				$(container).css('bottom', '')
+			}, 618)
+			$(container).css('bottom', '-2em')
+			this.clickPrevious()
+		})
+		$$('.next', container).addEventListener('click', e => {
+			setTimeout(() => {
+				$(container).css('bottom', '')
+			}, 618)
+			$(container).css('bottom', '-2em')
+			this.clickNext()
+		})
+	}
+
 	setSplitPage(){
 		let containerHTML = this.container.innerHTML;
 
@@ -667,6 +693,8 @@ class SplitPage extends PageJumper {
 		this.setTopBtn()
 		this.setpageJumper()
 		this.setJumperEvent()
+
+		this.setJumperButton()
 
 		this.container.classList.add('splited')
 	}
