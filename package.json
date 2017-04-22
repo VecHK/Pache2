@@ -1,6 +1,6 @@
 {
   "name": "node-pache",
-  "version": "0.5.185",
+  "version": "0.6.0",
   "description": "vec 自家用 blog",
   "main": "master.js",
   "bin": {
