@@ -7,22 +7,12 @@ const Router = require('koa-router');
 
 const router = new Router;
 
-const views = require('koa-views');
-
-// Must be used before any router is used
-router.use(views(path.join(__dirname + '/../../views-jade'), {
-  map: {
-    html: 'underscore'
-  }
-}));
-
 router.use(async (ctx, next) => {
   ctx.conditions = {};
   await next()
 })
 
 router.get(['*/category/:category/*', '*/category/:category'], async (ctx, next) => {
-  // console.log('category!')
   let category = await Model.Category.findOne({ name: ctx.params.category});
 
   if (category === null) {
@@ -38,7 +28,6 @@ router.get(['*/category/:category/*', '*/category/:category'], async (ctx, next)
 })
 
 router.get(['*/tag/:tag_raw/*', '*/tag/:tag_raw'], async (ctx, next) => {
-  // console.log('tag!')
   let tag_arr = ctx.params.tag_raw.split(',').map(tag => tag.trim())
   ctx.conditions.tags = tag_arr;
   await next()
@@ -84,7 +73,7 @@ router.get('*', async (ctx, next) => {
   let categories = await libCategory.getAll()
 
   ctx.status = 200;
-  await ctx.render('home/list.jade', {
+  await ctx.render('home/list', {
     code: 0,
     tags: ctx.conditions.tags,
     limit: envir.limit,

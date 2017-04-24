@@ -6,7 +6,7 @@ html
     meta(http-equiv="content-type" content="text/html" charset="utf-8")
     meta(http-equiv="X-UA-Compatible" content="IE=edge;chrome=1;")
     meta(name="HandheldFriendly" content="true")
-    include ../include/app-icon.jade
+    include ../include/app-icon
     link(rel="stylesheet" href="/style/global.css")
 
   body
@@ -14,7 +14,7 @@ html
     - if ('category_name' in conditions) {
     -   category_prefix = `/category/${conditions.category_name}`
     - }
-    include ./header.jade
+    include ./header
     ul.list
       each article in list
         li(category-id=article.category article-id=article._id.toString())
@@ -28,7 +28,7 @@ html
                 div.line-1
                 div.line-2
               =article.title
-          
+
           ul.tag-list
             each tag in article.tags
               li
@@ -38,7 +38,7 @@ html
                 else
                   a(href= `${category_prefix}/tag/${tag}`)=tag
                   //- <li><a href="<%= category_prefix %>/tag/<%= tag %>"><%= tag %></a></li>
-          
+
           div.time-frame
             time.time
               div.bottom-arrow
@@ -46,4 +46,4 @@ html
                 div.line-2
               =article.date.toLocaleDateString()
 
-    include ./pagecode.jade
+    include ./pagecode

@@ -12,16 +12,6 @@ router.use('/api', auth.routes(), auth.allowedMethods())
 
 router.use('/api', api.routes(), api.allowedMethods())
 
-
-const views = require('koa-views');
-
-// Must be used before any router is used
-router.use(views(path.join(__dirname + '/../views-jade'), {
-  map: {
-    html: 'underscore'
-  }
-}));
-
 router.get('/admin/preview/:articleid', async (ctx, next) => {
   if (ctx.session.is_login) {
     return await next()
@@ -47,16 +37,16 @@ router.get('/admin/preview/:articleid', async (ctx, next) => {
     mod: new Date,
   }
   ctx.status = 401
-  await ctx.render('article/found.jade', {article}, true)
+  await ctx.render('article/found', {article}, true)
 })
 router.get('/admin/preview/:articleid', async (ctx) => {
   let article = await Model.Article.findOne({ _id: ctx.params.articleid });
   if (article) {
     ctx.status = 200;
-    await ctx.render('article/found.jade', {article}, true);
+    await ctx.render('article/found', {article}, true);
   } else {
     ctx.status = 404;
-    await ctx.render('article/nofound.jade', {}, true);
+    await ctx.render('article/nofound', {}, true);
   }
 })
 

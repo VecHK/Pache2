@@ -5,8 +5,8 @@ html
 		meta(http-equiv="content-type" content="text/html" charset="utf-8")
 		meta(http-equiv="X-UA-Compatible" content="IE=edge;chrome=1;")
 		meta(name="HandheldFriendly" content="true")
-		
-		include ../include/app-icon.jade
+
+		include ../include/app-icon
 		title=article.title
 
 		link(rel="stylesheet" media="all" href="/han/han.css")
@@ -38,12 +38,12 @@ html
 			try {
 				var titleHan = Han(document.querySelector('.title')).render();
 			} catch (e) {}
-		
+
 		script(type="text/javascript" src="/script/gro.js")
 		script(type="text/javascript" src="/admin/script/pam-event.js")
 		script(type="text/javascript" src="/vools.js")
 		script(type="text/javascript" src="/script/pam-ext.js")
-		
+
 		style.
 			section.footnotes {
 				display: block

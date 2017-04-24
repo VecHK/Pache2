@@ -6,12 +6,12 @@ html
     meta(http-equiv="content-type" content="text/html" charset="utf-8")
     meta(http-equiv="X-UA-Compatible" content="IE=edge;chrome=1;")
     meta(name="HandheldFriendly" content="true")
-    
-    include include/app-icon.jade
-    
+
+    include include/app-icon
+
     style
       include style/error.css
-    
+
     title="Pache 500"
 
   body
@@ -24,7 +24,7 @@ html
         li="有人在地獄通信"
         li="你在干壞事"
         li="……"
-    
+
     h1="那我要怎麼辦"
     .how
       p=`如果你是瀏覽者，建議你聯繫站長。或者對站長實施人身鄙視也可以。另外你可以試試刷新一下，看看錯誤會不會更加惡化。`
@@ -36,7 +36,7 @@ html
     .error-infomation
       pre.message=error.message
       pre.stack=error.stack
-      
+
     h1="基本信息"
     .infomation
       pre=`Pache 版本: ${npmPackage.version}`
@@ -45,13 +45,13 @@ html
       if envir.enable_https
         pre=`HTTPS 監聽端口：${envir.https_port}`
         pre=`強制重定向至 HTTPS 連接：${envir.force_https ? '是' : '否'}`
-      
+
       pre=`單頁最大文章數：${envir.limit}`
       pre=`cluster 線程數：${envir.cluster_fork_num}`
       pre=`ESD 狀態：已${envir.ESD_ENABLE ? '啟用' : '禁用'}`
-      
+
       pre=`強制跳轉到主域名：${envir.force_redirect_to_master_domain ? '是' : '否'}`
       if envir.force_redirect_to_master_domain
         pre=`主域名：${envir.master_domain}`
-      
+
       pre=`轉載文章的顏色：'${envir.repost_color}'`

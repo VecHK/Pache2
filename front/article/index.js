@@ -4,15 +4,6 @@ const Router = require('koa-router');
 
 const router = new Router;
 
-const views = require('koa-views');
-
-// Must be used before any router is used
-router.use(views(path.join(__dirname + '/../../views-jade'), {
-  map: {
-    html: 'underscore'
-  }
-}));
-
 const 合法的文章ID = /^[a-z0-9]{24}$/;
 router.get('/:articleid', async (ctx, next) => {
   if (!合法的文章ID.test(ctx.params.articleid)) {
@@ -61,13 +52,14 @@ router.get('/:articleid', async (ctx, next) => {
       date: article.date,
       mod: article.mod,
     })
-    await ctx.render('article/found.jade', {article}, true);
+    await ctx.render('article/found', {article}, true);
   } else if (article) {
     ctx.status = 200;
-    await ctx.render('article/found.jade', {article}, true);
+    // ctx.body = article.format
+    await ctx.render('article/found', {article}, true);
   } else {
     ctx.status = 404;
-    await ctx.render('article/nofound.jade', {}, true);
+    await ctx.render('article/nofound', {}, true);
   }
 })
 

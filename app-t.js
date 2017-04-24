@@ -1,13 +1,12 @@
 const fs = require('fs')
 const Koa = require('koa')
 const path = require('path')
-const views = require('koa-views')
+const Views = require('koa-pug')
 const Router = require('koa-router')
+const convert = require('koa-convert')
 const compress = require('koa-compress')
 const koa_static = require('koa-static')
-
-const session = require('koa-session-redis')
-const convert = require('koa-convert')
+const koa_session = require('koa-session-redis')
 
 const npmPackage = require('./package')
 const envir = require('./envir')
@@ -20,7 +19,7 @@ const app = new Koa
 
 app.keys = [envir.session_secret];
 
-const session_handle = convert(session({
+const session_handle = convert(koa_session({
   key: 'pache:sess', /** (string) cookie key (default is koa:sess) */
   cookie: {
     maxage: 86400000, // cookie 有效期
@@ -49,18 +48,17 @@ if (envir.GZIP_ENABLE) {
   }))
 }
 
-app.use(views(path.join(__dirname, 'views-jade'), {
-  map: {
-    html: 'underscore'
-  }
-}));
+const pug = new Views({
+  viewPath: './views',
+  app,
+})
 
 app.use(async (ctx, next) => {
   try {
     await next()
   } catch (error) {
     ctx.status = 500
-    await ctx.render('error-page.jade', {
+    await ctx.render('error-page', {
       error,
       npmPackage,
       envir: Object.assign({}, envir),
@@ -114,7 +112,7 @@ app.use(async (ctx, next) => {
 
   let {dir, base} = path.parse(ctx.path)
   if ('/img-pool' !== dir) {
-    return await next()
+    await next()
   } else if (!fs.existsSync(path.join(IMG_POOL_PATH, base))) {
     await next()
   } else {
