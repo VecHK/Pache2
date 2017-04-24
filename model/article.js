@@ -110,23 +110,18 @@ const contentFormat = function () {
 
 	/* 將首頁固定 */
 	let $ = cheerio.load(this.format, {
-		decodeEntities: envir.markdown_entitles ? true : false
+		decodeEntities: envir.markdown_entitles ? true : false,
 	});
 	$($('.page')[0]).addClass('current-page').addClass('solid-page');
 
-	//應該需要轉義的
-	//this.format = entities.decode($.html())
-
-	this.format = $.html();
-
 	/* 取出腳註 */
-	$ = cheerio.load(this.format);
 	let footnotesHTML = $('section.footnotes').html();
 	if ($('section.footnotes').length) {
 		$('section.footnotes').remove();
-		this.format = $.html() + `\n<section class="footnotes">${footnotesHTML}</section>`;
+		this.format = $.html() + `\n<section class="footnotes">${footnotesHTML}</section>`
+	} else {
+		this.format = $.html()
 	}
-
 };
 
 ArticleSchema.pre('save', mhook(async function () {
