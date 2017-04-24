@@ -3,28 +3,12 @@ define(function (require) {
   const EventModel = require('/pam-event.js')
   const Model = require('model/model.js')
   const errp = require('controller/error-panel.js')
-  const Category = Model.create()
 
   const ROOT = '/api'
-  const JsonMiddle = res => {
-    const json = JSON.parse(res)
-    if (json.code > 0) {
-      console.warn(json)
-      const err = new PamError(`JsonMiddle 錯誤：`, json.msg)
-      err.json = json
-      errp.showError(err)
-      throw err
-    } else {
-      return json
-    }
-  }
-  const JsonResult = res => JsonMiddle(res).result
-
-  Category.extend(EventModel)
-  Category.extend({
+  const Category = Model.create({
     records: [],
     async refresh() {
-      const result = await $.get(`${ROOT}/categories`).then(JsonResult)
+      const result = (await this.GET(`${ROOT}/categories`)).result
 
       const {records} = this
       records.splice(0)
@@ -43,24 +27,28 @@ define(function (require) {
       return records.find(record => record.name === name) || null
     },
   })
+
+  const self = Category
   Category.include({
-    update() {
-      return $.pjax(`${ROOT}/category/${this._id}`, {
+    async update() {
+      const result = await self.ajax(`${ROOT}/category/${this._id}`, {
         method: 'PATCH',
         type: 'json',
         data: this,
-      }).then(JsonResult)
+      })
+      return result.result
     },
     async save() {
       if (this._id) {
         return this.update(...arguments)
       }
 
-      let result = await $.pjax(`${ROOT}/category`, {
+      let result = await self.ajax(`${ROOT}/category`, {
         method: 'POST',
         type: 'json',
         data: this,
-      }).then(JsonResult)
+      })
+      result = result.result
 
       Object.assign(this, result)
       return this
@@ -70,10 +58,11 @@ define(function (require) {
       if (!('_id' in this)) {
         throw new Error(`無 '_id' 的實例無法刪除`)
       }
-      const result = await $.delete(`${ROOT}/category/${this._id}`).then(JsonResult)
+      let result = await self.DELETE(`${ROOT}/category/${this._id}`)
+      result = result.result
       delete this._id
 
-      await Category.refresh()
+      await self.refresh()
 
       return result
     },

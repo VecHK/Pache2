@@ -1,31 +1,15 @@
 define(function (require) {
   const [$, $$] = require('/vools.js')
   const Model = require('model/model.js')
-  const EventModel = require('/pam-event.js')
   const errp = require('controller/error-panel.js')
-  const Article = Object.assign(Model.create(), EventModel)
 
   const ROOT = '/api'
-  const JsonMiddle = res => {
-    const json = JSON.parse(res)
-    if (json.code > 0) {
-      console.warn(json)
-      const err = new PamError(`JsonMiddle 錯誤：`, json.msg)
-      err.json = json
-      errp.showError(err)
-      throw err
-    } else {
-      return json
-    }
-  }
-  const JsonResult = res => JsonMiddle(res).result
-
-  Article.extend({
+  const Article = Model.create({
     async remove(ids) {
       if (!Array.isArray(ids)) {
         throw new Error('Article.remove: ids 不是一個數組')
       }
-      return await $.pjax(`${ROOT}/articles`, {
+      return await this.ajax(`${ROOT}/articles`, {
         method: 'DELETE',
         type: 'json',
         data: ids
@@ -35,18 +19,18 @@ define(function (require) {
       if (!Array.isArray(ids)) {
         throw new Error('Article.patchFields: ids 不是一個數組')
       }
-      return await $.pjax(`${ROOT}/articles`, {
+      return await this.ajax(`${ROOT}/articles`, {
         method: 'PATCH',
         type: 'json',
         data: {
           ids,
           fields,
         },
-      }).then(JsonResult)
+      }).result
     },
     async get(id) {
       try {
-        var result = await $.get(`${ROOT}/article/${id}`).then(JsonResult)
+        var result = await this.GET(`${ROOT}/article/${id}`).result
       } catch (e) {
         if (e.xhr.status == 404) {
           result = null
@@ -63,7 +47,7 @@ define(function (require) {
       if (!(page > 0)) {
         throw new Error('Article.list: page 參數不是一個大於 0 的數字')
       }
-      const result = await $.get(`${ROOT}/articles/${page}`).then(JsonMiddle)
+      const result = await this.GET(`${ROOT}/articles/${page}`)
 
       if (this.count !== result.count) {
         this.count = result.count
@@ -85,21 +69,21 @@ define(function (require) {
 
   Article.include({
     update() {
-      return $.pjax(`${ROOT}/article/${this._id}`, {
+      return this.parent.ajax(`${ROOT}/article/${this._id}`, {
         method: 'PATCH',
         type: 'json',
         data: this,
-      }).then(JsonResult)
+      }).result
     },
     async save() {
       if (this._id) {
         return this.update()
       } else {
-        let result = await $.pjax(`${ROOT}/article`, {
+        let result = await this.parent.pjax(`${ROOT}/article`, {
           method: 'POST',
           type: 'json',
           data: this,
-        }).then(JsonResult)
+        }).result
 
         Object.assign(this, result)
         return this
@@ -110,15 +94,12 @@ define(function (require) {
         throw new Error(`無 '_id' 的實例無法刪除`)
       }
 
-      const result = await $.delete(`${ROOT}/article/${this._id}`).then(JsonResult)
+      const result = await this.parent.DELETE(`${ROOT}/article/${this._id}`).result
       delete this._id
 
       return result
     },
   })
-
-  console.warn(Article)
-  window.Article = Article
 
   return Article
 })

@@ -21,7 +21,13 @@ define(function (require) {
       const create_button = document.createElement('div')
       $(create_button).class('create').text('創建')
 
-      create_button.onclick = e => this.inputer.getModel().save()
+      create_button.onclick = async e => {
+        const {inputer} = this
+        inputer.setModel()
+        await inputer.getModel().save()
+        await CategoryModel.refresh()
+        this.refresh()
+      }
 
       $(this.container).append(create_button)
     },

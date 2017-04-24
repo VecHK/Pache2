@@ -1,38 +1,28 @@
 define(function (require) {
   let [$, $$] = require('/vools.js')
-  let errp = require('controller/error-panel.js')
-
+  const Model = require('model/model.js')
   const ROOT = '/api/auth'
-  const JsonMiddle = res => {
-    const json = JSON.parse(res)
-    if (json.code > 0) {
-      console.warn(json)
-      const err = new PamError(`JsonMiddle 錯誤：`, json.msg)
-      err.json = json
-      errp.showError(err)
-      throw err
-    } else {
-      return json
-    }
-  }
-  const JsonResult = res => JsonMiddle(res).result
-
-  const Auth = {
-    getRandom() {
-      return $.get(`${ROOT}/random`).then(JsonResult)
+  const Auth = Model.create({
+    async getRandom() {
+      return (await this.GET(`${ROOT}/random`)).result
     },
-    getStatus() {
-      return $.get(`${ROOT}/status`).then(JsonResult)
+    async getStatus() {
+      return (await this.GET(`${ROOT}/status`)).result
     },
-    logout() {
-      return $.get(`${ROOT}/logout`).then(JsonResult)
+    async logout() {
+      return (await this.GET(`${ROOT}/logout`)).result
+    },
+    async relogin() {
+      return await this.login(this._lastPass)
     },
     async login(password) {
+      this._lastPass = password
       const random = await this.getRandom()
       const auth_code = md5(random + password)
-      return $.post(`${ROOT}/pass`, { pass: auth_code }).then(JsonResult)
+      let result = await this.POST(`${ROOT}/pass`, { pass: auth_code })
+      return result.result
     },
-  }
+  })
 
   return Auth
 })

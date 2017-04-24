@@ -2,7 +2,7 @@ define(function (require) {
   const EventModel = require('/pam-event.js')
   const Login = Object.create(EventModel)
   let [$, $$] = require('/vools.js')
-  let auth = require('src/auth.js')
+  let Auth = require('src/auth.js')
 
   let container = $.create('div').class('login', 'pam-auth').pop()
   $(container).html(`
@@ -30,7 +30,7 @@ define(function (require) {
     await setStyle('style/pam-auth.css')
     $(document.body).append(container)
     await wait(.5)
-    if (await auth.getStatus()) {
+    if (await Auth.getStatus()) {
       hide()
     } else {
       $$('.auth-form [name="pass"]', container).placeholder = '請輸入密碼'
@@ -40,7 +40,7 @@ define(function (require) {
 
   async function auth_pass(e) {
     e.preventDefault()
-    let result = await auth.login(this.pass.value)
+    let result = await Auth.login(this.pass.value)
 
     if (result) {
       $('.description', container).text('　')
@@ -63,6 +63,14 @@ define(function (require) {
       obj.resolve = resolve
       Login.on('hide', ok)
     })
+  }
+
+  const Model = require('model/model.js')
+  Model.waitingLogin = async () => {
+    let result = ('_lastPass' in Auth) && await Auth.relogin()
+    if (!result) {
+      await Login.waitingLogin()
+    }
   }
 
   return Login
