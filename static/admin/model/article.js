@@ -79,13 +79,12 @@ define(function (require) {
       if (this._id) {
         return this.update()
       } else {
-        let result = await this.parent.pjax(`${ROOT}/article`, {
+        let obj = await this.parent.ajax(`${ROOT}/article`, {
           method: 'POST',
           type: 'json',
           data: this,
-        }).result
-
-        Object.assign(this, result)
+        })
+        Object.assign(this, obj.result)
         return this
       }
     },

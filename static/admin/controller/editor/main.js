@@ -8,6 +8,7 @@ define(function (require) {
   const repost = require('controller/editor/repost.js')
   const preview = require('controller/editor/preview.js')
 
+  const Article = require('model/article.js')
   Editor.on('submited', async function (result) {
     List.render(await Article.list(PageCode.page))
   })
