@@ -3,6 +3,7 @@ const Koa = require('koa')
 const path = require('path')
 const views = require('koa-views')
 const Router = require('koa-router')
+const compress = require('koa-compress')
 const koa_static = require('koa-static')
 
 const session = require('koa-session-redis')
@@ -36,6 +37,17 @@ const session_handle = convert(session({
 }))
 
 app.use(session_handle)
+
+
+if (envir.GZIP_ENABLE) {
+  app.use(compress({
+    filter: function (content_type) {
+      return /text/i.test(content_type)
+    },
+    threshold: 2048,
+    flush: require('zlib').Z_SYNC_FLUSH
+  }))
+}
 
 app.use(views(path.join(__dirname, 'views-jade'), {
   map: {

@@ -29,6 +29,7 @@ class Envir {
 		printKeyValue(jump, '密码:', this.pass.split('').fill('*').join(''))
 		printKeyValue(jump, '单页最大文章数:', this.limit)
 		printKeyValue(jump, '圖片目錄:', this.IMAGE_PATH)
+		printKeyValue(jump, 'GZIP 文本壓縮:', this.GZIP_ENABLE ? '已啟用' : '已禁用')
 		printKeyValue(jump, 'cluster 线程数:', this.cluster_fork_num)
 
 		let ESD_Property = 'ESD:'
