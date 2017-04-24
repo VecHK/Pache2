@@ -642,6 +642,19 @@ class SplitPage extends PageJumper {
 			$('.previous, .next', container).fadeIn()
 		})
 
+		let switchPageHandle = page => {
+			$('.previous').css(
+				'visibility',
+				(page === 0) ? 'hidden' : '' // 第一頁則隱藏
+			)
+			$('.next').css(
+				'visibility',
+				(page === this.page.length - 1) ? 'hidden' : '' // 最後一頁則隱藏
+			)
+		}
+		this.on('換頁', switchPageHandle)
+		switchPageHandle(0)
+
 		$$('.previous', container).addEventListener('click', e => {
 			setTimeout(() => {
 				$(container).css('bottom', '')
