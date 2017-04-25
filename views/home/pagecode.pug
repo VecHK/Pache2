@@ -10,13 +10,13 @@ if countPage > 1
     if cursor <= 0
       - right += Math.abs(cursor) + 1;
       - cursor = 1;
-    
+
     if right > countPage
       - cursor -= Math.abs(right - countPage);
       if (cursor <= 0)
         - cursor = 1;
       - right = countPage;
-    
+
     if page === 1 && countPage > 2
       a(href=`` style="visibility: hidden;")="　"
       - right = right - 1;
@@ -28,14 +28,19 @@ if countPage > 1
       if page === cursor
         a(current)=cursor
       else
+        if conditions.category_name
+          - var categoryHref = '/category/' + conditions.category_name
+        else
+          - var categoryHref = ''
+
         if tags.length
-          - var tagHref = '/tag/' + tags.join(',') + '/';
+          - var tagHref = '/tag/' + tags.join(',') + '';
         else
           - var tagHref = '';
 
-        a(href=`${tagHref}\/${cursor}`)
+        a(href=`${categoryHref}${tagHref}\/${cursor}`)
           =cursor
     - }
-    
+
     if page === countPage
       a(href=`` style="visibility: hidden;")="　"
