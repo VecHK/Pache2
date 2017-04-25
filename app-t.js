@@ -48,11 +48,6 @@ if (envir.GZIP_ENABLE) {
   }))
 }
 
-const pug = new Views({
-  viewPath: './views',
-  app,
-})
-
 app.use(async (ctx, next) => {
   try {
     await next()
@@ -75,14 +70,6 @@ envir.force_redirect_to_master_domain && app.use(async (ctx, next) => {
   await next()
 })
 
-app
-  .use(back.routes())
-  .use(back.allowedMethods())
-
-app
-  .use(front.routes())
-  .use(front.allowedMethods())
-
 app.use(async (ctx, next) => {
   if ('/admin' === ctx.path) {
     /* /admin 和 /admin/ 的區別性問題: https://github.com/VecHK/Pache2/issues/2 */
@@ -91,9 +78,21 @@ app.use(async (ctx, next) => {
     await next()
   }
 })
-
 app.use(koa_static(path.join(__dirname, 'static/')))
 app.use(koa_static(path.join(__dirname, 'public/')))
+
+const pug = new Views({
+  viewPath: path.join(__dirname, '/views'),
+  app,
+})
+
+app
+  .use(front.routes())
+  .use(front.allowedMethods())
+
+app
+  .use(back.routes())
+  .use(back.allowedMethods())
 
 const send = require('koa-send');
 const cacheControl = require('koa-cache-control')

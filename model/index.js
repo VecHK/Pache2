@@ -1,7 +1,13 @@
 const mongoose = require('mongoose');
+const EventEmitter = require('events');
 const envir = require('../envir');
+
 console.warn('數據庫：', envir.db)
-let model = {
+
+const model = new EventEmitter
+module.exports = model
+
+Object.assign(model, {
 	Category: require('./category') && mongoose.model('Category'),
 	Article: require('./article') && mongoose.model('Article'),
 	async connect() {
@@ -18,7 +24,6 @@ let model = {
 		}
 	},
 	mongoose,
-};
-model.connectStatus = model.connect();
+})
 
-module.exports = model;
+model.connectStatus = model.connect();

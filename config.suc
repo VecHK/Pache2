@@ -81,6 +81,10 @@ repost_color >#46c01b
 # 啟用 GZIP 文本（Content-Type 匹配 /text/）壓縮
 [GZIP_ENABLE] TRUE
 
+# 啟用 Pug 模板引擎緩存
+# 需要使用到 Redis
+[PUG_CACHE] TRUE
+
 # cluster 線程數
 # 通常多線程的性能會比單線程要好
 # 如果設置為 0 則為當前的 CPU 數量

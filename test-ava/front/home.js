@@ -8,12 +8,8 @@ const Model = require('../../model')
 const Koa = require('koa')
 const request = require('koa-test')
 const agent = require('supertest-koa-agent')
-const frontRouter = require('../../front/')
+const app = require('../../app-t')
 const test = require('ava')
-
-const app = new Koa()
-app
-  .use(frontRouter.routes(), frontRouter.allowedMethods())
 
 test.before('準備環境', async t => {
   await Model.connectStatus

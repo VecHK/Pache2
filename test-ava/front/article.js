@@ -2,16 +2,12 @@ const envir = require('../../envir')
 const TEST_DB = 'pache_test'
 envir.db = `mongodb://127.0.0.1:27017/${TEST_DB}`
 const Model = require('../../model')
-const frontRouter = require('../../front')
+const app = require('../../app-t')
 
 const Koa = require('koa')
 const request = require('koa-test')
 const agent = require('supertest-koa-agent')
 const test = require('ava')
-
-const app = new Koa()
-app
-  .use(frontRouter.routes(), frontRouter.allowedMethods())
 
 test('查找一篇文章', async t => {
   const inserted = await (new Model.Article({title: 'find-article'})).save()

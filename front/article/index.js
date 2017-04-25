@@ -1,6 +1,8 @@
 const path = require('path');
+const envir = require('../../envir')
 const Model = require('../../model');
 const Router = require('koa-router');
+const cli = require('../../lib/redis-cache.js')
 
 const router = new Router;
 
@@ -15,8 +17,9 @@ router.get('/:articleid', async (ctx, next) => {
 })
 
 router.get('/:articleid', async (ctx, next) => {
-  let article = await Model.Article.findOne({ _id: ctx.params.articleid });
-  if (article.is_draft) {
+  let article = await Model.Article.findOne({ _id: ctx.params.articleid })
+
+  if (article && article.is_draft) {
     ctx.status = 403;
     Object.assign(article, {
       title: '拒絕',
@@ -54,13 +57,37 @@ router.get('/:articleid', async (ctx, next) => {
     })
     await ctx.render('article/found', {article}, true);
   } else if (article) {
-    ctx.status = 200;
-    // ctx.body = article.format
-    await ctx.render('article/found', {article}, true);
+    ctx.article = article
+    await next()
   } else {
     ctx.status = 404;
     await ctx.render('article/nofound', {}, true);
   }
 })
+
+envir.PUG_CACHE && router.get('/:articleid', async (ctx, next) => {
+  const {article} = ctx
+  ctx.status = 200
+  const article_mod = (new Date(article.mod)).toISOString()
+
+  let cache_time = (await cli.HMGET(`pug-article-${article._id.toString()}`, 'time')).pop()
+
+  // 是否命中
+  if (cache_time === article_mod) {
+    let complied = await cli.HMGET(`pug-article-${article._id.toString()}`, 'complied')
+    ctx.body = complied.pop()
+  } else {
+    await next()
+    await cli.HMSET(`pug-article-${article._id.toString()}`, {
+      time: article_mod,
+      complied: ctx.body,
+    })
+  }
+})
+
+router.get('/:articleid', async ctx => {
+  await ctx.render('article/found', {article: ctx.article}, true)
+})
+
 
 module.exports = router;

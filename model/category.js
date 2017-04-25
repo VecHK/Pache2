@@ -1,3 +1,4 @@
+const Model = require('./index')
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
 
@@ -44,6 +45,8 @@ CategorySchema.pre('update', mhook(async function () {
 			throw err
 		}
 	}
+
+	Model.emit('category-change')
 }))
 
 CategorySchema.pre('save', mhook(async function () {
@@ -71,6 +74,9 @@ CategorySchema.pre('save', mhook(async function () {
 	} else {
 		this.sort = topic.sort + 1;
 	}
+
+	Model.emit('category-change')
 }));
 
 const CategoryModel = mongoose.model('Category', CategorySchema);
+module.exports = CategorySchema
