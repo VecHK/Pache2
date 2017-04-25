@@ -1,0 +1,6 @@
+# tests
+test-ava
+coverage
+
+# npm modules folder
+node_modules
