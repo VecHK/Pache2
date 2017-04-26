@@ -51,6 +51,9 @@ define(function (require) {
   function renderCategoriesSelectList() {
     select_list.innerHTML = ''
     Categories.records.forEach(category => {
+      if (category.type !== 'category') {
+        return
+      }
       const li = document.createElement('li')
       li.appendChild(document.createTextNode(category.name))
       li.onclick = e => {
