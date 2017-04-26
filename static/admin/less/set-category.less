@@ -1,0 +1,39 @@
+@import "./base.less";
+
+.category-selector {
+  position: absolute;
+
+  background: white;
+  color: #777;
+  box-shadow: 0px 0px 1px rgb(108, 108, 108);
+
+  ul.categories-list {
+
+    padding: 0;
+    margin: 0;
+    > li:hover {
+      background: @torzo-blue;
+      color: white;
+    }
+    > li {
+      padding: .3em .3em;
+      margin: 0;
+      cursor: pointer;
+      list-style-type: none;
+    }
+  }
+
+  button.clear {
+    &:hover {
+      background: @torzo-blue;
+      color: white;
+    }
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: grey;
+    text-align: right;
+    border: 0;
+    width: 100%;
+  }
+}

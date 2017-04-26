@@ -36,6 +36,9 @@ define(function (require) {
         type: 'json',
         data: this,
       })
+
+      await self.refresh()
+
       return result.result
     },
     async save() {
@@ -51,6 +54,9 @@ define(function (require) {
       result = result.result
 
       Object.assign(this, result)
+
+      await self.refresh()
+
       return this
     },
 

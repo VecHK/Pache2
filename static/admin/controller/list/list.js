@@ -114,10 +114,16 @@ define(function (require) {
       this.push(...list);
 
       if (list.length) {
-        return this.renderList();
+        this.renderList();
       } else {
-        return this.renderEmpty();
+        this.renderEmpty();
       }
+      this.renderAfter()
+      this.emit('render')
+    },
+    renderAfter() {
+      let checked = this.collectCheckedItem()
+      checked.length || this.emit('no-checked')
     },
     start() {
       this.setContain();

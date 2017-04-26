@@ -55,10 +55,28 @@ try {
 	    return this._findev(ev_name).push(handle)
 	  },
 
+		/* 判斷曾經是否發佈，未發佈則返回 FALSE，並且執行 callback（如果有） */
+		isEmited: function (ev_name, callback) {
+			var result = this._findEmited()[ev_name]
+			if (callback) {
+				result || callback(this)
+			}
+			return result
+		},
+
+		_findEmited: function () {
+			if (!('_emited' in this)) {
+				this._emited = {}
+			}
+			return this._emited
+		},
+
 	  /* 發佈事件 */
 	  emit: function (ev_name) {
+			this._findEmited()[ev_name] = true
+
 	    /* 保存上下文環境，用於回調函數用的上下文 */
-	    var self = this;
+	    var self = this
 
 	    var args = Array.prototype.slice.call(arguments)
 	    /* 獲取 ev_name 后的參數，作為回調函數用的參數 */
@@ -76,7 +94,8 @@ try {
 	      return evHandle !== remove_handle
 	    })
 	  },
-	};
+	}
+
 	try {
 		if (window.define) {
 			window.define(EventModel)

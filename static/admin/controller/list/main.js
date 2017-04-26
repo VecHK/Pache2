@@ -21,6 +21,7 @@ define(function (require) {
     const del = require('controller/list/delete.js')
     const repost = require('controller/list/repost.js')
     const new_post = require('controller/list/new-post.js')
+    const setCategory = require('controller/list/set-category.js')
     const logout = require('controller/list/logout.js')
 
   })()
