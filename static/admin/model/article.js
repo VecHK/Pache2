@@ -19,18 +19,18 @@ define(function (require) {
       if (!Array.isArray(ids)) {
         throw new Error('Article.patchFields: ids 不是一個數組')
       }
-      return await this.ajax(`${ROOT}/articles`, {
+      return (await this.ajax(`${ROOT}/articles`, {
         method: 'PATCH',
         type: 'json',
         data: {
           ids,
           fields,
         },
-      }).result
+      })).result
     },
     async get(id) {
       try {
-        var result = await this.GET(`${ROOT}/article/${id}`).result
+        var result = (await this.GET(`${ROOT}/article/${id}`)).result
       } catch (e) {
         if (e.xhr.status == 404) {
           result = null
@@ -68,12 +68,12 @@ define(function (require) {
   })
 
   Article.include({
-    update() {
-      return this.parent.ajax(`${ROOT}/article/${this._id}`, {
+    async update() {
+      return (await this.parent.ajax(`${ROOT}/article/${this._id}`, {
         method: 'PATCH',
         type: 'json',
         data: this,
-      }).result
+      })).result
     },
     async save() {
       if (this._id) {

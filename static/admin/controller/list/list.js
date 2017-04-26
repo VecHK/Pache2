@@ -119,11 +119,9 @@ define(function (require) {
         this.renderEmpty();
       }
       this.renderAfter()
-      this.emit('render')
     },
     renderAfter() {
-      let checked = this.collectCheckedItem()
-      checked.length || this.emit('no-checked')
+      this.emit('render')
     },
     start() {
       this.setContain();
