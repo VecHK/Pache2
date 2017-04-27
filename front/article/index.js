@@ -8,16 +8,16 @@ const router = new Router;
 
 const 合法的文章ID = /^[a-z0-9]{24}$/;
 router.get('/:articleid', async (ctx, next) => {
-  if (!合法的文章ID.test(ctx.params.articleid)) {
-    ctx.status = 400;
-    ctx.body = 'bad request';
+  if (合法的文章ID.test(ctx.params.articleid)) {
+    ctx.getConditions = { _id: ctx.params.articleid }
   } else {
-    await next()
+    ctx.getConditions = { link_symbol: ctx.params.articleid }
   }
+  await next()
 })
 
 router.get('/:articleid', async (ctx, next) => {
-  let article = await Model.Article.findOne({ _id: ctx.params.articleid })
+  let article = await Model.Article.findOne(ctx.getConditions)
 
   if (article && article.is_draft) {
     ctx.status = 403;
@@ -70,15 +70,26 @@ envir.PUG_CACHE && router.get('/:articleid', async (ctx, next) => {
   ctx.status = 200
   const article_mod = (new Date(article.mod)).toISOString()
 
-  let cache_time = (await cli.HMGET(`pug-article-${article._id.toString()}`, 'time')).pop()
+  if ('_id' in ctx.getConditions) {
+    var articleKey = `-${article._id.toString()}`
+  } else if ('link_symbol' in ctx.getConditions) {
+    var articleKey = `-${article.link_symbol}`
+  }
+  let cacheKey = `pug-article${articleKey}`
+
+  let cache_time = (await cli.HMGET(cacheKey, 'time')).pop()
 
   // 是否命中
   if (cache_time === article_mod) {
-    let complied = await cli.HMGET(`pug-article-${article._id.toString()}`, 'complied')
+    let complied = await cli.HMGET(cacheKey, 'complied')
     ctx.body = complied.pop()
   } else {
     await next()
-    await cli.HMSET(`pug-article-${article._id.toString()}`, {
+    await cli.HMSET(cacheKey, {
+      time: article_mod,
+      complied: ctx.body,
+    })
+    article.link_symbol && await cli.HMSET(`pug-article-${article.link_symbol}`, {
       time: article_mod,
       complied: ctx.body,
     })

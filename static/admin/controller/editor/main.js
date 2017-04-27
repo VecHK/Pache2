@@ -3,7 +3,7 @@ define(function (require) {
   const PageCode = require('controller/list/pagecode.js')
   const Editor = require('controller/editor/editor.js')
   const Tags = require('controller/editor/tags.js')
-  const Profile = require('controller/editor/profile/profile.js')
+  const Profile = require('controller/editor/profile/main.js')
   const Category = require('controller/editor/category.js')
   const repost = require('controller/editor/repost.js')
   const preview = require('controller/editor/preview.js')

@@ -4,25 +4,36 @@ define(function (require) {
   const EditorAction = require('controller/editor/action.js')
   const Profile = Object.create(EventModel)
 
+  const timeout = ms => new Promise(r => setTimeout(r, ms))
+
   console.warn(EditorAction)
 
   // Layer
   Object.assign(Profile, {
-    show() {
-      this.container.style.display = 'block'
-      setTimeout(() => {
-        this.container.style.left = '1em';
-        this.container.style.opacity = 1;
-        this.opened = true;
-      }, 32);
+    async show() {
+      const {container} = this
+      const $con = $(this.container)
+      $con.css({ display: 'block' })
+
+      await timeout(32)
+
+      $con.css({
+        opacity: 1,
+        left: '1em',
+      })
+      this.opened = true
     },
-    hide() {
-      this.container.style.left = '0px';
-      this.container.style.opacity = 0;
-      setTimeout(() => {
-        this.container.style.display = 'none';
-      }, 382);
-      this.opened = false;
+    async hide() {
+      const $con = $(this.container)
+      $con.css({
+        opacity: 0,
+        left: '0px',
+      })
+
+      await timeout(382)
+
+      $con.css({ display: 'none' })
+      this.opened = false
     },
   })
   Object.assign(Profile, {
@@ -35,6 +46,10 @@ define(function (require) {
         console.warn(`不支持的文章类型: ${typeName}`);
         selectEle.value = selectEle.children[0].value;
       }
+    },
+    _profile: {},
+    addSetting(prop_name) {
+      const {_profile} = this
     },
     use(editor){
       this.editor = editor;

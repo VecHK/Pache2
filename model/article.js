@@ -55,6 +55,7 @@ const ArticleSchema = new Schema({
 	category: { type: String, default: null },
 	is_draft: { type: Boolean, default: false },
 	is_repost: { type: Boolean, default: false },
+	link_symbol: { type: String, default: null },
 	fusion_color: { type: String, default: '#CCC' },
 });
 
