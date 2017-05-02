@@ -9,7 +9,7 @@ html
 		include ../include/app-icon
 		title=article.title
 
-		link(rel="stylesheet" media="all" href="/han/han.css")
+		//- link(rel="stylesheet" media="all" href="/han/han.css")
 		link(rel="stylesheet" href="/style/article.css")
 
 	body
@@ -34,15 +34,18 @@ html
 		div(class="page-jumper-bg")
 
 		script(src="/han/han.min.js")
-		script.
-			try {
-				var titleHan = Han(document.querySelector('.title')).render();
-			} catch (e) {}
-
-		script(type="text/javascript" src="/script/gro.js")
 		script(type="text/javascript" src="/admin/script/pam-event.js")
-		script(type="text/javascript" src="/vools.js")
-		script(type="text/javascript" src="/script/pam-ext.js")
+		script(src="/vools.js")
+		script(src="/requirejs/require.min.js")
+		script(src="/script/article-enter.js")
+		//- script.
+		//- 	try {
+		//- 		var titleHan = Han(document.querySelector('.title')).render();
+		//- 	} catch (e) {}
+		//-
+		//- script(type="text/javascript" src="/script/gro.js")
+		//- script(type="text/javascript" src="/vools.js")
+		//- script(type="text/javascript" src="/script/pam-ext.js")
 
 		style.
 			section.footnotes {

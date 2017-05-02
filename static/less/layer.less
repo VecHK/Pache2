@@ -1,0 +1,40 @@
+.jack, .split{
+  &.slidedowned {
+    transition-timing-function: ease-in-out;
+  }
+}
+.jack {
+  display: inline-block;
+  vertical-align: top;
+  // height: ~"calc(400px + 2em)";
+  height: 0px;
+  width: 0px;
+  transition: height 618ms;
+  // transition-timing-function: ease-in;
+}
+.footnote-ref {
+  /* display: inline-block; */
+  height: 10px;
+  transition: height 618ms;
+}
+
+.split {
+  display: block;
+  position: absolute;
+  // top: ~"calc(39px + 1.8em)";
+  transition: height 618ms;
+  width: 100%;
+  overflow: hidden;
+  // height: 400px;
+  height: 0px;
+  background: rgba(128, 128, 128, 0.18);
+  // transition-timing-function: ease-in;
+}
+
+.split-content {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  transition: height 618ms;
+  /* background: rgba(128, 128, 128, 0.18); */
+}
