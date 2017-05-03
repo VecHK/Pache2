@@ -146,8 +146,8 @@ article * {
 		margin-bottom: 3em;
 	}
 
-	> p:first-child { .initial; }
-	> *:first-child, > *:first-child *:first-child { margin-top: 0; padding-top: 0 }
+	&:not(.split-content) > p:first-child { .initial; }
+	&:not(.split-content) > *:first-child, > *:first-child *:first-child { margin-top: 0; padding-top: 0 }
 
 	// 代码框
 	pre > code {
