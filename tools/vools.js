@@ -266,7 +266,26 @@
 		};
 	})();
 
-	vools.browser
+	const bPrototype = {
+		BrowserCore: ['ms', 'moz', 'Moz', 'webkit'],
+		dom: document.createElement('div'),
+		prop: 'Transition',
+		init() {
+			const result = this.BrowserCore.some(prefix => {
+				if (`${prefix}${this.prop}` in this.dom.style)
+					return this.core = prefix.toLowerCase()
+			})
+
+			if (!result) {
+				console.warn('unsupport browser rendering core')
+				this.core = 'unknown'
+			}
+
+			return this.core
+		},
+	}
+	vools.browser = Object.create(bPrototype)
+	vools.browser.init()
 
 	const voolsEvent = function (){};
 	ObjecExtends(voolsEvent.prototype, {
