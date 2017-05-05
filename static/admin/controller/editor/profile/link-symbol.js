@@ -5,9 +5,12 @@ define(function (require) {
 
   const input = $$('[name="link_symbol"]', Profile.container)
 
-  Editor.addProperty('link_symbol', () => input.value)
+  Editor.addProperty('link_symbol', () => {
+    const value  = input.value
+    return value.length ? value : null
+  })
   Editor.addApplyQuery('link_symbol', link_symbol => {
-    if (link_symbol === null) {
+    if (typeof(link_symbol) !== 'string') {
       input.value = ''
     } else {
       input.value = link_symbol
