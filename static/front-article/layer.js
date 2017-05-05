@@ -77,6 +77,10 @@ class Split {
 }
 const Layer = {
   prototype: {
+    /* 隱藏原來的腳註 */
+    hideSourceFoonote() {
+      $(this.footnoteParent).css({display: 'none'})
+    },
     getFootnoteRefParent(className = 'footnote-ref') {
       return $(`.${className}`, this.refParent)
     },
@@ -114,6 +118,7 @@ const Layer = {
       })
     },
     init() {
+      this.hideSourceFoonote()
       this.insertSplitElement()
     },
   },
