@@ -53,10 +53,8 @@ class Split {
     $(this.jackContainer).css('height', `0px`)
 
     await waitting(618)
-    $(this.jackContainer).css('display', 'none')
-    $(this.splitContainer).css('display', 'none')
-    $(this.jackContainer).classRemove('slidedowned')
-    $(this.splitContainer).classRemove('slidedowned')
+    $(this.jackContainer).css('display', 'none').classRemove('slidedowned')
+    $(this.splitContainer).css('display', 'none').classRemove('slidedowned')
     await waitting(1000 / 30)
   }
   constructor(ref, html) {
