@@ -16,9 +16,19 @@ html
 		div(class="page-shadow")
 		div(class="top-block")
 			div(class="top page-btn-panel")
+				button.previous.page-btn()="<"
+				a.page-code.page-btn(href="/")="首頁"
+				button.next.page-btn()=">"
+
 			div(class="article-details")
 				div(class="title")=article.title
 				time=article.date.toLocaleDateString()
+
+		script(class="execable").
+			var cssStyle = document.createElement('style')
+			cssStyle.classList.add('execable-css')
+			cssStyle.innerHTML = '#article > .page:not(.current-page) { display: none } #article section.footnotes { display: none }'
+			document.body.appendChild(cssStyle)
 
 		article(id="article" class="article")
 			!=article.format
@@ -38,14 +48,10 @@ html
 		script(src="/vools.js")
 		script(src="/requirejs/require.min.js")
 		script(src="/script/article-enter.js")
-		//- script.
-		//- 	try {
-		//- 		var titleHan = Han(document.querySelector('.title')).render();
-		//- 	} catch (e) {}
-		//-
-		//- script(type="text/javascript" src="/script/gro.js")
-		//- script(type="text/javascript" src="/vools.js")
-		//- script(type="text/javascript" src="/script/pam-ext.js")
+		script.
+			try {
+				var titleHan = Han(document.querySelector('.title')).render();
+			} catch (e) {}
 
 		style.
 			section.footnotes {

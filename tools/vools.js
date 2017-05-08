@@ -158,6 +158,10 @@
 				return this.setAttr(name, value)
 			}
 		},
+		removeAttr(name) {
+			this.forEach(ele => ele.removeAttribute(name))
+			return this
+		},
 	};
 	const DOMs = function (sel, ele) {
 		ObjecExtends(this, DOMMethod);
@@ -166,7 +170,11 @@
 
 	const vools = function (sel, ele) {
 		const doms = new DOMs;
-		const domArr = selector(sel, ele);
+		if (Array.isArray(sel)) {
+			var domArr = sel
+		} else {
+			var domArr = selector(sel, ele)
+		}
 		domArr.forEach(element => doms.push(element));
 
 		return doms;

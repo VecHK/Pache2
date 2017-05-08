@@ -4,7 +4,7 @@
 // 再顯示出 .current-page 元素（當前頁
 // 計算 .current-page 的位置（確定頁碼和總頁數
 const Page = {
-  prototype: {
+  prototype: EventLite.create({
     async frame(...ops) {
       for (let c = 0; c < ops.length; ++c) {
         await ops[c]()
@@ -42,19 +42,57 @@ const Page = {
     },
     /**
       視口的高度是否在文章元素中
-      @return boolean
+      @return {Boolean}
     */
     isViewportInArticleContainer(){
   		/* 兼容 IE11 */
   		const scrollableElementScrollTop = $$('html').scrollTop || $$('body').scrollTop || 0
   		return scrollableElementScrollTop > this.container.offsetTop
   	},
+
+    __pageCode: 0,
+    get pageCode() {
+      return this.__pageCode
+    },
+    set pageCode(value) {
+      // 如果不是整數
+      if (parseInt(value) !== value) {
+        console.warn('this:', this)
+        console.warn('value:', value)
+        throw new Error('設定的 pageCode 不是一個整數')
+      }
+      if (value < 0) {
+        throw new Error(`設定的 pageCode(${value}) 不能小於 0`)
+      }
+      if (value >= (this.pages.length)) {
+        console.warn(`設定的 pageCode(${value}) 大於等於最大頁碼限制(${this.pages.length})`)
+        return this.pages.length
+      }
+
+      if (value > this.__pageCode) {
+        var actionMethod = 'next'
+      } else if (value < this.__pageCode) {
+        var actionMethod = 'previous'
+      } else {
+        return this.__pageCode
+      }
+      // 設定相同值是不會觸發 change 事件的
+      this.emit('change', value)
+
+      this[actionMethod + 'Action'](
+        this.getPage(this.__pageCode),
+        this.getPage(value)
+      )
+
+      return (this.__pageCode = value)
+    },
+
     /**
       上一頁
-      @param current 當前頁的元素
-      @param previous 上一頁的元素
+      @param {Element} current 當前頁的元素
+      @param {Element} previous 上一頁的元素
     */
-    previous(current, previous) {
+    previousAction(current, previous) {
       this.frame(
         () => $([current, previous]).class('switching'),
           () => $(previous).class('up'),
@@ -75,7 +113,7 @@ const Page = {
       @param current 當前頁的元素
       @param next 下一頁的元素
     */
-    next(current, next) {
+    nextAction(current, next) {
       return this.frame(
         () => $([current, next]).class('switching'),
           () => this.removeHidden(next),
@@ -90,7 +128,7 @@ const Page = {
         () => $([current, next]).classRemove('switching', 'up')
       )
     },
-  },
+  }),
   _prototypeInit() {
     const pages = $('.page', this.container)
     this.pages = pages
@@ -121,4 +159,6 @@ const Page = {
 
 pa_init(async () => {
   window.page = Page.init($$('#article'))
+
+  switchPage()
 })
