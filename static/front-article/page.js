@@ -5,12 +5,36 @@
 // 計算 .current-page 的位置（確定頁碼和總頁數
 const Page = {
   prototype: EventLite.create({
-    async frame(...ops) {
-      for (let c = 0; c < ops.length; ++c) {
-        await ops[c]()
-        await waitting(32)
+    createFramePromise(obj) {
+      return new Promise((res, rej) => {
+        obj.resolve = res
+        obj.reject = rej
+      })
+    },
+    frame(...ops) {
+      let stop = false
+      let wait = false
+      let waitPromiseHandle = {}
+      let waitPromise
+      const opAction = (async () => {
+        for (let c = 0; c < ops.length; ++c) {
+          if (wait) await waitPromise
+          if (stop) break
+          await ops[c]()
+          await waitting(32)
+        }
+      })()
+      opAction.stop = () => { stop = true }
+      opAction.pause = () => {
+        waitPromise = this.createFramePromise(waitPromiseHandle)
+        wait = true
       }
-      return this
+      opAction.resume = function () {
+        wait = false
+        waitPromiseHandle.resolve()
+      }
+
+      return opAction
     },
     setHidden(page) {
       return this.frame(() => {
@@ -64,6 +88,7 @@ const Page = {
       if (value < 0) {
         throw new Error(`設定的 pageCode(${value}) 不能小於 0`)
       }
+
       if (value >= (this.pages.length)) {
         console.warn(`設定的 pageCode(${value}) 大於等於最大頁碼限制(${this.pages.length})`)
         return this.pages.length
@@ -79,6 +104,7 @@ const Page = {
       // 設定相同值是不會觸發 change 事件的
       this.emit('change', value)
 
+      // 同時也不會相應換頁操作
       this[actionMethod + 'Action'](
         this.getPage(this.__pageCode),
         this.getPage(value)
@@ -91,9 +117,11 @@ const Page = {
       上一頁
       @param {Element} current 當前頁的元素
       @param {Element} previous 上一頁的元素
+      @return {Frame} Frame 操作序
     */
     previousAction(current, previous) {
-      this.frame(
+      if (this.actionFrame) { this.actionFrame.stop() }
+      const frame = this.frame(
         () => $([current, previous]).class('switching'),
           () => $(previous).class('up'),
           () => this.removeHidden(previous),
@@ -107,17 +135,23 @@ const Page = {
           () => this.setCurrent(previous),
         () => $([current, previous]).classRemove('switching', 'down', 'up')
       )
+      return (this.actionFrame = frame)
     },
     /**
       下一頁
       @param current 當前頁的元素
       @param next 下一頁的元素
+      @return {Frame} Frame 操作序
     */
     nextAction(current, next) {
-      return this.frame(
+      if (this.actionFrame) { this.actionFrame.stop() }
+      const frame = this.frame(
         () => $([current, next]).class('switching'),
           () => this.removeHidden(next),
-          () => $(next).class('up'),
+          () => {
+            $(next).class('up')
+            $(current).css('opacity', 0)
+          },
           () => waitting(618),
           () => {
             if (this.isViewportInArticleContainer()) {
@@ -125,8 +159,9 @@ const Page = {
             }
           },
           () => this.setCurrent(next),
-        () => $([current, next]).classRemove('switching', 'up')
+        () => $([current, next]).classRemove('switching', 'up').css('opacity', '')
       )
+      return (this.actionFrame = frame)
     },
   }),
   _prototypeInit() {
