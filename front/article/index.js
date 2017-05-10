@@ -65,6 +65,16 @@ router.get('/:articleid', async (ctx, next) => {
   }
 })
 
+router.get('/:articleid', async (ctx, next) => {
+  const {header} = ctx.request
+  const modProp = 'if-modified-since'
+  if (header[modProp] && (header[modProp] === ctx.article.mod.toGMTString())) {
+    ctx.status = 304
+    return
+  }
+  await next()
+})
+
 envir.PUG_CACHE && router.get('/:articleid', async (ctx, next) => {
   const {article} = ctx
   ctx.status = 200
@@ -97,6 +107,8 @@ envir.PUG_CACHE && router.get('/:articleid', async (ctx, next) => {
 })
 
 router.get('/:articleid', async ctx => {
+  // 緩存
+  ctx.response.set('Last-Modified', ctx.article.mod.toGMTString())
   await ctx.render('article/found', {article: ctx.article}, true)
 })
 

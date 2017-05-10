@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('mz/fs')
 const Koa = require('koa')
 const path = require('path')
 const Views = require('koa-pug')
@@ -37,12 +37,10 @@ const session_handle = convert(koa_session({
 
 app.use(session_handle)
 
-
+const GZIPMIME = /text|application|json|javascript/i
 if (envir.GZIP_ENABLE) {
   app.use(compress({
-    filter: function (content_type) {
-      return /text/i.test(content_type)
-    },
+    filter: GZIPMIME.test.bind(GZIPMIME),
     threshold: 2048,
     flush: require('zlib').Z_SYNC_FLUSH
   }))
@@ -99,23 +97,24 @@ const cacheControl = require('koa-cache-control')
 const ROOT_DIR = __dirname
 const IMG_POOL_PATH = envir.IMAGE_PATH || path.join(__dirname, '/img_pool')
 
-app.use(cacheControl({
-  // 緩存時間一小時
-  maxAge: 5,
-}))
 app.use(async (ctx, next) => {
-  ctx.cacheControl = {
-    // 緩存時間一小時
-    maxAge: 60 * 60 * 60
-  };
-
   let {dir, base} = path.parse(ctx.path)
+  const filePath = path.join(IMG_POOL_PATH, base)
   if ('/img-pool' !== dir) {
     await next()
-  } else if (!fs.existsSync(path.join(IMG_POOL_PATH, base))) {
+  } else if (!await fs.exists(filePath)) {
     await next()
   } else {
-    await send(ctx, base, { root: IMG_POOL_PATH })
+    const mod_time = (await fs.stat(filePath)).mtime.toGMTString()
+    const {header} = ctx.request
+    const modProp = 'if-modified-since'
+    if (header[modProp] && (header[modProp] === mod_time)) {
+      ctx.status = 304
+      return
+    } else {
+      ctx.response.set('Last-Modified', mod_time)
+      await send(ctx, base, { root: IMG_POOL_PATH })
+    }
   }
 })
 
