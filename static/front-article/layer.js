@@ -1,4 +1,7 @@
 class Split {
+  clearArrow() {
+    $('a.footnote-backref', this.splitContainer).remove()
+  }
   createSplitElement(footnoteContent) {
     const ele = document.createElement('div')
     $(ele).class('split')
@@ -71,6 +74,8 @@ class Split {
     this.splitContainer = splitEle
     this.refContainer = ref
     this.jackContainer = jack
+
+    this.clearArrow()
   }
 }
 const Layer = {
