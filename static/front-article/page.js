@@ -12,6 +12,7 @@ const Page = {
       })
     },
     frame(...ops) {
+      let status = false
       let stop = false
       let wait = false
       let waitPromiseHandle = {}
@@ -23,6 +24,7 @@ const Page = {
           await ops[c]()
           await waitting(32)
         }
+        status = true
       })()
       opAction.stop = () => { stop = true }
       opAction.pause = () => {
@@ -33,18 +35,17 @@ const Page = {
         wait = false
         waitPromiseHandle.resolve()
       }
+      Object.defineProperty(opAction, 'status', {
+        get() { return status },
+      })
 
       return opAction
     },
     setHidden(page) {
-      return this.frame(() => {
-        page.setAttribute('hidden', '')
-      })
+      return page.setAttribute('hidden', '')
     },
     removeHidden(page) {
-      return this.frame(() => {
-        page.removeAttribute('hidden', '')
-      })
+      return page.removeAttribute('hidden', '')
     },
     getPageCodeByElement(pageElement) {
       return this.pages.indexOf(pageElement)
@@ -120,22 +121,23 @@ const Page = {
       @return {Frame} Frame 操作序
     */
     previousAction(current, previous) {
-      if (this.actionFrame) { this.actionFrame.stop() }
-      const frame = this.frame(
-        () => $([current, previous]).class('switching'),
-          () => $(previous).class('up'),
-          () => this.removeHidden(previous),
-          () => $(current).class('down'),
-          () => waitting(618),
-          () => {
-            if (this.isViewportInArticleContainer()) {
-              scrollTo(document.body, this.container.offsetTop)
-            }
-          },
-          () => this.setCurrent(previous),
-        () => $([current, previous]).classRemove('switching', 'down', 'up')
-      )
-      return (this.actionFrame = frame)
+      console.time('frame_time')
+      $([current, previous]).class('switching')
+      setTimeout(() => {
+        $(previous).class('up')
+        this.removeHidden(previous)
+        $(current).class('down')
+        setTimeout(() => {
+          if (this.isViewportInArticleContainer()) {
+            scrollTo(document.body, this.container.offsetTop)
+          }
+          this.setCurrent(previous)
+          setTimeout(() => {
+            $([current, previous]).classRemove('switching', 'down', 'up')
+            console.timeEnd('frame_time')
+          }, 32)
+        }, 618 + 32)
+      }, 32)
     },
     /**
       下一頁
@@ -144,24 +146,24 @@ const Page = {
       @return {Frame} Frame 操作序
     */
     nextAction(current, next) {
-      if (this.actionFrame) { this.actionFrame.stop() }
-      const frame = this.frame(
-        () => $([current, next]).class('switching'),
-          () => this.removeHidden(next),
-          () => {
-            $(next).class('up')
-            $(current).css('opacity', 0)
-          },
-          () => waitting(618),
-          () => {
-            if (this.isViewportInArticleContainer()) {
-              scrollTo(document.body, this.container.offsetTop)
-            }
-          },
-          () => this.setCurrent(next),
-        () => $([current, next]).classRemove('switching', 'up').css('opacity', '')
-      )
-      return (this.actionFrame = frame)
+      console.time('frame_time')
+
+      $([current, next]).class('switching')
+      this.removeHidden(next)
+      setTimeout(() => {
+        $(next).class('up')
+        $(current).css('opacity', 0)
+        setTimeout(() => {
+          if (this.isViewportInArticleContainer()) {
+            scrollTo(document.body, this.container.offsetTop)
+          }
+          this.setCurrent(next)
+          setTimeout(() => {
+            $([current, next]).classRemove('switching', 'up').css('opacity', '')
+            console.timeEnd('frame_time')
+          }, 32)
+        }, 618 + 32)
+      }, 32)
     },
   }),
   _prototypeInit() {
@@ -182,6 +184,10 @@ const Page = {
     onscroll()
 
     $(this.container).class('page-standby')
+
+    this.pages.forEach(pageEle => {
+      Han(pageEle).render()
+    })
   },
   init(splitPageContainer) {
     const instance = Object.create(this.prototype)
@@ -195,5 +201,10 @@ const Page = {
 pa_init(async () => {
   window.page = Page.init($$('#article'))
 
-  switchPage()
+  switchPage(
+    window.page,
+    $$('.top.page-btn-panel .previous'),
+    $$('.top.page-btn-panel .next')
+  )
+  window.selector = PageSelector.init($$('.page-selector'), window.page)
 })
