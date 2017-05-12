@@ -10,6 +10,8 @@ class Split {
     $(contentEle).class('split-content').html(footnoteContent)
     $(ele).append(contentEle)
 
+    this.contentContainer = contentEle
+
     return ele
   }
   getSplitContentElement() {
@@ -22,12 +24,21 @@ class Split {
     $(this.jackContainer).css('display', '')
     await waitting(1000 / 30)
 
+    console.warn(document.body.offsetWidth, this.splitContainer.parentNode.offsetLeft);
     $(this.splitContainer).css({
       width: `${document.body.offsetWidth}px`,
       left: `-${this.splitContainer.parentNode.offsetLeft}px`,
     })
-    await waitting(1000 / 30)
+    if (document.body.offsetWidth >= 800) {
+      $(this.contentContainer).css({
+        padding: `0em ${document.body.offsetWidth/2 - 760/2}px`
+      })
+    } else {
+      $(this.contentContainer).removeCss('padding')
+    }
+    await waitting(1000 / 10)
 
+    const speed = 0.4
     const contentEle = this.getSplitContentElement()
     const {scrollHeight} = contentEle
     const {parentNode} = this.jackContainer
@@ -35,20 +46,28 @@ class Split {
     const refParent = this.refContainer.parentNode
     const refParentLineHeight = getComputedStyle(refParent).lineHeight
 
+    this.jackTransitionDuration = (scrollHeight + parseFloat(parentLineHeight)) / speed
     $(this.jackContainer).css({
+      transitionDuration: `${this.jackTransitionDuration}ms`,
       height: `${scrollHeight + parseFloat(parentLineHeight)}px`,
-      // height: `calc(${scrollHeight}px + ${parentLineHeight})`,
     })
 
-    await waitting(50)
+    await waitting(parseFloat(parentLineHeight) / speed)
+    this.splitTransitionDuration = scrollHeight / speed
+    let splitContainerTop = refParent.offsetTop + this.refContainer.offsetHeight + 8
+    if ($.browser.core === 'ms') {
+      splitContainerTop -= 2.5
+    } else if ($.browser.core === 'moz') {
+      splitContainerTop += 1
+    }
 
     $(this.splitContainer).css({
+      transitionDuration: `${this.splitTransitionDuration}ms`,
       height: `${scrollHeight}px`,
-      // height: `calc(${scrollHeight}px)`,
-      top: `calc(${refParent.offsetTop}px + ${this.refContainer.offsetHeight * 1.5}px)`,
+      top: `${splitContainerTop}px`,
     })
 
-    await waitting(618)
+    await waitting(scrollHeight / speed)
 
     $(this.jackContainer).class('slidedowned')
     $(this.splitContainer).class('slidedowned')
@@ -58,10 +77,9 @@ class Split {
     $(this.splitContainer).css({
       height: `0px`,
     })
-    await waitting(100)
     $(this.jackContainer).css('height', `0px`)
 
-    await waitting(618)
+    await waitting(this.jackTransitionDuration)
     $(this.jackContainer).css('display', 'none').classRemove('slidedowned')
     $(this.splitContainer).css('display', 'none').classRemove('slidedowned')
     await waitting(1000 / 30)
