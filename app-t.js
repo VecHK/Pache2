@@ -117,9 +117,16 @@ app.use(async (ctx, next) => {
     }
   }
 })
-
-envir.ESD_ENABLE && envir.ESD_LIST.forEach(esd_path => {
-  app.use(koa_static(path.join(esd_path)))
+envir.ESD_ENABLE && app.use(async (ctx, next) => {
+  for (let esd_path of envir.ESD_LIST) {
+    const filePath = path.join(esd_path, ctx.path)
+    if (await fs.exists(filePath)) {
+      const {dir, base} = path.parse(filePath)
+      await send(ctx, base, { root: dir })
+      return
+    }
+  }
+  await next()
 })
 
 module.exports = app
