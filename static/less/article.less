@@ -3,6 +3,7 @@
 @import "layer.less";
 @import "page.less";
 @import "switch-page.less";
+@import "selector.less";
 // @import "split-layer.less";
 // @import "split-page.less";
 // @import "page-jumper.less";
@@ -81,7 +82,7 @@ article, .info {
 article * {
 	transform: rotate3d(0, 0, 0);
 }
-.page, .split-content, .article {
+.page, .article {
 	>:last-child {
 		margin-bottom: 0;
 		padding-bottom: 0;
@@ -148,8 +149,10 @@ article * {
 		margin-bottom: 3em;
 	}
 
-	&:not(.split-content) > p:first-child { .initial; }
-	&:not(.split-content) > *:first-child, > *:first-child *:first-child { margin-top: 0; padding-top: 0 }
+	&:not(.split-content) {
+		> p:first-child { .initial; }
+		> *:first-child { margin-top: 0; padding-top: 0 }
+	}
 
 	// 代码框
 	pre > code {

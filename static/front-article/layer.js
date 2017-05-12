@@ -22,6 +22,12 @@ class Split {
     $(this.jackContainer).css('display', '')
     await waitting(1000 / 30)
 
+    $(this.splitContainer).css({
+      width: `${document.body.offsetWidth}px`,
+      left: `-${this.splitContainer.parentNode.offsetLeft}px`,
+    })
+    await waitting(1000 / 30)
+
     const contentEle = this.getSplitContentElement()
     const {scrollHeight} = contentEle
     const {parentNode} = this.jackContainer
@@ -75,7 +81,23 @@ class Split {
     this.refContainer = ref
     this.jackContainer = jack
 
+    this.setResize()
+
     this.clearArrow()
+  }
+  setResize() {
+    let lastWidth = document.body.offsetWidth
+    const resizeHandle = async e => {
+      if (lastWidth === document.body.offsetWidth) {
+        return
+      } else if (this.status) {
+        await this.slideUp()
+        this.slideDown()
+      }
+      lastWidth = document.body.offsetWidth
+    }
+    window.addEventListener('resize', resizeHandle)
+    resizeHandle()
   }
 }
 const Layer = {
@@ -94,11 +116,13 @@ const Layer = {
       const href = ref.getAttribute('href')
       return $$(`${href}.footnote-item`, this.footnoteParent)
     },
+    splits: [],
     insertSplitElement() {
       const {self} = this
       this.getFootnoteRef().forEach(ref => {
         const footnoteElement = this.getFootnote(ref)
         const split = new Split(ref, footnoteElement.innerHTML)
+        this.splits.push(split)
 
         let status = false
         ref.onclick = e => {
@@ -107,17 +131,6 @@ const Layer = {
           status = !status
           return false
         }
-
-        let lastWidth = document.body.offsetWidth
-        window.addEventListener('resize', async e => {
-          if (lastWidth === document.body.offsetWidth) {
-            return
-          } else if (split.status) {
-            await split.slideUp()
-            split.slideDown()
-          }
-          lastWidth = document.body.offsetWidth
-        })
       })
     },
     init() {
