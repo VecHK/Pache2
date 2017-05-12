@@ -152,11 +152,15 @@ const Layer = {
       })
     },
     init() {
-      this.hideSourceFoonote()
-      this.insertSplitElement()
+      if (!this.footnoteParent) {
+        console.info('layer: 無腳註')
+      } else {
+        this.hideSourceFoonote()
+        this.insertSplitElement()
+      }
     },
   },
-  init(refParent, footnoteParent = refParent) {
+  init(refParent, footnoteParent) {
     const instance = Object.create(this.prototype)
     instance.self = this
     instance.refParent = refParent
