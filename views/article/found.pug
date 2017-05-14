@@ -27,24 +27,23 @@ html
 		script(class="execable").
 			var cssStyle = document.createElement('style')
 			cssStyle.classList.add('execable-css')
-			cssStyle.innerHTML = '#article > .page:not(.current-page) { display: none } #article section.footnotes { display: none }'
+			cssStyle.innerHTML = '#article > .page:not(.current-page) { position: fiexed; visibility: hidden } #article section.footnotes { display: none }'
 			document.body.appendChild(cssStyle)
 
 		article(id="article" class="article")
 			!=article.format
 
-		div(class="page-jumper")
-			div(class="page-jumper-frame")
+		div(class="page-selector")
+			div(class="page-selector-frame")
 				div(class="previous")="<"
-				div(class="page-jumper-content")
-					div(class="jumper-triangle")
-					ul(class="page-select-list")
+				div(class="page-selector-content")
+					div(class="selector-triangle")
+					ul(class="page-selector-list")
 				div(class="next")=">"
 
-		div(class="page-jumper-bg")
+		div(class="page-selector-bg")
 
 		script(src="/han/han.min.js")
-		script(type="text/javascript" src="/admin/script/pam-event.js")
 		script(src="/vools.js")
 		script(src="/requirejs/require.min.js")
 		script(src="/script/article-enter.js")
