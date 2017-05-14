@@ -83,7 +83,7 @@ repost_color >#46c01b
 
 # 啟用 Pug 模板引擎緩存
 # 需要使用到 Redis
-[PUG_CACHE] TRUE
+[PUG_CACHE] FALSE
 
 # cluster 線程數
 # 通常多線程的性能會比單線程要好

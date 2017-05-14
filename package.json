@@ -1,6 +1,6 @@
 {
   "name": "node-pache",
-  "version": "0.7.8",
+  "version": "0.8.1",
   "description": "vec 自家用 blog",
   "main": "master.js",
   "bin": {
@@ -26,7 +26,6 @@
     "han-css": "^3.3.0",
     "highlight.js": "^9.9.0",
     "html-entities": "^1.2.0",
-    "jade": "^1.11.0",
     "jsdom": "^9.11.0",
     "koa": "^2.2.0",
     "koa-bodyparser": "^4.2.0",
@@ -44,6 +43,7 @@
     "mongoose": "^4.7.4",
     "morgan": "^1.7.0",
     "mysql": "^2.12.0",
+    "mz": "^2.6.0",
     "node-suc": "^0.1.3",
     "redis": "^2.6.3",
     "striptags": "^2.1.1",
@@ -53,7 +53,12 @@
   },
   "devDependencies": {
     "ava": "^0.18.2",
-    "babel-preset-es2015": "^6.18.0",
+    "babel-core": "^6.24.1",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.4.0",
+    "babel-preset-es2015": "^6.24.1",
     "find-console": "0.0.1",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
