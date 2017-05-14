@@ -94,6 +94,9 @@
 				return this.setCss(...arguments)
 			}
 		},
+		removeCss(...props) {
+			props.forEach(prop => this.setCss(prop, ''))
+		},
 
 		class(...classArr){
 			this.forEach(ele => {
