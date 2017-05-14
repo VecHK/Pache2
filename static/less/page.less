@@ -1,44 +1,11 @@
 .page {
-	transform: scale(1);
+	// transform: matrix(1, 0, 0, 1, 0, 0) translate3d(0px, 0px, 0px);
 	transform-origin: center top;
 
 	width: ~"calc(100% - 1.5em - 1.5em)";
 	padding: 0em 1.5em 0em;
 
 	transition-duration: 618ms;
-	transition-property: transform, opacity, left, top, height;
+	transition-property: transform, opacity, left, top, height, margin-top;
 	background: white;
-}
-.page-standby {
-  .hidden { display: none }
-
-  .page.switching {
-    & {
-      position: fixed;
-    }
-    &.up {
-      opacity: 1;
-      top: 0em;
-    }
-    &.down {
-      opacity: 0;
-      top: 1em;
-    }
-  }
-  &:not(.morethan-article) > .page.switching {
-    position: absolute;
-  }
-
-  .page:not([current]) {
-    opacity: 0;
-    top: 1em;
-  }
-  .page[current] {
-    transform: scale(1);
-  	opacity: 1;
-  	left: 0;
-  	top: 0;
-
-    position: relative;
-  }
 }

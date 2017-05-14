@@ -42,10 +42,10 @@ const Page = {
       return opAction
     },
     setHidden(page) {
-      return page.setAttribute('hidden', '')
+      return page.style.display = 'none'
     },
     removeHidden(page) {
-      return page.removeAttribute('hidden', '')
+      return page.style.display = ''
     },
     getPageCodeByElement(pageElement) {
       return this.pages.indexOf(pageElement)
@@ -60,6 +60,9 @@ const Page = {
           this.removeHidden(ele)
           ele.setAttribute('current', '')
         } else {
+          if (ele.scrollHeight >= window.innerHeight) {
+            ele.style.height = `${window.innerHeight}px`
+          }
           this.setHidden(ele)
           ele.removeAttribute('current')
         }
@@ -100,10 +103,9 @@ const Page = {
       } else if (value < this.__pageCode) {
         var actionMethod = 'previous'
       } else {
+        // 設定相同值是不會有什麼反應的
         return this.__pageCode
       }
-      // 設定相同值是不會觸發 change 事件的
-      this.emit('change', value)
 
       // 同時也不會相應換頁操作
       this[actionMethod + 'Action'](
@@ -111,55 +113,80 @@ const Page = {
         this.getPage(value)
       )
 
+      this.emit('change', value)
+
       return (this.__pageCode = value)
     },
 
     /**
       上一頁
-      @param {Element} current 當前頁的元素
-      @param {Element} previous 上一頁的元素
-      @return {Frame} Frame 操作序
+      @param {Object} current 當前頁的元素
+      @param {Object} previous 上一頁的元素
     */
     previousAction(current, previous) {
       console.time('frame_time')
-      $([current, previous]).class('switching')
+      // $([current, previous]).class('switching')
+      if (this.isViewportInArticleContainer()) {
+        previous.style.top = '0em'
+        previous.style.position = 'fixed'
+      }
+
+      previous.style.display = ''
+
+      current.style.opacity = '1'
+      current.style.position = 'absolute'
+
+      current.style.top = '0em'
       setTimeout(() => {
-        $(previous).class('up')
-        this.removeHidden(previous)
-        $(current).class('down')
+        this.emit('action', current, previous)
+
+        current.style.top = '1em'
+        current.style.opacity = '0'
+        previous.style.opacity = '1'
+
+        const waitTime = parseFloat(getComputedStyle(current).transitionDuration) * 1000
         setTimeout(() => {
           if (this.isViewportInArticleContainer()) {
             scrollTo(document.body, this.container.offsetTop)
+            previous.style.position = ''
           }
           this.setCurrent(previous)
-          setTimeout(() => {
-            $([current, previous]).classRemove('switching', 'down', 'up')
-            console.timeEnd('frame_time')
-          }, 32)
-        }, 618 + 32)
+          $(previous).removeCss('top', 'height')
+          $(current).removeCss('position', 'opacity', 'top')
+        }, waitTime)
       }, 32)
     },
     /**
       下一頁
-      @param current 當前頁的元素
-      @param next 下一頁的元素
-      @return {Frame} Frame 操作序
+      @param {Object} current 當前頁的元素
+      @param {Object} next 下一頁的元素
     */
     nextAction(current, next) {
       console.time('frame_time')
 
-      $([current, next]).class('switching')
-      this.removeHidden(next)
+      // this.removeHidden(next)
+      next.style.display = ''
+      next.style.position = 'absolute'
+      next.style.top = '1em'
+      next.style.opacity = '0'
       setTimeout(() => {
-        $(next).class('up')
+        this.emit('action', current, next)
+        if (this.isViewportInArticleContainer()) {
+          next.style.position = 'fixed'
+        }
+        $(next).css({
+          top: '0em',
+          opacity: 1,
+        })
         $(current).css('opacity', 0)
         setTimeout(() => {
           if (this.isViewportInArticleContainer()) {
             scrollTo(document.body, this.container.offsetTop)
+            next.style.position = ''
           }
           this.setCurrent(next)
           setTimeout(() => {
-            $([current, next]).classRemove('switching', 'up').css('opacity', '')
+            $(next).removeCss('height', 'position', 'top', 'opacity')
             console.timeEnd('frame_time')
           }, 32)
         }, 618 + 32)
@@ -183,6 +210,31 @@ const Page = {
     window.addEventListener('scroll', onscroll)
     onscroll()
 
+    const onResize = e => {
+      // this.container.style.minHeight = `${
+      //   window.innerHeight -
+      //   $$('.top-block').offsetHeight -
+      //   $$('.page-selector').offsetHeight
+      // }px`
+    }
+    onResize()
+    window.addEventListener('resize', onResize)
+
+    // this.container.style.transition = 'min-height 618ms'
+    // this.on('action', (current, operator) => {
+    //   console.warn(operator.offsetHeight)
+    //   if (current.offsetHeight > operator.offsetHeight) {
+    //     // this.container.style.minHeight = `${current.offsetHeight}px`
+    //   } else if (current.offsetHeight < operator.offsetHeight){
+    //     // this.container.style.minHeight = `${operator.offsetHeight}px`
+    //   }
+    //   this.container.style.minHeight = `${operator.offsetHeight}px`
+    //
+    //   // if (operator.offsetHeight < window.innerHeight) {
+    //   //   this.container.style.minHeight = `${window.innerHeight - $$('.top-block').offsetHeight - $$('.page-selector').offsetHeight}px`
+    //   // }
+    // })
+
     $(this.container).class('page-standby')
 
     this.pages.forEach(pageEle => {
@@ -193,7 +245,6 @@ const Page = {
     const instance = Object.create(this.prototype)
     instance.container = splitPageContainer
     this._prototypeInit.apply(instance, arguments)
-
     return instance
   },
 }
