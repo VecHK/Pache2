@@ -62,7 +62,7 @@ article, .info {
 	width: 100%;
 	font-size: 1em;
 	font-family: @pache-article-font-family;
-	padding-bottom: 5em;
+	// padding-bottom: 5em;
 }
 
 .error-message {
@@ -83,7 +83,7 @@ article * {
 	transform: rotate3d(0, 0, 0);
 }
 .page, .article {
-	>:last-child {
+	&:not(.article)>:last-child {
 		margin-bottom: 0;
 		padding-bottom: 0;
 	}
@@ -348,7 +348,7 @@ section.footnotes {
 	.info, .page, section.footnotes {
 		padding: 0;
 		width: 760px;
-		padding: ~"0em calc(50% - (760px / 2)) 0em";
+		padding: ~"0em calc(50% - (760px / 2)) 5em";
 		font-size: 1.2em;
 	}
 	section.footnotes {
@@ -389,6 +389,7 @@ section.footnotes {
 	}
 	.page {
 		img { max-height: 400px }
+		padding-bottom: 5em
 	}
 }
 
@@ -399,5 +400,6 @@ section.footnotes {
 	}
 	.page {
 		img { max-height: 320px }
+		padding-bottom: 5em
 	}
 }

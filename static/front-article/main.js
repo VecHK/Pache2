@@ -9,7 +9,14 @@ var EventLite = {
     return this._evPool[name]
   },
   get on() { return this.addListener },
-  addListener(name, fn) { this._checkEv(name).push(fn) },
+  addListener(names, fn) {
+    if (Array.isArray(names)) {
+      names.forEach(name => this.addOneListener(name, fn))
+    } else {
+      this.addListener([names], fn)
+    }
+  },
+  addOneListener(name, fn) { this._checkEv(name).push(fn) },
   emit() {
     const args = Array.prototype.slice.apply(arguments)
     const evs = this._checkEv(args.shift())

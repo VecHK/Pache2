@@ -124,6 +124,11 @@ const Page = {
       @param {Object} previous 上一頁的元素
     */
     previousAction(current, previous) {
+      ObjectAssign(this, {
+        __actionType: 'previous',
+        __operator: previous,
+        __current: current,
+      })
       console.time('frame_time')
       // $([current, previous]).class('switching')
       if (this.isViewportInArticleContainer()) {
@@ -153,8 +158,14 @@ const Page = {
           this.setCurrent(previous)
           $(previous).removeCss('top', 'height')
           $(current).removeCss('position', 'opacity', 'top')
+
+          ObjectAssign(this, {
+            __actionType: 'waitting',
+            __operator: null,
+            __current: null,
+          })
         }, waitTime)
-      }, 32)
+      }, 18)
     },
     /**
       下一頁
@@ -162,6 +173,11 @@ const Page = {
       @param {Object} next 下一頁的元素
     */
     nextAction(current, next) {
+      ObjectAssign(this, {
+        __actionType: 'next',
+        __operator: next,
+        __current: current,
+      })
       console.time('frame_time')
 
       // this.removeHidden(next)
@@ -181,16 +197,20 @@ const Page = {
         $(current).css('opacity', 0)
         setTimeout(() => {
           if (this.isViewportInArticleContainer()) {
-            scrollTo(document.body, this.container.offsetTop)
             next.style.position = ''
+            scrollTo(document.body, this.container.offsetTop)
           }
           this.setCurrent(next)
-          setTimeout(() => {
-            $(next).removeCss('height', 'position', 'top', 'opacity')
-            console.timeEnd('frame_time')
-          }, 32)
+          $(next).removeCss('height', 'position', 'top', 'opacity')
+
+          ObjectAssign(this, {
+            __actionType: 'waitting',
+            __operator: null,
+            __current: null,
+          })
+          console.timeEnd('frame_time')
         }, 618 + 32)
-      }, 32)
+      }, 18)
     },
   }),
   _prototypeInit() {
@@ -211,11 +231,11 @@ const Page = {
     onscroll()
 
     const onResize = e => {
-      // this.container.style.minHeight = `${
-      //   window.innerHeight -
-      //   $$('.top-block').offsetHeight -
-      //   $$('.page-selector').offsetHeight
-      // }px`
+      this.container.style.minHeight = `${
+        window.innerHeight -
+        $$('.top-block').offsetHeight -
+        $$('.page-selector').offsetHeight
+      }px`
     }
     onResize()
     window.addEventListener('resize', onResize)
@@ -252,10 +272,11 @@ const Page = {
 pa_init(async () => {
   window.page = Page.init($$('#article'))
 
-  switchPage(
+  window.topSwitcher = new Switcher(
     window.page,
     $$('.top.page-btn-panel .previous'),
     $$('.top.page-btn-panel .next')
   )
+
   window.selector = PageSelector.init($$('.page-selector'), window.page)
 })

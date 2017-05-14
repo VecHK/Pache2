@@ -38,7 +38,7 @@ class Split {
     }
     await waitting(1000 / 10)
 
-    const speed = 0.4
+    const speed = 0.3
     const contentEle = this.getSplitContentElement()
     const {scrollHeight} = contentEle
     const {parentNode} = this.jackContainer

@@ -1,8 +1,11 @@
 @import "base.less";
 
 .jack, .split{
-  transition-timing-function: linear !important;
+  &:not(.slidedowned) {
+    transition-timing-function: ease !important;
+  }
   &.slidedowned {
+    transition-timing-function: ease-in !important;
   }
 }
 .jack {
@@ -28,6 +31,7 @@
   overflow: hidden;
   height: 0px;
 
+  background: rgba(128, 128, 128, 0.18);
   transform: matrix(1, 0, 0, 1, 0, 0) translate3d(0, 0, 0);
 
   &:before { top: -2px }
@@ -54,8 +58,6 @@
   font-size: .8em;
   color: @pache-color;
   text-shadow: 0px 1px 0px white;
-
-  background: rgba(128, 128, 128, 0.18);
 
   transform: matrix(1, 0, 0, 1, 0, 0) translate3d(0, 0, 0);
 
