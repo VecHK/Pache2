@@ -60,34 +60,33 @@ const ArticleSchema = new Schema({
 });
 
 const repost_color = Cutl.init(envir.repost_color || '#46c01b');
-const contentRepost = async function (source, set = source) {
-	let category
-
-	if (source.category !== null) {
-		category = await CategoryModel.findOne({ _id: source.category })
-	} else {
-		category = null
+const repost_color_middle = async function (opts) {
+	let {is_repost, category, set, source} = opts
+	if (!set) { set = source }
+	if (is_repost === undefined) {
+		is_repost = ('is_repost' in set) ? set.is_repost : source.is_repost
+	}
+	if (category === undefined) {
+		category = await CategoryModel.findOne({
+			_id: ('category' in set) ? set.category : source.category
+		})
+	} else if (typeof(category) === 'string') {
+		category = await CategoryModel.findOne({ _id: category })
 	}
 
-	// 無分類有轉載 轉載綠
-	// 無分類非轉載 默認色
-	// 有分類有轉載 【分類|轉載】融合色
-	// 有分類非轉載 分類色
-	if (!('is_repost' in set)) {
-		return
-	}
-
-	if (category === null) {
-		if (set.is_repost) {
-			set.fusion_color = repost_color.getColorCode()
-		} else {
-			set.fusion_color = '#CCC'
-		}
-	} else if (set.is_repost) {
+	if (is_repost && category === null) {
+		// 無分類的轉載文章
+		set.fusion_color = repost_color.getColorCode()
+	} else if (!is_repost && category === null) {
+		// 無分類的非轉載文章
+		set.fusion_color = '#CCC'
+	} else if (category && is_repost) {
+		// 有分類的轉載文章
 		const c_color = Cutl.init(category.color)
 		const f_color = Cutl.or(c_color, repost_color)
 		set.fusion_color = f_color.getColorCode()
-	} else {
+	} else if (category && !is_repost) {
+		// 有分類的非轉載文章
 		set.fusion_color = category.color
 	}
 }
@@ -126,7 +125,7 @@ const contentFormat = function () {
 };
 
 ArticleSchema.pre('save', mhook(async function () {
-	contentFormat.apply(this);
+	contentFormat.apply(this)
 
 	this.tags = this.tags.filter(tag => tag.length)
 
@@ -134,17 +133,17 @@ ArticleSchema.pre('save', mhook(async function () {
 		this.category = null
 	}
 
-	await contentRepost(this)
+	await repost_color_middle({ source: this })
 }));
 
 ArticleSchema.pre('update', mhook(async function () {
-	let set = this._update.$set;
+	let set = this._update.$set
 	if (!set) {
 		return
 	}
 
 	if (set.hasOwnProperty('tags') && !Array.isArray(set.tags)) {
-		set.tags = [ set.tags ];
+		set.tags = [ set.tags ]
 	}
 	if (Array.isArray(set.tags)) {
 		set.tags = set.tags.filter(tag => tag.length)
@@ -154,26 +153,40 @@ ArticleSchema.pre('update', mhook(async function () {
 		set.category = null
 	}
 
-	set.mod = new Date;
+	set.mod = new Date
 
-	let result = await this.findOne({_id: this._conditions._id})
+	let result_list = await this.find({_id: this._conditions._id})
+	for (let result of result_list) {
+		if (result === null) {
+			const err = new Error('article no found')
+			err.status = 404
+			throw err
+		} else if (set.hasOwnProperty('content') && set.hasOwnProperty('contentType')) {
+			/* 如果有 content 项，则同时需要显式地声明了 contentType 项 */
+			contentFormat.apply(set)
+		} else if (set.hasOwnProperty('contentType')) {
+			set.content = result.content
+			contentFormat.apply(set)
+		} else {
+			delete set.contentType
+			delete set.content
+		}
 
-	if (result === null) {
-		const err = new Error('article no found')
-		err.status = 404;
-		throw err
-	} else if (set.hasOwnProperty('content') && set.hasOwnProperty('contentType')) {
-		/* 如果有 content 项，则同时需要显式地声明了 contentType 项 */
-		contentFormat.apply(set);
-	} else if (set.hasOwnProperty('contentType')) {
-		set.content = result.content;
-		contentFormat.apply(set);
-	} else {
-		delete set.contentType;
-		delete set.content;
+		const opt = { source: result }
+		if ('category' in set) {
+			opt.category = set.category
+			delete set.fusion_color
+		}
+		if ('is_repost' in set) {
+			opt.is_repost = set.is_repost
+			delete set.fusion_color
+		}
+		await repost_color_middle(opt)
+
+		Object.assign(result, set)
+
+		await result.save()
 	}
-
-	await contentRepost(result, set)
 }));
 
-mongoose.model('Article', ArticleSchema);
+mongoose.model('Article', ArticleSchema)
