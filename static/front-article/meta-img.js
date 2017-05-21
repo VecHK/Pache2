@@ -87,7 +87,9 @@ class MetaImage {
       setTimeout(() => {
         this.img.onload = () => {
           $(this.img).css('opacity', '1')
-          $(this.infoElement).fadeOut()
+          $(this.infoElement).fadeOut(() => {
+            $('.size', this.container).text(`${parseInt(this.size / 1024)} KB`)
+          })
           // $(this.metaInfoElement).css('opacity', '0')
         }
         this.img.src = blobUrl
@@ -125,10 +127,21 @@ class MetaImage {
     this.container.addEventListener('click', asideClickHandle)
 
     let status = false
-    this.container.addEventListener('click', async e => {
+    let start
+    this.container.addEventListener('touchstart', e => {
+      this._haveTouch = true
       if (!this.img.src.length) { return }
-      status = !status
+      start = Date.now()
+    })
+    this.container.addEventListener('touchend', e => {
+      this._haveTouch = true
+      if (!this.img.src.length) { return }
+      const interval = Date.now() - start
+      console.info(interval)
+      // 按的間隔不能超過 300ms
+      if (interval > 300) { return }
 
+      status = !status
       if (status) {
         $(this.infoElement).fadeIn()
       } else {
@@ -137,6 +150,7 @@ class MetaImage {
     })
 
     this.container.addEventListener('mouseenter', async e => {
+      if (this._haveTouch) return
       if (!this.status) return
       else if (!this.floatElement) this.createFloatElement()
 
@@ -162,6 +176,7 @@ class MetaImage {
       this._mouseenterWaitting = waitting(618).then(() => delete this._mouseenterWaitting)
     })
     this.container.addEventListener('mouseleave', async e => {
+      if (this._haveTouch) return
       if (!this.status) return
       else if (!this.floatElement) this.createFloatElement()
 
