@@ -140,7 +140,10 @@ class MetaImage {
       if (!this.status) return
       else if (!this.floatElement) this.createFloatElement()
 
-      this._mouseleaveWaitting && await this._mouseleaveWaitting
+      if (this._mouseleaveWaitting) {
+        await Promise.all([this._mouseleaveWaitting])
+        await waitting(100)
+      }
 
       if (this.mouseIsEnter) {
         return
@@ -149,27 +152,31 @@ class MetaImage {
       }
 
       $(this.floatElement).removeCss('display')
-      await waitting(32)
+      await waitting(20)
 
       $(this.floatElement).css({
         opacity: 1,
         left: '100%',
       })
 
-      this._mouseenterWaitting = waitting(618)
-      await this._mouseenterWaitting
+      this._mouseenterWaitting = waitting(618).then(() => delete this._mouseenterWaitting)
     })
     this.container.addEventListener('mouseleave', async e => {
       if (!this.status) return
       else if (!this.floatElement) this.createFloatElement()
 
-      this._mouseenterWaitting && await this._mouseenterWaitting
+      if (this._mouseenterWaitting) {
+        await Promise.all([this._mouseenterWaitting])
+        await waitting(100)
+      }
 
       $(this.floatElement).removeCss('opacity', 'left')
-      this._mouseleaveWaitting = waitting(618)
-      this.mouseIsEnter = false
+      this._mouseleaveWaitting = waitting(618).then(() => delete this._mouseleaveWaitting)
       await this._mouseleaveWaitting
-      $(this.floatElement).css('display', 'none')
+      if (!this._mouseenterWaitting) {
+        this.mouseIsEnter = false
+        $(this.floatElement).css('display', 'none')
+      }
     })
 
     return aside
