@@ -2,10 +2,16 @@ const envir = require('../envir');
 const jsdom = require( 'jsdom' );
 const cheerio = require('cheerio');
 const Cutl = require('../tools/color-utils.js');
-const fs = require('fs');
+const imgSizeOf = require('image-size')
+const imageSize = function (file) {
+	return new Promise((res, rej) => {
+		imgSizeOf(file, (err, dimensions) => err ? rej(err) : res(dimensions))
+	})
+}
+const path = require('path')
+const fs = require('mz/fs')
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
 const CategoryModel = mongoose.model('Category');
 
 const mhook = require('./async-middle-hook')
@@ -91,7 +97,7 @@ const repost_color_middle = async function (opts) {
 	}
 }
 
-const contentFormat = function () {
+const contentFormat = async function () {
 	this.contentType = this.contentType.toLowerCase();
 
 	if (this.contentType === 'markdown') {
@@ -122,10 +128,53 @@ const contentFormat = function () {
 	} else {
 		this.format = $.html()
 	}
+
+	/*
+		meta-img
+		需要顯示出圖片的數位信息:
+		- 圖片類型（jpeg、png、bmp、gif 等等
+		- 圖片尺寸（1024x768、800x600）
+		- 數位容量（233.43KB，1.1MB）
+	*/
+	if (envir.META_IMG) {
+		let $ = cheerio.load(this.format, {
+			decodeEntities: envir.markdown_entitles ? true : false,
+		})
+		const imgs = $('img')
+		for (let cursor=0; cursor<imgs.length; ++cursor) {
+			let img = imgs[cursor]
+			let imgAttribs = img.attribs
+			if (typeof(imgAttribs.src) !== 'string') { continue }
+			else if (!imgAttribs.src.length) { continue }
+
+			const imgLocal = path.join(
+				envir.IMAGE_PATH,
+				imgAttribs.src.replace(/(^\/img-pool\/)|(^\\img-pool\\)/g, '')
+			)
+			// 如果是本地圖片
+			if (await fs.exists(imgLocal)) {
+				img.name = 'meta-img'
+				let noscript = $('<noscript>').html(`<img src="${imgAttribs.src}" ${imgAttribs.alt ? 'alt="' + imgAttribs.alt + '"' : ''} />`)
+				$(img).append(noscript)
+				console.warn($(img).html())
+				const dimensions = await imageSize(imgLocal)
+				console.warn(dimensions)
+				Object.assign(imgAttribs, {
+					'meta-source': imgAttribs.src,
+					'meta-width': dimensions.width,
+					'meta-height': dimensions.height,
+					'meta-type': dimensions.type,
+					'meta-size': (await fs.stat(imgLocal)).size,
+				})
+				delete imgAttribs.src
+				this.format = $.html()
+			}
+		}
+	}
 };
 
 ArticleSchema.pre('save', mhook(async function () {
-	contentFormat.apply(this)
+	await contentFormat.apply(this)
 
 	this.tags = this.tags.filter(tag => tag.length)
 
@@ -163,10 +212,10 @@ ArticleSchema.pre('update', mhook(async function () {
 			throw err
 		} else if (set.hasOwnProperty('content') && set.hasOwnProperty('contentType')) {
 			/* 如果有 content 项，则同时需要显式地声明了 contentType 项 */
-			contentFormat.apply(set)
+			await contentFormat.apply(set)
 		} else if (set.hasOwnProperty('contentType')) {
 			set.content = result.content
-			contentFormat.apply(set)
+			await contentFormat.apply(set)
 		} else {
 			delete set.contentType
 			delete set.content

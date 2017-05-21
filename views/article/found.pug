@@ -33,6 +33,11 @@ html
 		article(id="article" class="article")
 			!=article.format
 
+		noscript
+			style.
+				.page-selector {
+					display: none !important;
+				}
 		div(class="page-selector")
 			div(class="page-selector-frame")
 				div(class="previous")="<"

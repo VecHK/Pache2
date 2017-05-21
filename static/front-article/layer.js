@@ -54,11 +54,20 @@ class Split {
 
     await waitting(parseFloat(parentLineHeight) / speed)
     this.splitTransitionDuration = scrollHeight / speed
-    let splitContainerTop = refParent.offsetTop + this.refContainer.offsetHeight + 8
+    let splitContainerTop;
+
     if ($.browser.core === 'ms') {
-      splitContainerTop -= 2.5
+      splitContainerTop = refParent.offsetTop
+      // splitContainerTop = this.refContainer.offsetTop + refParent.offsetHeight
+      // splitContainerTop = refParent.offsetTop + parseFloat(getComputedStyle(this.refContainer).lineHeight)
+      console.info(this.refContainer.offsetTop, refParent.offsetTop, this.refContainer.offsetHeight)
+      // splitContainerTop = this.refContainer.offsetTop + refParent.offsetHeight + parseFloat(refParentLineHeight)
+    } else if ($.browser.core === 'webkit') {
+      splitContainerTop = this.refContainer.offsetTop + parseFloat(getComputedStyle(refParent.parentNode).lineHeight)
     } else if ($.browser.core === 'moz') {
-      splitContainerTop += 1
+      splitContainerTop = this.refContainer.offsetTop + parseFloat(getComputedStyle(refParent.parentNode).lineHeight)
+    } else {
+      splitContainerTop = this.refContainer.offsetTop + parseFloat(getComputedStyle(refParent.parentNode).lineHeight)
     }
 
     $(this.splitContainer).css({

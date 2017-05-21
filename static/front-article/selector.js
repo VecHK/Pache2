@@ -341,6 +341,11 @@ const PageSelector = {
     })
     this._prototypeInit(instance, ...arguments)
 
+		if (page.pages.length <= 1) {
+			console.info('不足二頁的情況自動隱藏 Selector')
+			instance.container.style.display = 'none'
+		}
+
     return instance
   },
 }

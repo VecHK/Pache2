@@ -260,6 +260,7 @@ const Page = {
     this.pages.forEach(pageEle => {
       Han(pageEle).render()
     })
+    this.metaImage = new MetaImageFrame(this.container)
   },
   init(splitPageContainer) {
     const instance = Object.create(this.prototype)

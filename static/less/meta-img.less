@@ -1,0 +1,107 @@
+@import "base.less";
+
+meta-img {
+  .flex-frame;
+  display: flex;
+  display: -webkit-flex;
+  margin: auto;
+  box-shadow: 0px 0px 4px #bbb;
+
+  position: relative;
+  transition: box-shadow 618ms, height 618ms;
+
+  img {
+    transition: opacity 618ms;
+    width: 100%;
+    height: 100%;
+  }
+
+  aside {
+    .flex-frame;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+
+    cursor: pointer;
+
+    background: rgba(255, 255, 255, .8);
+
+
+    .meta-info {
+      transition: opacity 618ms;
+    }
+    .type {
+      font-size: 3em;
+      font-family: consolas, Arial;
+      color: rgb(102, 119, 136);
+    }
+    .dimension {
+      width: 80px;
+    }
+    .dimension td {
+      font-family: ISOCPEUR, "Calibri Light", "Arial Narrow", Arial, sans-serif;
+      font-size: .8em;
+      line-height: 0;
+      color: dimgrey;
+    }
+
+    hr {
+      width: ~"calc(100% + .25em)";
+    }
+  }
+
+  .float {
+    position: absolute;
+    left: 102%;
+    top: 0;
+    opacity: 0;
+    transition: opacity 382ms, left 382ms;
+    padding: .5em 1em 1em 0;
+
+    .type {
+      font-size: 1.5em;
+      font-family: Arial;
+      color: rgb(102, 119, 136);
+    }
+    .pixel, .size {
+      font-family: ISOCPEUR, "Calibri Light", "Arial Narrow", Arial, sans-serif;
+      font-size: .8em;
+      line-height: 1em;
+      color: dimgrey;
+    }
+  }
+}
+
+.page, .article {
+  img + figcaption {
+    font-size: .8em;
+    color: grey;
+    text-align: center;
+  }
+}
+
+@media print {
+  meta-img {
+    // max-height: 100vh;
+  }
+}
+
+// 大于 800px 的设备
+@media screen and (min-width: 800px) {
+  meta-img {
+    // max-height: 80vh;
+  }
+}
+
+// 360px 以下的设备
+@media screen and (max-width: 359px) {
+	.info, .page {
+		font-size: 1em;
+	}
+  // meta-img { max-height: 320px }
+}

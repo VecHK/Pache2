@@ -4,6 +4,7 @@
 @import "page.less";
 @import "switch-page.less";
 @import "selector.less";
+@import "meta-img.less";
 // @import "split-layer.less";
 // @import "split-page.less";
 // @import "page-jumper.less";
@@ -244,22 +245,9 @@ article * {
 		background: hsla(201, 47%, 35%, 0.1);
 	}
 
-	img {
-		display: block;
-		margin: auto;
-		max-width: 100%;
-		box-shadow: 0px 0px 4px #bbb;
-	}
-
-	img + figcaption {
-		font-size: .8em;
-		color: grey;
-		text-align: center;
-	}
-
 	strong { font-weight: bold }
 
-	table{
+	table:not(.meta-info) {
 		position: relative;
 
 		font-size: .8em;
@@ -267,13 +255,13 @@ article * {
 		border: 1px solid @pache-grey;
 		border-spacing: 0px;
 	}
-	table thead{
+	table:not(.meta-info) thead{
 		border-bottom: 2px solid #eee;
 		th {
 			padding: 0 .5em;
 		}
 	}
-	table tr{
+	table:not(.meta-info) tr{
 		height: 32px;
 
 		td:first-child {
@@ -284,12 +272,17 @@ article * {
 			border-left: 1px solid @pache-grey;
 		}
 	}
-	table td {
+	table:not(.meta-info) td {
 		padding: 0 .5em;
 		//border: 1px solid grey;
 	}
-	table tbody tr:nth-child(2n-1){
+	table:not(.meta-info) tbody tr:nth-child(2n-1){
 		background: #f7f7f7;
+	}
+
+	sup, sub {
+		// 上標下標的行高會比沒有上標下標的行高大，用這語句消除這種差異
+		line-height: 0.5em;
 	}
 }
 .footnotes, .footnotes-sep {
@@ -310,10 +303,7 @@ article * {
 	.footnote-backref {
 		display: none;
 	}
-	table {page-break-inside: avoid;}
-	img {
-		max-height: 100vh;
-	}
+	table:not(.meta-info) { page-break-inside: avoid }
 	header { display: none }
 	[id^="fnref"] { color: @pache-grey }
 	a[href^="http://"]:after {
@@ -371,10 +361,7 @@ section.footnotes {
 			margin-right: 2em;
 			font-size: 1em;
 		}
-		img {
-			max-height: 80vh;
-		}
-		table tbody tr:nth-child(2n-1){
+		table:not(.meta-info) tbody tr:nth-child(2n-1){
 			background: #E7E7E7;
 		}
 	}
@@ -388,7 +375,6 @@ section.footnotes {
 		font-size: 1em;
 	}
 	.page {
-		img { max-height: 400px }
 		padding-bottom: 5em
 	}
 }
@@ -399,7 +385,6 @@ section.footnotes {
 		font-size: 1em;
 	}
 	.page {
-		img { max-height: 320px }
 		padding-bottom: 5em
 	}
 }
