@@ -127,11 +127,16 @@ class MetaImage {
     this.container.addEventListener('click', asideClickHandle)
 
     let status = false
+    let isMove = false
     let start
     this.container.addEventListener('touchstart', e => {
       this._haveTouch = true
+      isMove = false
       if (!this.img.src.length) { return }
       start = Date.now()
+    })
+    this.container.addEventListener('touchmove', e => {
+      isMove = true
     })
     this.container.addEventListener('touchend', e => {
       this._haveTouch = true
@@ -141,6 +146,8 @@ class MetaImage {
       // 按的間隔不能超過 300ms
       if (interval > 300) { return }
 
+      if (isMove) { return }
+
       status = !status
       if (status) {
         $(this.infoElement).fadeIn()
@@ -148,6 +155,7 @@ class MetaImage {
         $(this.infoElement).fadeOut()
       }
     })
+
 
     this.container.addEventListener('mouseenter', async e => {
       if (this._haveTouch) return
