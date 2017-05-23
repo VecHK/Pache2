@@ -245,7 +245,7 @@ class MetaImage {
           lnk.download = this.source.split(/\//).pop()
           lnk.click()
         }
-        
+
       }
       console.info('direct is:', direct)
 
@@ -400,6 +400,7 @@ class MetaImage {
   printInfo() {
     this.container.innerHTML = ''
     this.img = new Image
+    this.img.setAttribute('meta-source', this.source)
     this.img.style.opacity = 0
 
     this.infoElement = this.infoElement()
