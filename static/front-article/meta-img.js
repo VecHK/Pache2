@@ -79,7 +79,7 @@ class MetaImage {
     const imgl = new LoadImage
     imgl.on('done', imgBlob => {
       $('.size', this.container).text(`Done`)
-
+      this.blob = imgBlob
       let blobUrl = URL.createObjectURL(imgBlob)
       this.resize()
       this.status = true
@@ -87,7 +87,7 @@ class MetaImage {
       setTimeout(() => {
         this.img.onload = () => {
           $(this.img).css('opacity', '1')
-          $(this.infoElement).fadeOut(() => {
+          this.hideInfoElement(() => {
             $('.size', this.container).text(`${parseInt(this.size / 1024)} KB`)
           })
           // $(this.metaInfoElement).css('opacity', '0')
@@ -101,6 +101,22 @@ class MetaImage {
     })
     imgl.on('start', url => {})
     imgl.start(this.source)
+  }
+  showInfoElement(callback) {
+    if (this._needNoneDisplay) {
+      $(this.infoElement).fadeIn(callback)
+    } else {
+      $(this.infoElement).css('opacity', '1')
+      setTimeout(callback, 618)
+    }
+  }
+  hideInfoElement(callback) {
+    if (this._needNoneDisplay) {
+      $(this.infoElement).fadeOut(callback)
+    } else {
+      $(this.infoElement).css('opacity', '0')
+      setTimeout(callback, 618)
+    }
   }
   infoElement() {
     const aside = document.createElement('aside')
@@ -126,33 +142,207 @@ class MetaImage {
     }
     this.container.addEventListener('click', asideClickHandle)
 
+    const RANGE = 48
+    const sourcePoint = {
+      x: 0,
+      y: 0,
+    }
+    let haveDirect = false
+    let direct
+    let mode
+    let setX = 0
+    let setY = 0
+    let isLock
+    const touchPointProcess = e => {
+      const currentPoint = e.touches[0]
+
+      const currentX = currentPoint.clientX
+      const currentY = currentPoint.clientY
+      haveDirect = true
+      if (currentY < (0 + RANGE)) {
+        // 是否在上部
+        direct = 'top'
+        mode = 'y'
+        // console.info('isTopStatus')
+      } else if (currentY > (window.innerHeight - RANGE)) {
+        // 是否在下部
+        direct = 'bottom'
+        mode = 'y'
+        // console.info('isBottomStatus')
+      } else if (currentX < (0 + RANGE)) {
+        // 是否在左部
+        direct = 'left'
+        mode = 'x'
+        // console.info('isLeftStatus')
+      } else if (currentX > (window.innerWidth - RANGE)) {
+        // 是否在右部
+        direct = 'right'
+        mode = 'x'
+        // console.info('isRightStatus')
+      } else {
+        haveDirect = false
+      }
+
+      if (haveDirect) {}
+      else if (currentX > (sourcePoint.x + RANGE) && !haveDirect) {
+        // right
+        if (typeof(mode) !== 'string') {
+          mode = 'x'
+          direct = 'right'
+        }
+      } else if (currentX < (sourcePoint.x - RANGE) && !haveDirect) {
+        // left
+        if (typeof(mode) !== 'string') {
+          mode = 'x'
+          direct = 'left'
+        }
+      } else if (currentY < (sourcePoint.y - RANGE) && !haveDirect) {
+        // top
+        if (typeof(mode) !== 'string') {
+          mode = 'y'
+          direct = 'top'
+        }
+      } else if (currentY > (sourcePoint.y + RANGE) && !haveDirect) {
+        // bottom
+        if (typeof(mode) !== 'string') {
+          mode = 'y'
+          direct = 'bottom'
+        }
+      } else {
+        mode = null
+      }
+
+      const offsetX = lastPoint.clientX - currentPoint.clientX
+      const offsetY = lastPoint.clientY - currentPoint.clientY
+
+      lastPoint = currentPoint
+
+      const {style} = this.container
+      if (mode === 'x') {
+        setX += offsetX
+        isLock = true
+        // style.transform = `translateX(${-setX}px)`
+      } else if (mode === 'y') {
+        setY += offsetY
+        isLock = true
+        // style.transform = `translateY(${-setY}px)`
+      } else {
+        setX += offsetX
+        setY += offsetY
+        isLock && navigator.vibrate && navigator.vibrate([50])
+        isLock = false
+      }
+      style.transform = `translate(${-setX}px, ${-setY}px)`
+
+      console.log(offsetX, offsetY)
+    };
+
+    const activeHandleEnd = e => {
+      if (direct === 'bottom') {
+        const lnk = document.createElement('a')
+        if (lnk.download) {
+          lnk.href = this.img.src;
+          lnk.download = this.source.split(/\//).pop()
+          lnk.click()
+        }
+        
+      }
+      console.info('direct is:', direct)
+
+      setX = 0
+      setY = 0
+      this.container.style.transition = 'transform 618ms'
+      setTimeout(() => {
+        this.container.style.transform = `translate(0px, 0px)`
+        setTimeout(() => {
+          this.container.style.transition = ''
+        }, 618)
+      }, 32)
+    }
+
     let status = false
-    let isMove = false
+    let isMove
+    let isActive
+    let isEnd
     let start
+    let startPoint = null
+    let lastPoint = null
+    const activeHandle = e => {
+      if (isEnd) { return }
+      if (isMove) { return }
+      isActive = true
+
+      direct = ''
+      haveDirect = false
+
+      console.log('active')
+      navigator.vibrate && navigator.vibrate([50])
+
+      const currentPoint = e.touches[0]
+
+      const currentX = currentPoint.clientX
+      const currentY = currentPoint.clientY
+      sourcePoint.x = currentX
+      sourcePoint.y = currentY
+      if (currentY < (0 + RANGE)) {
+        // 是否在上部
+        sourcePoint.y = RANGE
+      } else if (currentY > (window.innerHeight - RANGE)) {
+        // 是否在下部
+        sourcePoint.y = window.innerHeight - RANGE
+      }
+      if (currentX < (0 + RANGE)) {
+        // 是否在左部
+        sourcePoint.x = RANGE
+      } else if (currentX > (window.innerWidth - RANGE)) {
+        // 是否在右部
+        sourcePoint.x = window.innerWidth - RANGE
+      }
+      console.log('sourcePoint:', sourcePoint)
+      touchPointProcess(e)
+    }
     this.container.addEventListener('touchstart', e => {
+      if (!this.img.src.length) { return }
+      startPoint = e.touches[0]
+      lastPoint = e.touches[0]
+
       this._haveTouch = true
       isMove = false
-      if (!this.img.src.length) { return }
+      isActive = false
+      isEnd = false
       start = Date.now()
+
+      setTimeout(activeHandle, 500, e)
     })
+
     this.container.addEventListener('touchmove', e => {
       isMove = true
+      if (!isActive) { return }
+      e.preventDefault()
+      touchPointProcess(e)
     })
     this.container.addEventListener('touchend', e => {
+      startPoint = null
+      isEnd = true
+      clearTimeout(activeHandle)
       this._haveTouch = true
       if (!this.img.src.length) { return }
       const interval = Date.now() - start
       console.info(interval)
+
+      if (isActive) { activeHandleEnd(e); return }
+
       // 按的間隔不能超過 300ms
       if (interval > 300) { return }
 
       if (isMove) { return }
+      if (isActive) { return }
 
       status = !status
       if (status) {
-        $(this.infoElement).fadeIn()
+        this.showInfoElement()
       } else {
-        $(this.infoElement).fadeOut()
+        this.hideInfoElement()
       }
     })
 
@@ -161,6 +351,9 @@ class MetaImage {
       if (this._haveTouch) return
       if (!this.status) return
       else if (!this.floatElement) this.createFloatElement()
+
+      this._needNoneDisplay = true
+      this.infoElement.style.display = 'none'
 
       if (this._mouseleaveWaitting) {
         await Promise.all([this._mouseleaveWaitting])

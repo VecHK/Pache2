@@ -18,7 +18,7 @@
   }
 
   // 全都支持的話，直接加載
-  // 支持 async/await 的主流瀏覽器都支持我用得到的 ES 新特性，故不用顧慮運行問題
+  // 支持 async/await 的主流瀏覽器都支持用得到的 ES 新特性，故不必顧慮運行問題
   if (!polyfill_arr.length) {
     require(['/front-article-concat/all.js'], function () {
       main()
