@@ -260,7 +260,6 @@ const Page = {
     this.pages.forEach(pageEle => {
       Han(pageEle).render()
     })
-    this.metaImage = new MetaImageFrame(this.container)
   },
   init(splitPageContainer) {
     const instance = Object.create(this.prototype)
@@ -272,6 +271,9 @@ const Page = {
 
 pa_init(async () => {
   window.page = Page.init($$('#article'))
+
+  window.metaImage = new MetaImageFrame(window.page.container)
+
 
   window.topSwitcher = new Switcher(
     window.page,

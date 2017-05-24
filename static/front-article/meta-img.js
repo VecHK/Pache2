@@ -36,7 +36,9 @@ class MetaImage {
     })
   }
   calcSize() {
-    this.limitWidth = this.container.parentNode.offsetWidth
+    // 所有分頁的寬度都是一樣的，介於隱藏頁的寬度高度都無法獲取，故採取獲取當前分頁的寬度的策略
+    const currentSplitPage = page.getPage()
+    this.limitWidth = parseInt(getComputedStyle(currentSplitPage).width)
 
     const {innerHeight} = window
 
