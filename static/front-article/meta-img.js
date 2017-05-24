@@ -1,5 +1,6 @@
 class LoadImage {
   start(url) {
+    this.start_time = null
     const xhr = new XMLHttpRequest
     this.xhr = xhr
     xhr.onprogress = e => {
@@ -10,11 +11,13 @@ class LoadImage {
       if (xhr.readyState === 4) {
         if (xhr.status === 200 || xhr.status === 304) {
           // const blobObject = new Blob([xhr.response], { type: xhr.getResponseHeader('content-type') })
+          this.interval = Date.now() - this.start_time
           this.emit('done', xhr.response)
         }
       }
     }
     xhr.onloadstart = e => {
+      this.start_time = Date.now()
       this.emit('start', url)
     }
 
@@ -26,14 +29,13 @@ class LoadImage {
 LoadImage.prototype.__proto__ = Object.create(EventLite)
 
 class MetaImage {
-  resizeWithOpen() {}
-  resize() {
-    if (this.lastWidth === window.innerWidth && this.status) {
-      return
-    } else {
-      this.lastWidth = window.innerWidth
-    }
-
+  setSize(width, height) {
+    $(this.container).css({
+      height: `${height}px`,
+      width: `${width}px`
+    })
+  }
+  calcSize() {
     this.limitWidth = this.container.parentNode.offsetWidth
 
     const {innerHeight} = window
@@ -54,13 +56,29 @@ class MetaImage {
       this.base = 'height'
     }
 
-    this.resizeImg = function () {
-      $(this.container).css({
-        height: this.status ? `${imgHeight}px` : '192px',
-        width: `${imgWidth}px`,
-      })
+    let height
+    if (!netStatus.isLimit()) {
+      height = imgHeight
+    } else if (this.status) {
+      height = imgHeight
+    } else {
+      height = 192
     }
-    this.resizeImg()
+
+    return {
+      width: imgWidth,
+      height,
+    }
+  }
+  resize() {
+    if (this.lastWidth === window.innerWidth && this.status) {
+      return
+    } else {
+      this.lastWidth = window.innerWidth
+    }
+
+    const {width, height} = this.calcSize()
+    this.setSize(width, height)
   }
   createFloatElement() {
     this.floatElement = document.createElement('div')
@@ -74,6 +92,7 @@ class MetaImage {
     this.container.appendChild(this.floatElement)
   }
   load() {
+    // 已加載過的圖片不會再次加載
     if (this.img.src.length) { return }
 
     const imgl = new LoadImage
@@ -81,9 +100,16 @@ class MetaImage {
       $('.size', this.container).text(`Done`)
       this.blob = imgBlob
       let blobUrl = URL.createObjectURL(imgBlob)
-      this.resize()
       this.status = true
-      this.resizeImg()
+      const {width, height} = this.calcSize()
+      this.setSize(width, height)
+
+      let TIMEOUT
+      if (!netStatus.isLimit()) {
+        TIMEOUT = 100
+      } else {
+        TIMEOUT = 720
+      }
       setTimeout(() => {
         this.img.onload = () => {
           $(this.img).css('opacity', '1')
@@ -93,13 +119,19 @@ class MetaImage {
           // $(this.metaInfoElement).css('opacity', '0')
         }
         this.img.src = blobUrl
-      }, 720)
+      }, TIMEOUT)
     })
     imgl.on('progress', percent => {
       const size = this.size / 1024
       $('.size', this.container).text(`${parseInt(size * percent)}/${parseInt(size)}`)
     })
-    imgl.on('start', url => {})
+    imgl.on('start', url => {
+      if (!netStatus.isLimit()) {
+        this.container.style.transition = 'height 1ms'
+        const {width, height} = this.calcSize()
+        this.setSize(width, height)
+      }
+    })
     imgl.start(this.source)
   }
   showInfoElement(callback) {
@@ -135,217 +167,38 @@ class MetaImage {
     this.metaInfoElement = $$('.meta-info', aside)
 
     this.status = false
-    const that = this
     const asideClickHandle = e => {
       this.load()
       this.container.removeEventListener('click', asideClickHandle)
     }
     this.container.addEventListener('click', asideClickHandle)
 
-    const RANGE = 48
-    const sourcePoint = {
-      x: 0,
-      y: 0,
-    }
-    let haveDirect = false
-    let direct
-    let mode
-    let setX = 0
-    let setY = 0
-    let isLock
-    const touchPointProcess = e => {
-      const currentPoint = e.touches[0]
-
-      const currentX = currentPoint.clientX
-      const currentY = currentPoint.clientY
-      haveDirect = true
-      if (currentY < (0 + RANGE)) {
-        // 是否在上部
-        direct = 'top'
-        mode = 'y'
-        // console.info('isTopStatus')
-      } else if (currentY > (window.innerHeight - RANGE)) {
-        // 是否在下部
-        direct = 'bottom'
-        mode = 'y'
-        // console.info('isBottomStatus')
-      } else if (currentX < (0 + RANGE)) {
-        // 是否在左部
-        direct = 'left'
-        mode = 'x'
-        // console.info('isLeftStatus')
-      } else if (currentX > (window.innerWidth - RANGE)) {
-        // 是否在右部
-        direct = 'right'
-        mode = 'x'
-        // console.info('isRightStatus')
-      } else {
-        haveDirect = false
-      }
-
-      if (haveDirect) {}
-      else if (currentX > (sourcePoint.x + RANGE) && !haveDirect) {
-        // right
-        if (typeof(mode) !== 'string') {
-          mode = 'x'
-          direct = 'right'
-        }
-      } else if (currentX < (sourcePoint.x - RANGE) && !haveDirect) {
-        // left
-        if (typeof(mode) !== 'string') {
-          mode = 'x'
-          direct = 'left'
-        }
-      } else if (currentY < (sourcePoint.y - RANGE) && !haveDirect) {
-        // top
-        if (typeof(mode) !== 'string') {
-          mode = 'y'
-          direct = 'top'
-        }
-      } else if (currentY > (sourcePoint.y + RANGE) && !haveDirect) {
-        // bottom
-        if (typeof(mode) !== 'string') {
-          mode = 'y'
-          direct = 'bottom'
-        }
-      } else {
-        mode = null
-      }
-
-      const offsetX = lastPoint.clientX - currentPoint.clientX
-      const offsetY = lastPoint.clientY - currentPoint.clientY
-
-      lastPoint = currentPoint
-
-      const {style} = this.container
-      if (mode === 'x') {
-        setX += offsetX
-        isLock = true
-        // style.transform = `translateX(${-setX}px)`
-      } else if (mode === 'y') {
-        setY += offsetY
-        isLock = true
-        // style.transform = `translateY(${-setY}px)`
-      } else {
-        setX += offsetX
-        setY += offsetY
-        isLock && navigator.vibrate && navigator.vibrate([50])
-        isLock = false
-      }
-      style.transform = `translate(${-setX}px, ${-setY}px)`
-
-      console.log(offsetX, offsetY)
-    };
-
-    const activeHandleEnd = e => {
-      if (direct === 'bottom') {
-        const lnk = document.createElement('a')
-        if (lnk.download) {
-          lnk.href = this.img.src;
-          lnk.download = this.source.split(/\//).pop()
-          lnk.click()
-        }
-
-      }
-      console.info('direct is:', direct)
-
-      setX = 0
-      setY = 0
-      this.container.style.transition = 'transform 618ms'
-      setTimeout(() => {
-        this.container.style.transform = `translate(0px, 0px)`
-        setTimeout(() => {
-          this.container.style.transition = ''
-        }, 618)
-      }, 32)
-    }
-
-    let status = false
+    let openStatus = false
     let isMove
-    let isActive
-    let isEnd
-    let start
-    let startPoint = null
-    let lastPoint = null
-    const activeHandle = e => {
-      if (isEnd) { return }
-      if (isMove) { return }
-      isActive = true
-
-      direct = ''
-      haveDirect = false
-
-      console.log('active')
-      navigator.vibrate && navigator.vibrate([50])
-
-      const currentPoint = e.touches[0]
-
-      const currentX = currentPoint.clientX
-      const currentY = currentPoint.clientY
-      sourcePoint.x = currentX
-      sourcePoint.y = currentY
-      if (currentY < (0 + RANGE)) {
-        // 是否在上部
-        sourcePoint.y = RANGE
-      } else if (currentY > (window.innerHeight - RANGE)) {
-        // 是否在下部
-        sourcePoint.y = window.innerHeight - RANGE
-      }
-      if (currentX < (0 + RANGE)) {
-        // 是否在左部
-        sourcePoint.x = RANGE
-      } else if (currentX > (window.innerWidth - RANGE)) {
-        // 是否在右部
-        sourcePoint.x = window.innerWidth - RANGE
-      }
-      console.log('sourcePoint:', sourcePoint)
-      touchPointProcess(e)
-    }
+    let start_time
     this.container.addEventListener('touchstart', e => {
-      if (!this.img.src.length) { return }
-      startPoint = e.touches[0]
-      lastPoint = e.touches[0]
-
       this._haveTouch = true
       isMove = false
-      isActive = false
-      isEnd = false
-      start = Date.now()
-
-      setTimeout(activeHandle, 500, e)
+      start_time = Date.now()
     })
 
     this.container.addEventListener('touchmove', e => {
       isMove = true
-      if (!isActive) { return }
-      e.preventDefault()
-      touchPointProcess(e)
     })
+
     this.container.addEventListener('touchend', e => {
-      startPoint = null
-      isEnd = true
-      clearTimeout(activeHandle)
       this._haveTouch = true
-      if (!this.img.src.length) { return }
-      const interval = Date.now() - start
+      const interval = Date.now() - start_time
       console.info(interval)
 
-      if (isActive) { activeHandleEnd(e); return }
-
-      // 按的間隔不能超過 300ms
-      if (interval > 300) { return }
-
-      if (isMove) { return }
-      if (isActive) { return }
-
-      status = !status
-      if (status) {
-        this.showInfoElement()
+      // 圖片有加載並且沒有滑動操作且按的間隔小於 300ms
+      if (this.img.src.length && !isMove && interval < 300) {
+        openStatus = !openStatus
+        openStatus ? this.showInfoElement() : this.hideInfoElement()
       } else {
-        this.hideInfoElement()
+        return
       }
     })
-
 
     this.container.addEventListener('mouseenter', async e => {
       if (this._haveTouch) return
@@ -433,6 +286,9 @@ class MetaImage {
 
     if (this.height && this.width && this.type) {
       this.printInfo()
+      if (!netStatus.isLimit()) {
+        this.load()
+      }
     } else {
       this.failure()
     }
@@ -444,19 +300,9 @@ class MetaImage {
 }
 
 class MetaImageFrame {
-  loadAllImage() {
-    this.pool.forEach(metaImg => metaImg.load())
-  }
   init() {
     const metaImgRaw_list = $('meta-img', this.container)
     this.pool = metaImgRaw_list.map(raw => new MetaImage(raw))
-
-    const connection = navigator.connection || navigator.webkitConnection || navigator.mozConnection || navigator.MozConnection || navigator.msConnection
-    if (connection === undefined) {
-      this.loadAllImage()
-    } else if (navigator.connection.type === 'wifi') {
-      this.loadAllImage()
-    }
   }
   constructor(container) {
     this.container = container
