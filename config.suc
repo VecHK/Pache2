@@ -20,29 +20,60 @@
 
 
 
+##### 基本配置
+##### -------------------
+
 # MongoDB URL
 # 建議使用有用戶的 MongoDB 配置
 # 或者禁止外網訪問的 MongoDB 配置
 db >mongodb://127.0.0.1:27017/pache
 
-# 主域名
-master_domain > 不存在的域名
 
-# 重定向到主域名
-# 開啟后，非主域名訪問的地址將會強制跳轉到主域名上
-[force_redirect_to_master_domain] FALSE
+# 用戶密碼
+pass >7355608
+
 
 # HTTP 監聽端口
 [port] 3382
 
+
+# session 密鑰
+# 開發測試的時候似乎沒那麼重要
+# 正式使用的時候請務必修改
+session_secret >reimu_marisa
+
+
+# 單頁最大文章數
+[limit] 10
+
+
+# 圖片存儲目錄
+# 缺省為模塊目錄中的 img_pool 文件夾
+# 打上注釋即為使用默認值
+# 正式使用請設置到可控的目錄上，建議採用絕對路徑的書寫格式
+# IMAGE_PATH >G:\pache-img
+
+
+# 轉載文章的顏色
+# 打上注釋將會使用缺省顏色
+# 缺省為 #46c01b
+# repost_color >#46c01b
+
+
+##### 功能及其優化配置
+##### -------------------
+
+# 主域名
+master_domain > 不存在的域名
+
+# 強制重定向到主域名
+# 開啟后，非主域名訪問的地址將會強制跳轉到主域名上
+# 開啟之前請確認 master_domain 是否填寫，否則會跳轉到莫名其妙的地方
+[force_redirect_to_master_domain] FALSE
+
+
 # 需要啟用 HTTPS 請將 enable_https 設置為 TRUE
 [enable_https] FALSE
-
-# private_key 是私钥文件的路径
-private_key >/不存在的路径/private_key.pem
-
-# certificate 是证书文件的路径
-certificate >/不存在的路径/certificate.crt
 
 # HTTPS 端口，默認為 443
 [https_port] 443
@@ -51,26 +82,12 @@ certificate >/不存在的路径/certificate.crt
 # 啟用后，以 HTTP 方式訪問 Pache 則會強制跳轉到 HTTPS 的連接上（重定向）
 [force_https] FALSE
 
-# 用戶密碼
-pass >7355608
+# private_key 是私钥文件的路径
+private_key >/不存在的路径/private_key.pem
 
-# session 密鑰
-# 開發測試的時候似乎沒那麼重要
-# 正式使用的時候請務必修改
-session_secret >reimu_marisa
+# certificate 是证书文件的路径
+certificate >/不存在的路径/certificate.crt
 
-# 單頁最大文章數
-[limit] 10
-
-# 圖片存儲目錄
-# 默認存儲在 Pache 目錄的 img_pool 文件夾中
-# 打上注釋即為使用默認值
-# 最好設置到其它目錄中
-# IMAGE_PATH >G:\pache-img
-
-# 轉載文章的顏色
-# 打上注釋將會使用缺省顏色
-repost_color >#46c01b
 
 # 已格式化的 Markdown 文章是否強制轉換為 HTML 實體字符
 # 如果 [markdown_entitles] 為 TRUE，則漢字（UTF-8）也會被轉換為 HTML 實體字符
@@ -78,18 +95,26 @@ repost_color >#46c01b
 # https://github.com/yeoman/generator/issues/638
 [markdown_entitles] FALSE
 
+
 # 啟用 GZIP 文本（Content-Type 匹配 /text/）壓縮
 [GZIP_ENABLE] TRUE
+
 
 # 啟用 Pug 模板引擎緩存
 # 需要使用到 Redis
 [PUG_CACHE] FALSE
+
+
+# 啟用 meta-img
+# 在移動設備加載 Pache 圖片時默認不自動
+[META_IMG] TRUE
 
 # cluster 線程數
 # 通常多線程的性能會比單線程要好
 # 如果設置為 0 則為當前的 CPU 數量
 # 線程數不是越多越好，通常最佳值是當前的 CPU 數量
 [cluster_fork_num] 1
+
 
 # ESD 設置
 # 擴展的靜態目錄
@@ -108,3 +133,6 @@ repost_color >#46c01b
 [ESD_LIST]
 /home/不存在的目錄A
 /home/不存在的目錄B
+
+# Pache 跳轉
+# ALIAS_CONFIG_FILE >G:/alias.json

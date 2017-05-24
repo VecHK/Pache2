@@ -17,6 +17,31 @@ const front = require('./front')
 
 const app = new Koa
 
+var aliasObj
+if (envir.ALIAS_CONFIG_FILE) {
+  let file
+  try {
+    file = fs.readFileSync(envir.ALIAS_CONFIG_FILE).toString()
+    aliasObj = JSON.parse(file)
+  } catch (e) {
+    console.warn(`Pache alias 錯誤，請檢查 alias 文件('${envir.ALIAS_CONFIG_FILE}')是否存在，或者是否是合法的 JSON`)
+    process.exit(-1)
+  }
+  app.use(async (ctx, next) => {
+    const host = ctx.host.replace(/:([0-9])*$/, '')
+    const portString = ctx.host.replace(host, '') // :xxx
+
+    // 如果域名存在于 alias 中
+    if (host in aliasObj) {
+      return ctx.redirect(`${ctx.protocol}://${aliasObj[host]}${portString}${ctx.url}`)
+    } else {
+      await next()
+    }
+  })
+} else {
+  aliasObj = {}
+}
+
 app.keys = [envir.session_secret];
 
 const session_handle = convert(koa_session({
