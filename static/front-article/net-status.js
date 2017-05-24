@@ -9,7 +9,14 @@ const netStatus = (() => ObjectAssign(Object.create(EventLite), {
 
           this.emit('change', type)
           this.emit(`change-to-${type}`, connection)
-          this.emit('limit-change', this.isLimit())
+
+          const isLimit = this.isLimit()
+          this.emit('limit-change', isLimit)
+          if (isLimit) {
+            this.emit('change-to-limit')
+          } else {
+            this.emit('change-to-unlimit')
+          }
         })
       } else {
         console.warn('不支持 navigator.connection, 將採取默認措施')
@@ -38,9 +45,7 @@ const netStatus = (() => ObjectAssign(Object.create(EventLite), {
     }
   ],
   isLimit() {
-    if (!this.isOnline()) {
-      return false
-    } else if (!this.supportConnection) {
+    if (!this.supportConnection) {
       return false
     } else {
       const type = this.connection.type

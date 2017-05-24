@@ -13,8 +13,18 @@ class LoadImage {
           // const blobObject = new Blob([xhr.response], { type: xhr.getResponseHeader('content-type') })
           this.interval = Date.now() - this.start_time
           this.emit('done', xhr.response)
+        } else {
+          this.emit('failure', xhr)
         }
+        this.emit(`${xhr.status}`, xhr.response, xhr)
       }
+    }
+    xhr.onerror = e => {
+      this.emit('error', xhr, e)
+      console.error(e, xhr)
+    }
+    xhr.onloadend = e => {
+      this.emit('end', xhr)
     }
     xhr.onloadstart = e => {
       this.start_time = Date.now()
@@ -40,9 +50,9 @@ class MetaImage {
     const currentSplitPage = page.getPage()
     this.limitWidth = parseInt(getComputedStyle(currentSplitPage).width)
 
-    const {innerHeight} = window
+    const {availHeight} = screen
 
-    let imgHeight = parseInt(innerHeight * 0.8)
+    let imgHeight = parseInt(availHeight * 0.8)
 
     if (imgHeight > this.height) {
       imgHeight = this.height
@@ -58,29 +68,23 @@ class MetaImage {
       this.base = 'height'
     }
 
-    let height
-    if (!netStatus.isLimit()) {
-      height = imgHeight
-    } else if (this.status) {
-      height = imgHeight
-    } else {
-      height = 192
-    }
-
     return {
       width: imgWidth,
-      height,
+      height: imgHeight,
     }
   }
   resize() {
-    if (this.lastWidth === window.innerWidth && this.status) {
-      return
-    } else {
+    if (this.lastWidth !== window.innerWidth) {
       this.lastWidth = window.innerWidth
+      const {width, height} = this.calcSize()
+      if (this.status) {
+        this.setSize(width, height)
+      } else {
+        this.setSize(width, 192)
+      }
+    } else {
+      return
     }
-
-    const {width, height} = this.calcSize()
-    this.setSize(width, height)
   }
   createFloatElement() {
     this.floatElement = document.createElement('div')
@@ -93,7 +97,28 @@ class MetaImage {
 
     this.container.appendChild(this.floatElement)
   }
-  load() {
+
+  loadDirect() {
+    const imgl = this.load(100)
+    imgl.on('start', url => {
+      this.container.style.transition = 'height 1ms'
+      const {width, height} = this.calcSize()
+      this.setSize(width, height)
+    })
+    imgl.start(this.source)
+    return imgl
+  }
+  setImageAndSlideDOwn(img, src) {
+    img.onload = () => {
+      $(img).css('opacity', '1')
+      this.hideInfoElement(() => {
+        $('.size', this.container).text(`${parseInt(this.size / 1024)} KB`)
+      })
+      // $(this.metaInfoElement).css('opacity', '0')
+    }
+    img.src = src
+  }
+  load(TIMEOUT = 720) {
     // 已加載過的圖片不會再次加載
     if (this.img.src.length) { return }
 
@@ -106,35 +131,26 @@ class MetaImage {
       const {width, height} = this.calcSize()
       this.setSize(width, height)
 
-      let TIMEOUT
-      if (!netStatus.isLimit()) {
-        TIMEOUT = 100
-      } else {
-        TIMEOUT = 720
-      }
       setTimeout(() => {
-        this.img.onload = () => {
-          $(this.img).css('opacity', '1')
-          this.hideInfoElement(() => {
-            $('.size', this.container).text(`${parseInt(this.size / 1024)} KB`)
-          })
-          // $(this.metaInfoElement).css('opacity', '0')
-        }
-        this.img.src = blobUrl
+        this.setImageAndSlideDOwn(this.img, blobUrl)
       }, TIMEOUT)
     })
     imgl.on('progress', percent => {
       const size = this.size / 1024
       $('.size', this.container).text(`${parseInt(size * percent)}/${parseInt(size)}`)
     })
-    imgl.on('start', url => {
-      if (!netStatus.isLimit()) {
-        this.container.style.transition = 'height 1ms'
-        const {width, height} = this.calcSize()
-        this.setSize(width, height)
+    imgl.on('failure', xhr => {
+      $('.size', this.container).text(`${xhr.status}`)
+    })
+    imgl.on('error', xhr => {
+      if (!netStatus.isOnline()) {
+        $('.size', this.container).text(`offline`)
+      } else {
+        $('.size', this.container).text(`ERROR`)
       }
     })
     imgl.start(this.source)
+    return imgl
   }
   showInfoElement(callback) {
     if (this._needNoneDisplay) {
@@ -169,9 +185,17 @@ class MetaImage {
     this.metaInfoElement = $$('.meta-info', aside)
 
     this.status = false
+
+    let clickStatus
     const asideClickHandle = e => {
-      this.load()
-      this.container.removeEventListener('click', asideClickHandle)
+      if (!clickStatus) {
+        clickStatus = true
+        const imgl = this.load()
+        imgl.on('done', e => {
+          this.container.removeEventListener('click', asideClickHandle)
+        })
+        imgl.on('end', e => { clickStatus = false })
+      }
     }
     this.container.addEventListener('click', asideClickHandle)
 
@@ -288,9 +312,18 @@ class MetaImage {
 
     if (this.height && this.width && this.type) {
       this.printInfo()
+
+      // 非限制網絡則直接加載
       if (!netStatus.isLimit()) {
-        this.load()
+        this.loadDirect()
       }
+      // 若連接到非限制類網絡則自動加載圖片
+      netStatus.on('change-to-unlimit', e => {
+        if (!this.img.src.length) {
+          $('.size', this.container).text('unlimited')
+          setTimeout(() => this.load(), 1000)
+        }
+      })
     } else {
       this.failure()
     }
