@@ -30,6 +30,38 @@ html
 			cssStyle.innerHTML = '#article > .page:not(.current-page) { position: fiexed; visibility: hidden } #article section.footnotes { display: none }'
 			document.body.appendChild(cssStyle)
 
+
+		script.
+			function calcSize(inputHeight, ratio) {
+				// 所有分頁的寬度都是一樣的，介於隱藏頁的寬度高度都無法獲取，故採取獲取當前分頁的寬度的策略
+				const currentSplitPage = document.querySelector('.page')
+				const limitWidth = parseInt(getComputedStyle(currentSplitPage).width)
+
+				const {availHeight} = screen
+
+				let imgHeight = parseInt(availHeight * 0.8)
+
+				if (imgHeight > inputHeight) {
+					imgHeight = inputHeight
+				}
+
+				let imgWidth = parseInt(imgHeight * ratio)
+
+				if (imgWidth > limitWidth) {
+					imgWidth = limitWidth
+					imgHeight = imgWidth / ratio
+				}
+
+				return {
+					width: imgWidth,
+					height: imgHeight,
+				}
+			}
+
+		noscript
+			style.
+				meta-img aside { display: none }
+
 		article(id="article" class="article")
 			!=article.format
 
@@ -48,9 +80,9 @@ html
 
 		div(class="page-selector-bg")
 
-		script(src="/han/han.min.js")
-		script(src="/vools.js")
-		script(src="/requirejs/require.min.js")
+		//- script(src="/han/han.min.js")
+		//- script(src="/vools.js")
+		//- script(src="/requirejs/require.min.js")
 		script(src="/script/article-enter.js")
 		script.
 			try {

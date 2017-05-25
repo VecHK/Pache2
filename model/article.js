@@ -8,6 +8,7 @@ const imageSize = function (file) {
 		imgSizeOf(file, (err, dimensions) => err ? rej(err) : res(dimensions))
 	})
 }
+const BMP_DATAURL = 'data:image/bmp;base64,Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAA////AA=='
 const path = require('path')
 const fs = require('mz/fs')
 const mongoose = require('mongoose');
@@ -153,18 +154,55 @@ const contentFormat = async function () {
 			)
 			// 如果是本地圖片
 			if (await fs.exists(imgLocal)) {
-				img.name = 'meta-img'
-				let noscript = $('<noscript>').html(`<img src="${imgAttribs.src}" ${imgAttribs.alt ? 'alt="' + imgAttribs.alt + '"' : ''} />`)
-				$(img).append(noscript)
-				console.warn($(img).html())
+				img.name = 'div'
 				const dimensions = await imageSize(imgLocal)
+				const fileSize = (await fs.stat(imgLocal)).size
 				console.warn(dimensions)
+
+				let noscript = $('<noscript>').html(`
+					<img src="${imgAttribs.src}" ${imgAttribs.alt ? 'alt="' + imgAttribs.alt + '"' : ''} />
+				`)
+				$(img).append(noscript)
+
+				let aside = $('<aside>').html(`
+					<table class="meta-info">
+						<tr>
+							<td class="type">${dimensions.type.toUpperCase()}</td>
+							<td><table class="dimension meta-info">
+								<tr><td class="pixel">${dimensions.width}×${dimensions.height}</td></tr>
+								<tr><td><hr></td></tr>
+								<tr><td class="size">${parseInt(fileSize / 1024)} KB</td></tr>
+							</table></td>
+						</tr>
+					</table>
+				`)
+				$(img).append(aside)
+
+				let script = $('<script>').html(`(function () {
+					var metaImg = document.getElementById('meta-${cursor}')
+
+					var width = ${dimensions.width}
+					var height = ${dimensions.height}
+					var ratio = width / height
+					var sizeObj = calcSize(height, ratio)
+					console.warn(metaImg, sizeObj, metaImg.innerHTML)
+
+					metaImg.style.width = sizeObj.width + 'px'
+					if (!navigator.connection || navigator.connection.type !== 'cellular') {
+						metaImg.style.height = sizeObj.height + 'px'
+					} else {
+						metaImg.style.height = '192px'
+					}
+				})()`)
+				$(img).after(script)
+				console.warn($(img).html())
 				Object.assign(imgAttribs, {
+					id: `meta-${cursor}`,
 					'meta-source': imgAttribs.src,
 					'meta-width': dimensions.width,
 					'meta-height': dimensions.height,
 					'meta-type': dimensions.type,
-					'meta-size': (await fs.stat(imgLocal)).size,
+					'meta-size': fileSize,
 				})
 				delete imgAttribs.src
 				this.format = $.html()

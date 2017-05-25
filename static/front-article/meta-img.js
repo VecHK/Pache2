@@ -169,19 +169,20 @@ class MetaImage {
     }
   }
   infoElement() {
-    const aside = document.createElement('aside')
-    aside.innerHTML = `
-      <table class="meta-info">
-        <tr>
-          <td class="type">${this.type.toUpperCase()}</td>
-          <td><table class="dimension meta-info">
-            <tr><td class="pixel">${this.width}×${this.height}</td></tr>
-            <tr><td><hr></td></tr>
-            <tr><td class="size">${parseInt(this.size / 1024)} KB</td></tr>
-          </table></td>
-        </tr>
-      </table>
-    `
+    const aside = $$('aside', this.container)
+    // const aside = document.createElement('aside')
+    // aside.innerHTML = `
+    //   <table class="meta-info">
+    //     <tr>
+    //       <td class="type">${this.type.toUpperCase()}</td>
+    //       <td><table class="dimension meta-info">
+    //         <tr><td class="pixel">${this.width}×${this.height}</td></tr>
+    //         <tr><td><hr></td></tr>
+    //         <tr><td class="size">${parseInt(this.size / 1024)} KB</td></tr>
+    //       </table></td>
+    //     </tr>
+    //   </table>
+    // `
     this.metaInfoElement = $$('.meta-info', aside)
 
     this.status = false
@@ -277,13 +278,14 @@ class MetaImage {
     return aside
   }
   printInfo() {
-    this.container.innerHTML = ''
+    $('noscript', this.container).remove()
+    console.warn(this)
     this.img = new Image
     this.img.setAttribute('meta-source', this.source)
     this.img.style.opacity = 0
 
     this.infoElement = this.infoElement()
-    $(this.container).append(this.img, this.infoElement)
+    $(this.container).append(this.img)
 
     this.resize()
   }
@@ -336,7 +338,7 @@ class MetaImage {
 
 class MetaImageFrame {
   init() {
-    const metaImgRaw_list = $('meta-img', this.container)
+    const metaImgRaw_list = $('[id^="meta-"]', this.container)
     this.pool = metaImgRaw_list.map(raw => new MetaImage(raw))
   }
   constructor(container) {

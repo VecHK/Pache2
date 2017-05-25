@@ -1,6 +1,6 @@
 @import "base.less";
 
-meta-img {
+[id^="meta-"] {
   .flex-frame;
   display: flex;
   display: -webkit-flex;
@@ -97,14 +97,14 @@ meta-img {
 }
 
 @media print {
-  meta-img {
+  [id^="meta-"] {
     // max-height: 100vh;
   }
 }
 
 // 大于 800px 的设备
 @media screen and (min-width: 800px) {
-  meta-img {
+  [id^="meta-"] {
     // max-height: 80vh;
   }
 }
@@ -114,5 +114,5 @@ meta-img {
 	.info, .page {
 		font-size: 1em;
 	}
-  // meta-img { max-height: 320px }
+  // [id^="meta-"] { max-height: 320px }
 }
