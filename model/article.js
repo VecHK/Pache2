@@ -64,6 +64,9 @@ const ArticleSchema = new Schema({
 	is_repost: { type: Boolean, default: false },
 	link_symbol: { type: String, default: null },
 	fusion_color: { type: String, default: '#CCC' },
+
+	// HTML head 的追加內容，數組元素是字符串
+	headAppend: { type: Array, default: [] },
 });
 
 const repost_color = Cutl.init(envir.repost_color || '#46c01b');
@@ -100,6 +103,9 @@ const repost_color_middle = async function (opts) {
 
 const contentFormat = async function () {
 	this.contentType = this.contentType.toLowerCase();
+	if (!Array.isArray(this.headAppend)) {
+		this.headAppend = []
+	}
 
 	if (this.contentType === 'markdown') {
 		this.format = md.render(this.content);
@@ -142,6 +148,41 @@ const contentFormat = async function () {
 			decodeEntities: envir.markdown_entitles ? true : false,
 		})
 		const imgs = $('img')
+		if (imgs.length) {
+			this.headAppend.push(`<script>
+				function calcSize(inputHeight, ratio) {
+					// 所有分頁的寬度都是一樣的，介於隱藏頁的寬度高度都無法獲取，故採取獲取當前分頁的寬度的策略
+					var widthElement = document.querySelector('head')
+					var limitWidth = parseInt(getComputedStyle(widthElement).width)
+					var paddingWidth = parseInt(getComputedStyle(widthElement)['padding-left']) * 2
+					console.warn(window.innerWidth - paddingWidth)
+
+					limitWidth = window.innerWidth - paddingWidth
+
+					var availHeight = screen.availHeight
+
+					var imgHeight = parseInt(availHeight * 0.8)
+
+					if (imgHeight > inputHeight) {
+						imgHeight = inputHeight
+					}
+
+					var imgWidth = parseInt(imgHeight * ratio)
+
+					if (imgWidth > limitWidth) {
+						imgWidth = limitWidth
+						imgHeight = imgWidth / ratio
+					}
+
+					return {
+						width: imgWidth,
+						height: imgHeight,
+					}
+				}
+				console.warn(parseInt(getComputedStyle(document.querySelector('head')).width))
+				// alert()
+			</script>`)
+		}
 		for (let cursor=0; cursor<imgs.length; ++cursor) {
 			let img = imgs[cursor]
 			let imgAttribs = img.attribs
@@ -178,23 +219,32 @@ const contentFormat = async function () {
 				`)
 				$(img).append(aside)
 
-				let script = $('<script>').html(`(function () {
-					var metaImg = document.getElementById('meta-${cursor}')
+				// console.warn(this, this.headAppend)
+				this.headAppend.push(`<script id="script-meta-${cursor}">(function () {
+					// var metaImg = document.getElementById('meta-${cursor}')
 
 					var width = ${dimensions.width}
 					var height = ${dimensions.height}
 					var ratio = width / height
 					var sizeObj = calcSize(height, ratio)
-					console.warn(metaImg, sizeObj, metaImg.innerHTML)
+					// console.warn(metaImg, sizeObj, metaImg.innerHTML)
 
-					metaImg.style.width = sizeObj.width + 'px'
+					var setWidth = sizeObj.width
 					if (!navigator.connection || navigator.connection.type !== 'cellular') {
-						metaImg.style.height = sizeObj.height + 'px'
+						var setHeight = sizeObj.height
 					} else {
-						metaImg.style.height = '192px'
+						var setHeight = 192
 					}
-				})()`)
-				$(img).after(script)
+
+					var style = document.createElement('style')
+					style.innerHTML = '[id^="meta-${cursor}"] {' +
+						'width:' + setWidth + 'px;' +
+						'height:' + setHeight + 'px;' +
+					'}'
+
+					document.getElementsByTagName('head')[0].appendChild(style)
+				})()</script>`)
+
 				console.warn($(img).html())
 				Object.assign(imgAttribs, {
 					id: `meta-${cursor}`,

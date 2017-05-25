@@ -12,6 +12,9 @@ html
 		//- link(rel="stylesheet" media="all" href="/han/han.css")
 		link(rel="stylesheet" href="/style/article.css")
 
+		each appendString in article.headAppend
+			!=appendString
+
 	body
 		div(class="page-shadow")
 		div(class="top-block")
@@ -30,46 +33,17 @@ html
 			cssStyle.innerHTML = '#article > .page:not(.current-page) { position: fiexed; visibility: hidden } #article section.footnotes { display: none }'
 			document.body.appendChild(cssStyle)
 
-
-		script.
-			function calcSize(inputHeight, ratio) {
-				// 所有分頁的寬度都是一樣的，介於隱藏頁的寬度高度都無法獲取，故採取獲取當前分頁的寬度的策略
-				const currentSplitPage = document.querySelector('.page')
-				const limitWidth = parseInt(getComputedStyle(currentSplitPage).width)
-
-				const {availHeight} = screen
-
-				let imgHeight = parseInt(availHeight * 0.8)
-
-				if (imgHeight > inputHeight) {
-					imgHeight = inputHeight
-				}
-
-				let imgWidth = parseInt(imgHeight * ratio)
-
-				if (imgWidth > limitWidth) {
-					imgWidth = limitWidth
-					imgHeight = imgWidth / ratio
-				}
-
-				return {
-					width: imgWidth,
-					height: imgHeight,
-				}
-			}
-
 		noscript
 			style.
-				meta-img aside { display: none }
+				[id^="meta-"] { box-shadow: 0px 0px 0px transparent !important }
+				[id^="meta-"] aside { display: none }
+				.page-selector {
+					display: none !important;
+				}
 
 		article(id="article" class="article")
 			!=article.format
 
-		noscript
-			style.
-				.page-selector {
-					display: none !important;
-				}
 		div(class="page-selector")
 			div(class="page-selector-frame")
 				div(class="previous")="<"

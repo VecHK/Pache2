@@ -306,6 +306,12 @@ article * {
 	display: none;
 }
 
+head {
+	display: block;
+	padding: 0em 1.5em 0;
+	width: ~"calc(100% - 1.5em - 1.5em)";
+}
+
 @media print {
 	.footnotes, .footnotes-sep {
 		display: block;
@@ -342,15 +348,10 @@ section.footnotes {
 
 // 大于 800px 的设备
 @media screen and (min-width: 800px) {
-	.article-details {
-		padding: 6em 0;
-		text-align: center;
-
-		.title {
-			font-size: 2em;
-			padding: 0;
-			margin-left: 0;
-		}
+	head {
+		width: 760px;
+		padding: ~"0em calc(50% - (760px / 2)) 0em";
+		font-size: 1.2em;
 	}
 	.info {
 		display: block;
@@ -360,6 +361,16 @@ section.footnotes {
 		width: 760px;
 		padding: ~"0em calc(50% - (760px / 2)) 5em";
 		font-size: 1.2em;
+	}
+	.article-details {
+		padding: 6em 0;
+		text-align: center;
+
+		.title {
+			font-size: 2em;
+			padding: 0;
+			margin-left: 0;
+		}
 	}
 	section.footnotes {
 		font-size: 1em;
@@ -394,6 +405,9 @@ section.footnotes {
 
 // (360px 以上，但小于 800px)的设备
 @media screen and (max-width: 800px) and (min-width: 360px) {
+	head {
+		font-size: 1em;
+	}
 	.page, .info {
 		font-size: 1em;
 	}
@@ -405,6 +419,10 @@ section.footnotes {
 
 // 360px 以下的设备
 @media screen and (max-width: 359px) {
+	head {
+		font-size: 1em;
+	}
+
 	.info, .page {
 		font-size: 1em;
 	}

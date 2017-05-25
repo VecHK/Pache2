@@ -192,10 +192,13 @@ class MetaImage {
       if (!clickStatus) {
         clickStatus = true
         const imgl = this.load()
-        imgl.on('done', e => {
-          this.container.removeEventListener('click', asideClickHandle)
-        })
-        imgl.on('end', e => { clickStatus = false })
+        // 若 imgl 不存在說明圖片已經加載了
+        if (imgl) {
+          imgl.on('done', e => {
+            this.container.removeEventListener('click', asideClickHandle)
+          })
+          imgl.on('end', e => { clickStatus = false })
+        }
       }
     }
     this.container.addEventListener('click', asideClickHandle)
