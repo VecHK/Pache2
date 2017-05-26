@@ -101,6 +101,32 @@ const repost_color_middle = async function (opts) {
 	}
 }
 
+const linecodeAppend = function () {
+	let $ = cheerio.load(this.format, {
+		decodeEntities: envir.markdown_entitles ? true : false,
+	})
+	const codeContainers = $('.hljs.source-code')
+	if (codeContainers.length) {
+		for (let cursor = 0; cursor < codeContainers.length; ++cursor) {
+			let fillHtml = `<div class="codeline-number">1</div>`
+			let count = 2
+
+			const codeContent = $(codeContainers[cursor]).text()
+			for (let i = 0; i < codeContent.length; ++i) {
+				if (codeContent[i] === '\n') {
+					fillHtml += `<div class="codeline-number">${count}</div>`
+					++count
+				}
+			}
+
+			const codeLineFrame = $('<div class="codeline">').html(fillHtml)
+			$('code', codeContainers[cursor]).before(codeLineFrame)
+		}
+
+		this.format = $.html()
+	}
+}
+
 const contentFormat = async function () {
 	this.contentType = this.contentType.toLowerCase();
 	if (!Array.isArray(this.headAppend)) {
@@ -135,6 +161,8 @@ const contentFormat = async function () {
 	} else {
 		this.format = $.html()
 	}
+
+	linecodeAppend.apply(this)
 
 	/*
 		meta-img

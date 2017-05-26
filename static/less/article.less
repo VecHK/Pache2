@@ -1,5 +1,4 @@
 @import "base.less";
-@import "highlight-style.less";
 @import "layer.less";
 @import "page.less";
 @import "switch-page.less";
@@ -212,9 +211,9 @@ article * {
 		}
 	}
 
-
+	@code-font-family: ISOCPEUR, Consolas, courier, "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
 	code {
-		font-family: ISOCPEUR, Consolas, courier, "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+		font-family: @code-font-family;
 		background: #f1f1f1;
 		padding: 0 0.2em;
 	}
@@ -431,3 +430,5 @@ section.footnotes {
 		img:not([meta-source]) { max-height: 320px }
 	}
 }
+
+@import "highlight-style.less";

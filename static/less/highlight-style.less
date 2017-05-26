@@ -1,11 +1,26 @@
 @import "base.less";
 
+.source-code {
+	display: flex;
+	justify-content: flex-start;
+
+	.codeline {
+		text-align: right;
+		padding-right: .25em;
+		margin-right: .25em;
+		border-right: 1px solid #AAA;
+		color: #AAA;
+	}
+	.codeline, code {
+		font-size: 0.8em;
+		line-height: 1.4em;
+		font-family: monoxil, Consolas, courier, "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+	}
+}
+
 .hljs code {
 	background: transparent;
 	display: block;
-	font-size: 0.8em;
-	line-height: 1.4em;
-	font-family: consolas;
 	overflow: hidden;
 	color: hsl(0, 0%, 38.2%);
 	color:#585260;
