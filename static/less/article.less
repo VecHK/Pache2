@@ -285,7 +285,7 @@ article * {
 	}
 
 	figure {
-		margin: 0;
+		margin: 3em auto;
 		padding: 0;
 	}
 	img:not([meta-source]) {
@@ -295,7 +295,7 @@ article * {
 		box-shadow: 0px 0px 4px #bbb;
 	}
 
-	img:not([meta-source]) + figcaption, meta-img + figcaption {
+	img:not([meta-source]) + figcaption, [id^="meta-"] + figcaption {
 		font-size: .8em;
 		color: grey;
 		text-align: center;
