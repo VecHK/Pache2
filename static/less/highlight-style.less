@@ -4,29 +4,61 @@
 	display: flex;
 	justify-content: flex-start;
 
-	.codeline {
-		text-align: right;
-		padding-right: .25em;
-		margin-right: .25em;
-		border-right: 1px solid #AAA;
-		color: #AAA;
+	.inline:empty:before {
+		content: " "
 	}
-	.codeline, code {
+	.inline {
+		display: block;
+		width: 100%;
+		padding-left: .25em;
+		box-sizing: border-box;
+
+		// transition: color .618s, background .2s, border .618s;
+    // transition-timing-function: ease-in-out;
+		&:hover {
+			background: rgba(207, 152, 152, 0.2)
+		}
+	}
+
+	.codeline-frame {
+		text-align: right;
+		color: #AAA;
+		text-align: right;
+		color: #AAA;
+		min-width: 3em;
+		border-left: 2px solid rgb(48, 103, 133);
+
+		.linecode.clicked {
+			border-color: rgb(207, 152, 152);
+			color: hsla(0, 36%, 50%, 1);
+			border-width: 2px;
+			background: hsla(0, 6%, 90%, 1);
+		}
+		.linecode {
+			padding-right: .25em;
+	    border-right: 1px solid #AAA;
+	    background: rgb(248, 248, 248);
+	    color: hsla(0, 0%, 55%, 1);
+		}
+	}
+	.codeline-frame, code {
 		font-size: 0.8em;
 		line-height: 1.4em;
-		font-family: monoxil, Consolas, courier, "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
+		font-family: Consolas, courier, "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
 	}
 }
 
 .hljs code {
-	background: transparent;
 	display: block;
+	width: 100%;
 	overflow: hidden;
-	color: hsl(0, 0%, 38.2%);
-	color:#585260;
+	background: transparent;
+	// color: hsl(0, 0%, 38.2%);
+	padding: 0;
+	color: hsla(201, 87%, 15%, 1);
 
 	.hljs-keyword {
-		color: hsla(269, 100%, 21%, 0.61);
+		color: rgba(52, 0, 107, 0.84);//hsla(269, 100%, 21%, 0.61);
 	}
 
 	.hljs-class {
@@ -48,7 +80,7 @@
 	}
 
 	.hljs-built_in {
-		color: slategrey;
+		color: hsla(210, 16%, 50%, 1);
 		font-weight: bold;
 	}
 	.hljs-attr {
@@ -71,7 +103,7 @@
 	color:#576ddb
 }
 .hljs-keyword,.hljs-selector-tag {
-	color:#955ae7
+	color: #955ae7
 }
 .hljs-deletion,.hljs-addition {
 	color:#19171c;
