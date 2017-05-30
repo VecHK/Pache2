@@ -29,16 +29,22 @@
 		border-left: 2px solid rgb(48, 103, 133);
 
 		.linecode.clicked {
-			border-color: rgb(207, 152, 152);
-			color: hsla(0, 36%, 50%, 1);
-			border-width: 2px;
-			background: hsla(0, 6%, 90%, 1);
+			// border-color: rgb(207, 152, 152);
+			border-right: solid 2px hsl(201, 47%, 35%);
+			// color: hsla(0, 36%, 50%, 1);
+			color: hsl(201, 47%, 35%);
+
+			// background: hsla(0, 6%, 90%, 1);
+			background: hsl(201, 47%, 85%);
 		}
 		.linecode {
 			padding-right: .25em;
 	    border-right: 1px solid #AAA;
 	    background: rgb(248, 248, 248);
 	    color: hsla(0, 0%, 55%, 1);
+
+			transition-property: background color border-right;
+			transition-duration: 382ms;
 		}
 	}
 	.codeline-frame, code {
