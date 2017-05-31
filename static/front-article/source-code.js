@@ -11,6 +11,7 @@ function getElementPageY(element, root = document.body) {
 }
 class SourceCode {
   setSize() {
+    const lineCodeBox = $$('.codeline-frame > .linecode', this.container)
     const codeFrame = $$('code', this.container)
 
     let last_width = 0
@@ -21,9 +22,20 @@ class SourceCode {
         return
       }
 
+      let maxWidth = 0
       $('code > .inline', this.container).forEach(inlineEle => {
-        inlineEle.style.minWidth = `${codeFrame.scrollWidth}px`
+        if (inlineEle.scrollWidth > maxWidth) {
+          maxWidth = inlineEle.scrollWidth
+        }
+        // inlineEle.style.width = `${ScrollWidth}px`
       })
+
+      $('code > .inline', this.container).forEach(inlineEle => {
+        inlineEle.style.minWidth = `${maxWidth}px`
+        // inlineEle.style.height = `${lineCodeBox.offsetHeight}px`
+        // inlineEle.style.lineHeight = `${lineCodeBox.offsetHeight}px`
+      })
+      // codeFrame.style.minWidth = `${maxWidth}px`
     }
     window.addEventListener('resize', resizeHandle)
     resizeHandle()
@@ -64,7 +76,7 @@ class SourceCode {
             }]
           })
         }
-      }, 16)
+      }, 16.7)
 
       let firstLineCodeIndex = null
       let lastLineCode = null
@@ -118,7 +130,7 @@ class SourceCode {
           scrollContext = e
           scrollDirect = 1
         } else if (clientY > window.innerHeight - 48) {
-          // 手指在下邊緣
+          //~下邊緣
           scrollContext = e
           scrollDirect = -1
         } else {

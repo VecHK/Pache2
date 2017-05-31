@@ -3,15 +3,28 @@
 .source-code {
 	display: flex;
 	justify-content: flex-start;
+	position: relative;
+	// overflow: auto;
 
 	.inline:empty:before {
 		content: " "
 	}
+	.inline, .inline * {
+		height: 1.2em;
+		line-height: 1.2em;
+	}
 	.inline {
 		display: block;
-		width: 100%;
+		// width: 100%;
 		padding-left: .25em;
-		box-sizing: border-box;
+		overflow: hidden;
+		height: 1.2em;
+		line-height: 1.2em;
+		// font-size: 12px;
+		// & > * {
+		// 	font-size: 12px;
+		// }
+		// box-sizing: border-box;
 
 		// transition: color .618s, background .2s, border .618s;
     // transition-timing-function: ease-in-out;
@@ -47,9 +60,11 @@
 			transition-duration: 382ms;
 		}
 	}
-	.codeline-frame, code {
-		font-size: 0.8em;
-		line-height: 1.4em;
+	.codeline-frame > .linecode {
+		// font-size: 0.8em;
+		line-height: 1.2em;
+		height: 1.2em;
+		font-size: 1em;
 		font-family: Consolas, courier, "Noto Sans CJK SC", "Source Han Sans CN", "Microsoft JhengHei", DengXian, "微软雅黑", "黑体";
 	}
 }
