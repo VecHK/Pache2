@@ -58,22 +58,18 @@ class SourceCode {
         if (scrollDirect < 0) {
           document.body.scrollTop += ScrollInterval
 
-          const {clientY, pageY} = scrollContext.touches[0]
+          const {clientY, pageY} = scrollContext
           touchMiddle({
-            touches: [{
-              clientY,
-              pageY: pageY + ScrollInterval,
-            }]
+            clientY,
+            pageY: pageY + ScrollInterval,
           })
         } else if (scrollDirect > 0) {
           document.body.scrollTop -= ScrollInterval
 
-          const {clientY, pageY} = scrollContext.touches[0]
+          const {clientY, pageY} = scrollContext
           touchMiddle({
-            touches: [{
-              clientY,
-              pageY: pageY - ScrollInterval,
-            }]
+            clientY,
+            pageY: pageY - ScrollInterval,
           })
         }
       }, 16.7)
@@ -83,8 +79,8 @@ class SourceCode {
       let lastLineCodeIndex = -1
       let modelStart = null
       let modelEnd = 0
-      function touchMiddle(e) {
-        const {clientY, pageY} = e.touches[0]
+      function touchMiddle(tap_point) {
+        const {clientY, pageY} = tap_point
 
         lineCode_list.forEach((lineCodeEle, cursor) => {
           let direct = 0
@@ -127,11 +123,11 @@ class SourceCode {
 
         if (clientY < 48) {
           // 手指在上邊緣
-          scrollContext = e
+          scrollContext = tap_point
           scrollDirect = 1
         } else if (clientY > window.innerHeight - 48) {
           //~下邊緣
-          scrollContext = e
+          scrollContext = tap_point
           scrollDirect = -1
         } else {
           scrollContext = null
@@ -147,13 +143,13 @@ class SourceCode {
           lineCodeEle.classList.remove('clicked')
         })
 
-        touchMiddle(e)
+        touchMiddle(e.touches[0])
         console.info('touchstart', e)
       })
 
       codelineFrame.addEventListener('touchmove', e => {
         e.preventDefault()
-        touchMiddle(e)
+        touchMiddle(e.touches[0])
       })
       codelineFrame.addEventListener('touchend', e => {
         e.preventDefault()
