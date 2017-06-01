@@ -147,10 +147,35 @@ class SourceCode {
         console.info('touchstart', e)
       })
 
+      let mouseIsDown = false
+      codelineFrame.addEventListener('mousedown', e => {
+        mouseIsDown = true
+        e.preventDefault()
+
+        // 觸摸開始，清除掉所有的 clicked
+        lineCode_list.forEach(lineCodeEle => {
+          lineCodeEle.classList.remove('clicked')
+        })
+
+        touchMiddle({
+          pageY: e.pageY,
+          clientY: e.clientY,
+        })
+      })
+
       codelineFrame.addEventListener('touchmove', e => {
         e.preventDefault()
         touchMiddle(e.touches[0])
       })
+      document.body.addEventListener('mousemove', e => {
+        if (!mouseIsDown) { return }
+        e.preventDefault()
+        touchMiddle({
+          pageY: e.pageY,
+          clientY: e.clientY,
+        })
+      })
+
       codelineFrame.addEventListener('touchend', e => {
         e.preventDefault()
         scrollDirect = 0
@@ -160,6 +185,16 @@ class SourceCode {
         modelStart = null
         modelEnd = 0
         console.warn('touchend', e)
+      })
+      document.body.addEventListener('mouseup', e => {
+        mouseIsDown = false
+        e.preventDefault()
+        scrollDirect = 0
+        scrollContext = null
+        firstLineCodeIndex = null
+
+        modelStart = null
+        modelEnd = 0
       })
 
       codelines.forEach((line, lineCursor) => {
