@@ -170,19 +170,6 @@ class MetaImage {
   }
   infoElement() {
     const aside = $$('aside', this.container)
-    // const aside = document.createElement('aside')
-    // aside.innerHTML = `
-    //   <table class="meta-info">
-    //     <tr>
-    //       <td class="type">${this.type.toUpperCase()}</td>
-    //       <td><table class="dimension meta-info">
-    //         <tr><td class="pixel">${this.width}×${this.height}</td></tr>
-    //         <tr><td><hr></td></tr>
-    //         <tr><td class="size">${parseInt(this.size / 1024)} KB</td></tr>
-    //       </table></td>
-    //     </tr>
-    //   </table>
-    // `
     this.metaInfoElement = $$('.meta-info', aside)
 
     this.status = false

@@ -272,6 +272,8 @@ const Page = {
 pa_init(async () => {
   window.page = Page.init($$('#article'))
 
+  window.sourcode = new SourceCode(window.page.container)
+
   window.metaImage = new MetaImageFrame(window.page.container)
 
 
