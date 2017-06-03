@@ -1,6 +1,15 @@
-function getElementPageY(element, root = document.body) {
+function getElementPageX(ele, root = document.body) {
+  let totalOffsetLeft = 0
+
+  do {
+    totalOffsetLeft += ele.offsetLeft
+    ele = ele.parentNode
+  } while (ele !== root)
+
+  return totalOffsetLeft
+}
+function getElementPageY(ele, root = document.body) {
   let totalOffsetTop = 0
-  let ele = element
 
   while (ele !== root) {
     totalOffsetTop += ele.offsetTop
@@ -69,6 +78,22 @@ function copyEffect(code_list, line_list, start, end, slideDirect) {
   }, direct)
 }
 
+const TEXT_NODETYPE = 3
+const ELEMENT_NODETYPE = 1
+const fetchElementText = ele => {
+  let str = ''
+  ArrayForEach(ele.childNodes, child => {
+    if (child.nodeType === TEXT_NODETYPE) {
+      str += child.nodeValue
+    } else if (child.nodeType === ELEMENT_NODETYPE) {
+      str += fetchElementText(child)
+    } else {
+      console.warn('其他的節點？')
+    }
+  })
+  return str
+}
+
 class SourceCode {
   setSize() {
     const lineCodeBox = $$('.codeline-frame > .linecode', this.container)
@@ -102,13 +127,14 @@ class SourceCode {
   }
   getSelectedLine() {
     const selected_list = []
+    const code_list = $('.codeline-frame > .linecode', this.container)
     const line_list = $('.inline', this.container)
-    $('.codeline-frame > .linecode', this.container).map((codeLine_ele, lineCursor) => {
-      if (codeLine_ele.className.indexOf('selected') !== -1) {
-        selected_list.push(line_list[lineCursor])
-      }
-    })
-    return selected_list.map(selected_ele => $(selected_ele).text()).join('\n')
+
+    return line_list.filter((line_ele, lineCursor) => {
+      return code_list[lineCursor].className.indexOf('selected') !== -1
+    }).map(selected_ele => {
+      return fetchElementText(selected_ele)
+    }).join('\n')
   }
   constructor(container) {
     this.container = container
@@ -121,12 +147,19 @@ class SourceCode {
       let ScrollInterval = 3
       let scrollDirect = 0
       let scrollContext = null
+      let scrollingElement
+      if (document.scrollingElement) {
+        scrollingElement = document.scrollingElement
+      } else {
+        scrollingElement = $$('html')
+      }
+      // scrollingElement = $$('html')
       setInterval(() => {
         if (!scrollContext) { return }
         else if (scrollDirect === 0) { return }
         else if (scrollDirect < 0) {
           var setScrollInterval = ScrollInterval
-          document.body.scrollTop += setScrollInterval
+          scrollingElement.scrollTop += setScrollInterval
           const {clientY, pageY} = scrollContext
           touchMiddle({
             clientY,
@@ -134,7 +167,7 @@ class SourceCode {
           })
         } else if (scrollDirect > 0) {
           var setScrollInterval = -ScrollInterval
-          document.body.scrollTop += setScrollInterval
+          scrollingElement.scrollTop += setScrollInterval
           const {clientY, pageY} = scrollContext
           touchMiddle({
             clientY,
@@ -153,7 +186,6 @@ class SourceCode {
         const {clientY, pageY} = tap_point
 
         ArrayForEach(lineCode_list, (lineCodeEle, cursor) => {
-
           const linePageY = getElementPageY(lineCodeEle)
           if ((pageY >= linePageY) && (pageY < (linePageY + lineCodeEle.offsetHeight))) {
             if (lastLineCode === lineCodeEle) {
@@ -237,6 +269,8 @@ class SourceCode {
       let mouseIsDown = false
       codelineFrame.addEventListener('mousedown', e => {
         mouseIsDown = true
+        copy_button.style.display = 'none'
+        mouse_copy_button && hide_mouse_copy_button()
         e.preventDefault()
 
         // 觸摸開始，清除掉所有的 selected
@@ -294,14 +328,49 @@ class SourceCode {
         modelStart = null
         modelEnd = 0
         console.warn('touchend', e)
-        console.info(this.getSelectedLine())
+        // console.info(this.getSelectedLine())
       }
-      codelineFrame.addEventListener('touchend', end_handle)
+      codelineFrame.addEventListener('touchend', e => {
+        end_handle(e)
+        copy_button.style.display = ''
+      })
+
+      let mouse_copy_button
+      const show_mouse_copy_button = () => {
+        const {style} = mouse_copy_button;
+        style.opacity = 1;
+        if ('filter' in style) {
+          style.filter = 'blur(0px)'
+        } else if ('webkitFilter' in style) {
+          style.webkitFilter = 'blur(0px)'
+        } else if ('mozFilter' in style) {
+          style.mozFilter = 'blur(0px)'
+        }
+      }
+      const hide_mouse_copy_button = () => {
+        const {style} = mouse_copy_button
+        style.opacity = ''
+
+        if (style.filter) {
+          style.filter = ''
+        } else if (style.webkitFilter) {
+          style.webkitFilter = ''
+        } else if (style.mozFilter) {
+          style.mozFilter = ''
+        }
+      }
       document.body.addEventListener('mouseup', e => {
         if (!copyWasPress && !isTouch && mouseIsDown) {
           end_handle(e)
         }
         mouseIsDown = false
+      })
+      document.body.addEventListener('mouseenter', e => {
+        if (mouseIsDown && e.buttons !== 1) {
+          // 不是按著左鍵進入
+          mouseIsDown = false
+          end_handle(e)
+        }
       })
 
       const sourceCode_frame = $$('code', sourceCodeContainer)
@@ -313,7 +382,7 @@ class SourceCode {
         window.addEventListener('resize', e => {
           const {modelStart, modelEnd} = lastModel
           console.warn(modelStart, modelEnd)
-          if (Number.isInteger(modelStart)) {
+          if (typeof(modelStart) === 'number') {
             const top = lineCode_list[modelStart].offsetTop
             const height = lineCode_list[modelEnd - 1].offsetTop + lineCode_list[modelEnd - 1].offsetHeight - top
             positingCopyButton(top, height)
@@ -330,12 +399,48 @@ class SourceCode {
         const {modelStart, modelEnd, slideDirect} = lastModel
         copyEffect(lineCode_list, codelines, modelStart, modelEnd, slideDirect)
         copy2clip(this.getSelectedLine())
+        copy_button.style = 'none'
       }
       const positingCopyButton = (top, height) => {
         $(copy_button).css({
           top: `${parseFloat(top)}px`,
           height: `${parseFloat(height)}px`,
         })
+
+        if (isTouch) {
+          return
+        }
+
+        if (!mouse_copy_button) {
+          mouse_copy_button = $.create('button').class('mouse-copy')[0]
+          $(mouse_copy_button).text('複製')
+          mouse_copy_button.id = `mouse-copy-${cursor}`
+          $(document.body).append(mouse_copy_button)
+
+          const _this = this
+          new Clipboard(mouse_copy_button, {
+            text() {
+              const {modelStart, modelEnd, slideDirect} = lastModel
+              copyEffect(lineCode_list, codelines, modelStart, modelEnd, slideDirect)
+              console.warn(_this.getSelectedLine())
+              hide_mouse_copy_button()
+              return _this.getSelectedLine()
+            }
+          })
+        }
+
+        let mouseButtonTop = getElementPageY(sourceCodeContainer) + top - mouse_copy_button.offsetHeight
+        let mouseButtonLeft = getElementPageX(sourceCodeContainer) + sourceCodeContainer.offsetWidth - mouse_copy_button.offsetWidth
+
+        if (scrollingElement.scrollTop > mouseButtonTop) {
+          mouseButtonTop = mouseButtonTop + (scrollingElement.scrollTop - mouseButtonTop)
+        }
+        console.warn(scrollingElement.scrollTop, mouseButtonTop)
+        $(mouse_copy_button).css({
+          top: `${mouseButtonTop}px`,
+          left: `${mouseButtonLeft}px`,
+        })
+        show_mouse_copy_button()
       }
     })
 
