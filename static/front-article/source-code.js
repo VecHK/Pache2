@@ -20,8 +20,9 @@ function getElementPageY(ele, root = document.body) {
 }
 function ArrayForEach(arr, cb) {
   const LEN = arr.length
-  for (let cursor = 0; cursor < LEN; ++cursor)
+  for (let cursor = 0; cursor < LEN; ++cursor) {
     cb(arr[cursor], cursor, arr)
+  }
 }
 function textAreaSelect(ele, start, end) {
   if (document.selection) {
@@ -331,8 +332,8 @@ class SourceCode {
         // console.info(this.getSelectedLine())
       }
       codelineFrame.addEventListener('touchend', e => {
-        end_handle(e)
         copy_button.style.display = ''
+        end_handle(e)
       })
 
       let mouse_copy_button
@@ -399,7 +400,7 @@ class SourceCode {
         const {modelStart, modelEnd, slideDirect} = lastModel
         copyEffect(lineCode_list, codelines, modelStart, modelEnd, slideDirect)
         copy2clip(this.getSelectedLine())
-        copy_button.style = 'none'
+        copy_button.style.display = 'none'
       }
       const positingCopyButton = (top, height) => {
         $(copy_button).css({
