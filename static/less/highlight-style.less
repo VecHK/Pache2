@@ -20,11 +20,11 @@
 		overflow: hidden;
 		height: 1.2em;
 		line-height: 1.2em;
-		
+
 		border-top: solid 1px transparent;
 		border-bottom: solid 1px transparent;
-		box-sizing: border-box;
-		transition: background-color 382ms;
+		// box-sizing: border-box;
+		transition: background-color 382ms, border-top-color 382ms;
 		&:hover {
 			background: rgba(207, 152, 152, 0.2)
 		}
@@ -50,14 +50,15 @@
 		.linecode {
 			padding-right: .25em;
 			padding-top: 1px;
+			// border-top: 1px solid transparent;
 			padding-bottom: 1px;
 	    border-right: 1px solid #AAA;
 	    background: rgb(248, 248, 248);
 	    color: hsla(0, 0%, 55%, 1);
 			cursor: copy;
-			box-sizing: border-box;
+			// box-sizing: border-box;
 
-			transition-property: background, color, border-right;
+			transition-property: background, color, border-right, border-top-color;
 			transition-duration: 382ms;
 		}
 	}

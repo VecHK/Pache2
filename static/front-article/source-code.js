@@ -28,14 +28,46 @@ function textAreaSelect(ele, start, end) {
 }
 const copy2clip = (() => {
   const ele = document.createElement('button')
-  document.body.appendChild(ele)
+  // document.body.appendChild(ele)
 
   return function (str) {
     const clip = new Clipboard(ele, { text() { return str } })
-    alert(Clipboard.isSupported())
     ele.click()
   }
 })()
+
+function ArrayEachByRange(arr, start, end, callback, direct) {
+  if (direct) {
+    for (let cursor = end - 1; cursor >= start; --cursor) {
+      callback(arr[cursor], cursor)
+    }
+  } else {
+    for (let cursor = start; cursor < end; ++cursor) {
+      callback(arr[cursor], cursor)
+    }
+  }
+}
+
+function copyEffect(code_list, line_list, start, end, slideDirect) {
+  let direct
+  if (slideDirect === 1) {
+     direct = true
+  } else {
+    direct = false
+  }
+  let time_times = 0
+  ArrayEachByRange(code_list, start, end, (code, cursor) => {
+    const line = line_list[cursor]
+    const {style} = line
+    setTimeout(() => {
+      // style.backgroundColor = 'rgba(48, 103, 133, 0.05)'
+      style.backgroundColor = ''
+      code.classList.remove('selected')
+    }, time_times * 32)
+
+    ++time_times
+  }, direct)
+}
 
 class SourceCode {
   setSize() {
@@ -111,6 +143,7 @@ class SourceCode {
         }
       }, 17)
 
+      let slideDirect = 0
       let firstLineCodeIndex = null
       let lastLineCode = null
       let lastLineCodeIndex = -1
@@ -119,11 +152,8 @@ class SourceCode {
       function touchMiddle(tap_point) {
         const {clientY, pageY} = tap_point
 
-        // for (let cursor = 0; cursor < lineCode_list.length; ++cursor) {
-        //   let lineCodeEle = lineCode_list[cursor]
-        // }
         ArrayForEach(lineCode_list, (lineCodeEle, cursor) => {
-          let direct = 0
+
           const linePageY = getElementPageY(lineCodeEle)
           if ((pageY >= linePageY) && (pageY < (linePageY + lineCodeEle.offsetHeight))) {
             if (lastLineCode === lineCodeEle) {
@@ -131,10 +161,10 @@ class SourceCode {
             } else {
               lastLineCode = lineCodeEle
 
-              if (cursor > lastLineCodeIndex) {
-                direct = -1
+              if (cursor > firstLineCodeIndex) {
+                slideDirect = -1
               } else {
-                direct = 1
+                slideDirect = 1
               }
 
               lastLineCodeIndex = cursor
@@ -187,10 +217,12 @@ class SourceCode {
       }
 
       const codelineFrame = $$('.codeline-frame', sourceCodeContainer)
+      let isTouch = false
       let touchMoved = false
       let touchEnded = false
       let touchTargetIsSelected = false
       codelineFrame.addEventListener('touchstart', e => {
+        isTouch = true
         e.preventDefault()
 
         // 觸摸開始，清除掉所有的 selected
@@ -232,8 +264,18 @@ class SourceCode {
         })
       })
 
-      codelineFrame.addEventListener('touchend', e => {
+      const lastModel = {}
+      const end_handle = e => {
         e.preventDefault()
+        ObjectAssign(lastModel, {
+          scrollDirect,
+          scrollContext,
+          firstLineCodeIndex,
+          modelStart,
+          modelEnd,
+          slideDirect,
+        })
+
         touchEnded = true
         scrollDirect = 0
         scrollContext = null
@@ -252,24 +294,12 @@ class SourceCode {
         modelEnd = 0
         console.warn('touchend', e)
         console.info(this.getSelectedLine())
-      })
-      const lastModel = {}
+      }
+      codelineFrame.addEventListener('touchend', end_handle)
       document.body.addEventListener('mouseup', e => {
-        mouseIsDown = false
-        e.preventDefault()
-        ObjectAssign(lastModel, {
-          scrollDirect,
-          scrollContext,
-          firstLineCodeIndex,
-          modelStart,
-          modelEnd,
-        })
-        scrollDirect = 0
-        scrollContext = null
-        firstLineCodeIndex = null
-
-        modelStart = null
-        modelEnd = 0
+        if (!isTouch) {
+          end_handle(e)
+        }
       })
 
       const sourceCode_frame = $$('code', sourceCodeContainer)
@@ -278,7 +308,7 @@ class SourceCode {
       sourceCode_frame.appendChild(copy_button)
       if (!copy_button.haveResizeHandle) {
         copy_button.haveResizeHandle = true
-        window.addEventListener('resize', async e => {
+        window.addEventListener('resize', e => {
           // await waitting(1000)
           const {modelStart, modelEnd} = lastModel
           console.warn(modelStart, modelEnd)
@@ -288,6 +318,9 @@ class SourceCode {
         })
       }
       copy_button.onclick = e => {
+        console.warn(lastModel)
+        const {modelStart, modelEnd, slideDirect} = lastModel
+        copyEffect(lineCode_list, codelines, modelStart, modelEnd, slideDirect)
         copy2clip(this.getSelectedLine())
       }
       const positingCopyButton = (top, height) => {
@@ -297,16 +330,16 @@ class SourceCode {
         })
       }
 
-      codelines.forEach((line, lineCursor) => {
-        line.addEventListener('click', e => {
-          const lineCode = lineCode_list[lineCursor]
-          if (lineCode.className.indexOf('selected') !== -1) {
-            lineCode.classList.remove('selected')
-          } else {
-            lineCode.classList.add('selected')
-          }
-        })
-      })
+      // codelines.forEach((line, lineCursor) => {
+      //   line.addEventListener('click', e => {
+      //     const lineCode = lineCode_list[lineCursor]
+      //     if (lineCode.className.indexOf('selected') !== -1) {
+      //       lineCode.classList.remove('selected')
+      //     } else {
+      //       lineCode.classList.add('selected')
+      //     }
+      //   })
+      // })
     })
 
     this.setSize()
