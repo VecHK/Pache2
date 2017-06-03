@@ -298,10 +298,10 @@ class SourceCode {
       }
       codelineFrame.addEventListener('touchend', end_handle)
       document.body.addEventListener('mouseup', e => {
-        mouseIsDown = false
-        if (!copyWasPress && !isTouch) {
+        if (!copyWasPress && !isTouch && mouseIsDown) {
           end_handle(e)
         }
+        mouseIsDown = false
       })
 
       const sourceCode_frame = $$('code', sourceCodeContainer)
@@ -311,21 +311,21 @@ class SourceCode {
       if (!copy_button.haveResizeHandle) {
         copy_button.haveResizeHandle = true
         window.addEventListener('resize', e => {
-          // await waitting(1000)
           const {modelStart, modelEnd} = lastModel
           console.warn(modelStart, modelEnd)
-          const top = lineCode_list[modelStart].offsetTop
-          const height = lineCode_list[modelEnd - 1].offsetTop + lineCode_list[modelEnd - 1].offsetHeight - top
-          positingCopyButton(top, height)
+          if (Number.isInteger(modelStart)) {
+            const top = lineCode_list[modelStart].offsetTop
+            const height = lineCode_list[modelEnd - 1].offsetTop + lineCode_list[modelEnd - 1].offsetHeight - top
+            positingCopyButton(top, height)
+          } else {
+            return
+          }
         })
       }
       let copyWasPress = false
-      copy_button.onmousedown = e => {
-        copyWasPress = true
-      }
+      copy_button.onmousedown = e => { copyWasPress = true }
       copy_button.onclick = e => {
         copyWasPress = false
-        // console.warn(lastModel)
         console.warn(lastModel.modelStart)
         const {modelStart, modelEnd, slideDirect} = lastModel
         copyEffect(lineCode_list, codelines, modelStart, modelEnd, slideDirect)
@@ -337,17 +337,6 @@ class SourceCode {
           height: `${parseFloat(height)}px`,
         })
       }
-
-      // codelines.forEach((line, lineCursor) => {
-      //   line.addEventListener('click', e => {
-      //     const lineCode = lineCode_list[lineCursor]
-      //     if (lineCode.className.indexOf('selected') !== -1) {
-      //       lineCode.classList.remove('selected')
-      //     } else {
-      //       lineCode.classList.add('selected')
-      //     }
-      //   })
-      // })
     })
 
     this.setSize()
