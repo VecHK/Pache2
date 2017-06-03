@@ -412,21 +412,18 @@ class SourceCode {
         }
 
         if (!mouse_copy_button) {
-          mouse_copy_button = $.create('button').class('mouse-copy')[0]
-          $(mouse_copy_button).text('複製')
+          mouse_copy_button = $.create('div').class('mouse-copy')[0]
+          $(mouse_copy_button).html(`<div class="copy-icon"><div class="back"></div><div class="front"></div></div>`)
           mouse_copy_button.id = `mouse-copy-${cursor}`
           $(document.body).append(mouse_copy_button)
 
-          const _this = this
-          new Clipboard(mouse_copy_button, {
-            text() {
-              const {modelStart, modelEnd, slideDirect} = lastModel
-              copyEffect(lineCode_list, codelines, modelStart, modelEnd, slideDirect)
-              console.warn(_this.getSelectedLine())
-              hide_mouse_copy_button()
-              return _this.getSelectedLine()
-            }
-          })
+          mouse_copy_button.onclick = e => {
+            const {modelStart, modelEnd, slideDirect} = lastModel
+            copyEffect(lineCode_list, codelines, modelStart, modelEnd, slideDirect)
+            // console.warn(_this.getSelectedLine())
+            copy2clip(this.getSelectedLine())
+            hide_mouse_copy_button()
+          }
         }
 
         let mouseButtonTop = getElementPageY(sourceCodeContainer) + top - mouse_copy_button.offsetHeight
@@ -437,8 +434,8 @@ class SourceCode {
         }
         console.warn(scrollingElement.scrollTop, mouseButtonTop)
         $(mouse_copy_button).css({
-          top: `${mouseButtonTop}px`,
-          left: `${mouseButtonLeft}px`,
+          top: `${mouseButtonTop + mouse_copy_button.offsetHeight / 2}px`,
+          left: `${mouseButtonLeft - mouse_copy_button.offsetHeight / 2}px`,
         })
         show_mouse_copy_button()
       }
