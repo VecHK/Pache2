@@ -282,6 +282,7 @@ class SourceCode {
 
         // console.info('start:', lineCode_list[modelStart].offsetTop)
         // console.info('end:', lineCode_list[modelEnd].offsetTop)
+        console.warn(lastModel)
         const top = lineCode_list[modelStart].offsetTop
         const height = lineCode_list[modelEnd - 1].offsetTop + lineCode_list[modelEnd - 1].offsetHeight - top
         positingCopyButton(top, height)
@@ -297,7 +298,8 @@ class SourceCode {
       }
       codelineFrame.addEventListener('touchend', end_handle)
       document.body.addEventListener('mouseup', e => {
-        if (!isTouch) {
+        mouseIsDown = false
+        if (!copyWasPress && !isTouch) {
           end_handle(e)
         }
       })
@@ -317,8 +319,14 @@ class SourceCode {
           positingCopyButton(top, height)
         })
       }
+      let copyWasPress = false
+      copy_button.onmousedown = e => {
+        copyWasPress = true
+      }
       copy_button.onclick = e => {
-        console.warn(lastModel)
+        copyWasPress = false
+        // console.warn(lastModel)
+        console.warn(lastModel.modelStart)
         const {modelStart, modelEnd, slideDirect} = lastModel
         copyEffect(lineCode_list, codelines, modelStart, modelEnd, slideDirect)
         copy2clip(this.getSelectedLine())
