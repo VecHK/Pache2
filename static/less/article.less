@@ -22,6 +22,7 @@ body, html {
 }
 html {
 	overflow-y: scroll;
+	// height: 100%;
 }
 body {
 }
@@ -69,7 +70,7 @@ article, .info {
 }
 
 .info {
-	pre code {
+	pre > code {
 		display: block;
 		margin: auto;
 		padding: 0;
@@ -236,7 +237,7 @@ article * {
 		}
 	}
 
-	pre code[class] {
+	pre code[class]:not(.inline) {
 		display: block;
 		padding: 1em 0.5em;
 		border-radius: 4px;
