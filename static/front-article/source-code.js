@@ -374,12 +374,6 @@ class SourceCode {
         })
         show_mouse_copy_button()
       }
-
-      ArrayForEach(codelines, (line, cursor) => {
-        line.addEventListener('click', e => {
-          lineSelector.select(line)
-        })
-      })
     })
 
     this.setSize()

@@ -42,3 +42,11 @@ const fetchElementText = (() => {
     return str
   }
 })()
+
+function copyArray(arr) {
+  const newArray = []
+  for (let cursor = 0; cursor < arr.length; cursor++) {
+    newArray[cursor] = arr[cursor]
+  }
+  return newArray
+}

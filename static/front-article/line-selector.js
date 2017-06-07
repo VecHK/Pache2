@@ -17,6 +17,11 @@ class LineSelectorInit extends LineSelectorConstructor {
     this.lines = $('.inline', this.linesContainer)
     ArrayForEach(this.lines, (line, cursor) => {
       line.__LINE_CURSOR__ = cursor
+      line.addEventListener('click', e => {
+        if (!line.__isSelected__) {
+          this.select(line)
+        }
+      })
     })
   }
   _initLineNumber() {
@@ -77,13 +82,7 @@ class LineSelectorCopy extends LineSelectorEffect {
     let above = diffusion_point - 1
     let below = diffusion_point + 1
 
-    try {
-      this.unselectEffect(selected[diffusion_point].__LINE_CURSOR__)
-    } catch (e) {
-      console.warn(this.selected, selected[diffusion_point], diffusion_point)
-      throw e
-    }
-    // this.unselect(selected[diffusion_point])
+    this.unselectEffect(selected[diffusion_point].__LINE_CURSOR__)
 
     let total_times = 0
     const unit_timeout = 32
@@ -141,6 +140,7 @@ class LineSelector extends LineSelectorCopy {
     if (this.isExist(line)) {
       return -1
     } else {
+      line.__isSelected__ = true
       const selectedIndex = this.selected.push(line)
       this.selectEffect(line.__LINE_CURSOR__)
 
@@ -155,15 +155,17 @@ class LineSelector extends LineSelectorCopy {
     if (index === -1) {
       return -1
     } else {
+      line.__isSelected__ = false
       this.selected.splice(index, 1)
       this.unselectEffect(line.__LINE_CURSOR__)
       line.removeEventListener('click', line.__CLICK_HANDLE__)
+      line.__CLICK_HANDLE__ = null
     }
   }
 
   unselectAll() {
-    ArrayForEach(this.selected, line => {
-      this.unselect(line.__LINE_CURSOR__)
+    copyArray(this.selected).forEach(line => {
+      this.unselect(line)
     })
   }
 }
