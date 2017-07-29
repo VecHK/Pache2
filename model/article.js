@@ -105,22 +105,31 @@ const linecodeAppend = function () {
 	let $ = cheerio.load(this.format, {
 		decodeEntities: envir.markdown_entitles ? true : false,
 	})
+
 	const codeContainers = $('.hljs.source-code')
 	if (codeContainers.length) {
 		for (let cursor = 0; cursor < codeContainers.length; ++cursor) {
-			let fillHtml = `<div class="codeline-number">1</div>`
+			let fillHtml = `<div class="linecode">1</div>`
 			let count = 2
 
 			const codeContent = $(codeContainers[cursor]).text()
 			for (let i = 0; i < codeContent.length; ++i) {
 				if (codeContent[i] === '\n') {
-					fillHtml += `<div class="codeline-number">${count}</div>`
+					fillHtml += `<div class="linecode">${count}</div>`
 					++count
 				}
 			}
 
-			const codeLineFrame = $('<div class="codeline">').html(fillHtml)
+			const codeLineFrame = $('<div class="codeline-frame">').html(fillHtml)
 			$('code', codeContainers[cursor]).before(codeLineFrame)
+		}
+
+		const sourceCode = $('.hljs.source-code > code')
+		for (let cursor = 0; cursor < sourceCode.length; ++cursor) {
+			const html = $(sourceCode[cursor]).html()
+			$(sourceCode[cursor]).html(
+				html.split('\n').map(inline => `<div class="inline">${inline}</div>`).join('')
+			)
 		}
 
 		this.format = $.html()
