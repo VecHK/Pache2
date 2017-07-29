@@ -14,37 +14,73 @@
 	};
 
 	const DOMMethod = {
+		__setFadeTransition(style, time) {
+			if (('transition' in style) && !style.transition.length) {
+				style.transition = 'opacity '+ time +'ms';
+			} else if (('webkitTransition' in style) && !style.webkitTransition.length) {
+				style.webkitTransition = 'opacity '+ time +'ms';
+			}
+		},
+		__createFadeEndHandle(ele, cb, time, done_handle) {
+			const endHandle = () => {
+				if (ele.__vools_fade_endHandle__ === endHandle) {
+					delete ele.__vools_fade_endHandle__;
+					done_handle && done_handle();
+					cb && cb();
+				}
+			}
+			if (ele.__vools_fade_endHandle__) {
+				clearTimeout(ele.__vools_fade_endHandle__)
+			}
+			ele.__vools_fade_endHandle__ = endHandle;
+			setTimeout(endHandle, time)
+			if (ele.__vools_fade_callback__) {
+				ele.__vools_fade_callback__ && ele.__vools_fade_callback__();
+				ele.__vools_fade_callback__ = null;
+			}
+			ele.__vools_fade_callback__ = cb;
+
+			return endHandle
+		},
 		fadeIn(cb, time = 618) {
 			this.forEach(ele => {
-				ele.style.opacity = 0;
-				ele.style.transition = 'opacity '+ time +'ms';
-				ele.style.webkitTransition = 'opacity '+ time +'ms';
+				const {style} = ele;
+				this.__setFadeTransition(style, time);
 
-				ele.style.display = '';
-				ele.style.display = getComputedStyle(ele, null).getPropertyValue('display');
+				if (ele.__vools_fade_endHandle__) {
+					style.opacity = 0;
+				} else if (!style.opacity.length) {
+					style.opacity = 0;
+				}
+
+				const comp_display = getComputedStyle(ele, null).getPropertyValue('display');
+				if (comp_display === 'none') {
+					style.display = '';
+				}
 
 				setTimeout(function (){
-					ele.style.opacity = 1;
-					setTimeout(function (){
-						cb && cb();
-					}, time);
+					style.opacity = 1;
 				}, 16.8);
+				const endHandle = this.__createFadeEndHandle(ele, cb, time + 16.8)
 			})
 		},
 		fadeOut(cb, time = 618) {
 			this.forEach(ele => {
-				ele.style.opacity = 1;
-				ele.style.transition = 'opacity '+ time +'ms';
-				ele.style.webkitTransition = 'opacity '+ time +'ms';
+				const {style} = ele;
+				this.__setFadeTransition(style, time);
+
+				if (ele.__vools_fade_endHandle__) {
+					style.opacity = 1;
+				} else if (!style.opacity.length) {
+					style.opacity = 1;
+				}
 
 				setTimeout(function (){
-					ele.style.opacity = 0;
-					setTimeout(function (){
-						ele.style.display = 'none';
-						console.warn(cb);
-						cb && cb();
-					}, time);
+					style.opacity = 0;
 				}, 16.8);
+				const endHandle = this.__createFadeEndHandle(ele, cb, time + 16.8, () => {
+					style.display = 'none';
+				})
 			})
 		},
 		remove(){
