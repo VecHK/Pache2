@@ -1,44 +1,36 @@
+function appendScript(src, cb) {
+  var script = document.createElement('script')
+  script.onload = cb
+  script.src = src
+  document.body.appendChild(script)
+}
 (function () {
   var polyfill_arr = []
 
   // 首先需要 Promise 庫，採用 bluebird
+  var support_promise = true
   try {
     eval('new Promise(function (res) {res()})')
   } catch (e) {
     console.warn('unsupport Promise')
-    polyfill_arr.push('/bluebird/bluebird.min.js')
+    support_promise = false
   }
 
   // 如果不支持 async/await 則準備 regenerator
+  var support_async = true
   try {
-    eval('(async function () {})')
+    eval('(async a=>1)')
   } catch(err) {
-    console.warn('unsupport async/await')
-    polyfill_arr.push('/regenerator-runtime/runtime.js')
+    console.warn('unsupport [arrowFunction] or [async/await]')
+    support_async = false
   }
 
-  // 全都支持的話，直接加載
-  // 支持 async/await 的主流瀏覽器都支持用得到的 ES 新特性，故不必顧慮運行問題
-  if (!polyfill_arr.length) {
-    require(['/front-article-concat/all.js'], function () {
-      main()
-    })
+  function done() { window.main() }
+  if (support_promise && support_async) {
+    appendScript('/front-article-concat/concat.js', done)
+  } else if (support_promise) {
+    appendScript('/front-article-concat/polyfill.js', done)
   } else {
-    require(polyfill_arr, function (PromiseLib, regeneratorRuntimeLib) {
-      if (arguments.length === 2) {
-        // Promise, async/await 都不支持
-        window.Promise = arguments[0]
-        // window.regeneratorRuntime = arguments[1]
-      } else if (arguments.length === 1) {
-        // 這種應該只有是 Async/Await 不支持了，因為主流環境中不存在【僅支持 Await/Await，但不支持 Promise】的情況
-        console.warn(polyfill_arr, PromiseLib)
-        // window.regeneratorRuntime = arguments[0]
-      }
-
-      window.Promise = Promise
-      require(['/front-article-concat-polyfill/all.js'], function () {
-        main()
-      })
-    })
+    appendScript('/front-article-concat/promise-polyfill.js', done)
   }
 })()
