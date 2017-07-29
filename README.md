@@ -12,35 +12,36 @@ Pache 2
 [node-image]: https://img.shields.io/badge/node.js-%3E=_7.9-green.svg
 [node-url]: http://nodejs.org/download/
 
-干脆开个新的仓库吧，几乎完全重写的 Pache。不过自家用的本质不变：
+Pache 2，還是原來的感覺（自家用的本質）：
 
- * 静态单页
- * 配置文件采用 suc
- * cluster 负载均衡
+ * 配置文件採用 suc
+ * cluster 負載均衡
  * AVA 測試框架
+ * 優秀的功能
+ * 分頁
 
-## 安装
+
+## 安裝
 
 ```
 npm install node-pache --g
 ```
 
-## 配置
-
-你可能还需要配置其它的一些东西
+## 要求
 
  - Redis
  - mongoDB
 
-## 运行
+## 運行
 
 ```bash
-pache run
+pache create ./config_name.suc
+pache run ./config_name.suc
 ```
 
-## 配置文件
+## 關於配置文件
 
-打开项目目录中的 `config.suc` 你应该就知道如何操作了。。。
+因為採用了 suc，故你可能需要查看一下相關教程。目錄中的 config.suc 當中有相關設置項的說明。
 
 ## 單元测试
 
