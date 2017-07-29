@@ -50,3 +50,25 @@ function copyArray(arr) {
   }
   return newArray
 }
+
+function Delay(d_handle, e_handle) {
+  var g_res, g_rej
+  var prom = new Promise((res, rej) => {
+    g_res = function() {
+      prom.__DELAY__ = true
+      d_handle && d_handle.apply(null, arguments)
+      res.apply(null, arguments)
+    }
+    g_rej = function () {
+      prom.__DELAY__ = false
+      e_handle && e_handle.apply(null, arguments)
+      rej.apply(null, arguments)
+    }
+  })
+
+  prom.__DELAY__ = null
+  prom.done = g_res
+  prom.fail = g_rej
+
+  return prom
+}
