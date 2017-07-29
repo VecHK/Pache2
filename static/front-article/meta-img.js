@@ -114,9 +114,13 @@ class MetaImage {
       this.hideInfoElement(() => {
         $('.size', this.container).text(`${parseInt(this.size / 1024)} KB`)
       })
+      this.delayLoaded.done()
       // $(this.metaInfoElement).css('opacity', '0')
     }
     img.src = src
+  }
+  initImg() {
+    this.delayLoaded = Delay()
   }
   load(TIMEOUT = 720) {
     // 已加載過的圖片不會再次加載
@@ -153,20 +157,10 @@ class MetaImage {
     return imgl
   }
   showInfoElement(callback) {
-    if (this._needNoneDisplay) {
-      $(this.infoElement).fadeIn(callback)
-    } else {
-      $(this.infoElement).css('opacity', '1')
-      setTimeout(callback, 618)
-    }
+    $(this.infoElement).fadeIn(callback)
   }
   hideInfoElement(callback) {
-    if (this._needNoneDisplay) {
-      $(this.infoElement).fadeOut(callback)
-    } else {
-      $(this.infoElement).css('opacity', '0')
-      setTimeout(callback, 618)
-    }
+    $(this.infoElement).fadeOut(callback)
   }
   infoElement() {
     const aside = $$('aside', this.container)
@@ -174,96 +168,30 @@ class MetaImage {
 
     this.status = false
 
-    let clickStatus
+    let loadStatus
     const asideClickHandle = e => {
-      if (!clickStatus) {
-        clickStatus = true
+      e.preventDefault()
+      if (!loadStatus) {
+        loadStatus = true
         const imgl = this.load()
         // 若 imgl 不存在說明圖片已經加載了
         if (imgl) {
           imgl.on('done', e => {
             this.container.removeEventListener('click', asideClickHandle)
           })
-          imgl.on('end', e => { clickStatus = false })
+          imgl.on('end', e => { loadStatus = false })
         }
       }
     }
     this.container.addEventListener('click', asideClickHandle)
 
-    let openStatus = false
-    let isMove
-    let start_time
-    this.container.addEventListener('touchstart', e => {
-      this._haveTouch = true
-      isMove = false
-      start_time = Date.now()
-    })
-
-    this.container.addEventListener('touchmove', e => {
-      isMove = true
-    })
-
-    this.container.addEventListener('touchend', e => {
-      this._haveTouch = true
-      const interval = Date.now() - start_time
-      console.info(interval)
-
-      // 圖片有加載並且沒有滑動操作且按的間隔小於 300ms
-      if (this.img.src.length && !isMove && interval < 300) {
+    this.delayLoaded.then(() => {
+      this.container.addEventListener('click', e => {
         openStatus = !openStatus
         openStatus ? this.showInfoElement() : this.hideInfoElement()
-      } else {
-        return
-      }
-    })
-
-    this.container.addEventListener('mouseenter', async e => {
-      if (this._haveTouch) return
-      if (!this.status) return
-      else if (!this.floatElement) this.createFloatElement()
-
-      this._needNoneDisplay = true
-      this.infoElement.style.display = 'none'
-
-      if (this._mouseleaveWaitting) {
-        await Promise.all([this._mouseleaveWaitting])
-        await waitting(100)
-      }
-
-      if (this.mouseIsEnter) {
-        return
-      } else {
-        this.mouseIsEnter = true
-      }
-
-      $(this.floatElement).removeCss('display')
-      await waitting(20)
-
-      $(this.floatElement).css({
-        opacity: 1,
-        left: '100%',
       })
-
-      this._mouseenterWaitting = waitting(618).then(() => delete this._mouseenterWaitting)
     })
-    this.container.addEventListener('mouseleave', async e => {
-      if (this._haveTouch) return
-      if (!this.status) return
-      else if (!this.floatElement) this.createFloatElement()
-
-      if (this._mouseenterWaitting) {
-        await Promise.all([this._mouseenterWaitting])
-        await waitting(100)
-      }
-
-      $(this.floatElement).removeCss('opacity', 'left')
-      this._mouseleaveWaitting = waitting(618).then(() => delete this._mouseleaveWaitting)
-      await this._mouseleaveWaitting
-      if (!this._mouseenterWaitting) {
-        this.mouseIsEnter = false
-        $(this.floatElement).css('display', 'none')
-      }
-    })
+    let openStatus = false
 
     return aside
   }
@@ -280,7 +208,7 @@ class MetaImage {
     this.resize()
   }
   failure() {
-    alert()
+    alert('failure')
   }
   init() {
     this.resizeHandle && window.removeEventListener('resize', this.resizeHandle)
@@ -322,10 +250,10 @@ class MetaImage {
   }
   constructor(container) {
     this.container = container
+    this.initImg()
     this.init()
   }
 }
-
 class MetaImageFrame {
   init() {
     const metaImgRaw_list = $('[id^="meta-"]', this.container)
