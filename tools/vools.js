@@ -47,9 +47,7 @@
 				const {style} = ele;
 				this.__setFadeTransition(style, time);
 
-				if (ele.__vools_fade_endHandle__) {
-					style.opacity = 0;
-				} else if (!style.opacity.length) {
+				if (ele.__vools_fade_endHandle__ || !style.opacity.length) {
 					style.opacity = 0;
 				}
 
@@ -58,7 +56,7 @@
 					style.display = '';
 				}
 
-				setTimeout(function (){
+				setTimeout(() => {
 					style.opacity = 1;
 				}, 16.8);
 				const endHandle = this.__createFadeEndHandle(ele, cb, time + 16.8)
@@ -69,13 +67,11 @@
 				const {style} = ele;
 				this.__setFadeTransition(style, time);
 
-				if (ele.__vools_fade_endHandle__) {
-					style.opacity = 1;
-				} else if (!style.opacity.length) {
+				if (ele.__vools_fade_endHandle__ || !style.opacity.length) {
 					style.opacity = 1;
 				}
 
-				setTimeout(function (){
+				setTimeout(() => {
 					style.opacity = 0;
 				}, 16.8);
 				const endHandle = this.__createFadeEndHandle(ele, cb, time + 16.8, () => {

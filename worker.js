@@ -79,7 +79,7 @@ process.on('message', (message) => {
 		const server = http.createServer(app.callback());
 		server.listen(envir.port);
 		server.on('error', (err) => {
-			console.error('http Server 錯誤', e.message)
+			console.error('http Server 錯誤', err.message)
 			throw err;
 		});
 		server.on('listening', () => {

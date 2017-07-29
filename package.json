@@ -1,6 +1,6 @@
 {
   "name": "node-pache",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "vec 自家用 blog",
   "main": "master.js",
   "bin": {
@@ -26,6 +26,7 @@
     "han-css": "^3.3.0",
     "highlight.js": "^9.9.0",
     "html-entities": "^1.2.0",
+    "image-size": "^0.5.4",
     "jsdom": "^9.11.0",
     "koa": "^2.2.0",
     "koa-bodyparser": "^4.2.0",
