@@ -36,21 +36,52 @@ gulp.task('front_es6toes5', () => {
 		.pipe(sourcemaps.write("."))
 		.pipe(gulp.dest("static/script/"));
 })
-gulp.task('draggable_concat', () => {
-	return gulp.src(
-		["static/draggable/TweenLite.min.js", "static/draggable/Draggable.min.js", "static/draggable/CSSPlugin.min.js"]
-	)
+
+// polyfill
+gulp.task('front-article-concat-polyfill', () => {
+	return gulp.src([
+		'static/han/han.min.js',
+		'public/vools.js',
+		'static/clipboard/clipboard.min.js',
+		'static/regenerator-runtime/runtime.js',
+		'static/front-article-concat/polyfill-concat.js'
+	])
 		.pipe(plumber({
 			errorHandler: function(err) {
 				beep('*-*-')
 				notify.onError('Error: <%= error.message %>').apply(this, arguments)
 			}}
 		))
-		.pipe(concat("all.js"))
-		.pipe(gulp.dest("static/draggable/"))
+		.pipe(sourcemaps.init())
+		.pipe(concat("polyfill.js"))
+		.pipe(sourcemaps.write("."))
+		.pipe(gulp.dest("static/front-article-concat/"))
 })
-gulp.task('front_article_concat(polyfill)', () => {
-	return gulp.src("static/front-article/*.js")
+
+// 帶 Promise 的 polyfill
+gulp.task('front-article-concat-promise-polyfill', () => {
+	return gulp.src([
+		'static/han/han.min.js',
+		'public/vools.js',
+		'static/clipboard/clipboard.min.js',
+		'static/bluebird/bluebird.min.js',
+		'static/regenerator-runtime/runtime.js',
+		'static/front-article-concat/polyfill-concat.js'
+	])
+		.pipe(plumber({
+			errorHandler: function(err) {
+				beep('*-*-')
+				notify.onError('Error: <%= error.message %>').apply(this, arguments)
+			}}
+		))
+		.pipe(sourcemaps.init())
+		.pipe(concat("promise-polyfill.js"))
+		.pipe(sourcemaps.write("."))
+		.pipe(gulp.dest("static/front-article-concat/"))
+})
+
+gulp.task('front-article-polyfill-concat', () => {
+	return gulp.src(['static/front-article/*.js'])
 		.pipe(plumber({
 			errorHandler: function(err) {
 				beep('*-*-')
@@ -59,12 +90,12 @@ gulp.task('front_article_concat(polyfill)', () => {
 		))
 		.pipe(sourcemaps.init())
 		.pipe(babel())
-		.pipe(concat("all.js"))
+		.pipe(concat("polyfill-concat.js"))
 		.pipe(sourcemaps.write("."))
-		.pipe(gulp.dest("static/front-article-concat-polyfill/"))
+		.pipe(gulp.dest("static/front-article-concat/"))
 })
-gulp.task('front_article_concat', () => {
-	return gulp.src("static/front-article/*.js")
+gulp.task('front-article-concat', () => {
+	return gulp.src(['static/han/han.min.js', 'public/vools.js', 'static/clipboard/clipboard.min.js', 'static/front-article/*.js'])
 		.pipe(plumber({
 			errorHandler: function(err) {
 				beep('*-*-')
@@ -72,10 +103,11 @@ gulp.task('front_article_concat', () => {
 			}}
 		))
 		.pipe(sourcemaps.init())
-		.pipe(concat("all.js"))
+		.pipe(concat("concat.js"))
 		.pipe(sourcemaps.write("."))
 		.pipe(gulp.dest("static/front-article-concat/"))
 })
+
 gulp.task('tools_es6toes5', () => {
 	return gulp.src("tools/*.js")
 		.pipe(plumber({
@@ -136,7 +168,10 @@ gulp.task('watch', () => {
 	gulp.watch('static/src/*.js', ['front_es6toes5']);
 	gulp.watch('static/admin/src/*.js', ['admin_es6toes5']);
 	gulp.watch('tools/*.js', ['tools_es6toes5']);
-	gulp.watch('static/front-article/*.js', ['front_article_concat', 'front_article_concat(polyfill)']);
+	gulp.watch(['public/*.js', 'static/front-article/*.js'], ['front-article-polyfill-concat', 'front-article-concat']);
+	gulp.watch(['static/front-article-concat/polyfill-concat.js'],
+		['front-article-concat-polyfill', 'front-article-concat-promise-polyfill']
+	);
 
 	gulp.watch('static/less/*.less', ['front-less']);
 	gulp.watch('static/admin/less/*.less', ['admin-less']);
