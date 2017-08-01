@@ -306,6 +306,17 @@ const PageSelector = {
         const itemEle = $.create('div').class('page-selector-item').text(current + 1).pop()
 				pageCodeElements.push(itemEle)
         this.ele.get('list').append(itemEle)
+				itemEle.addEventListener('click', (current => e => {
+					if (this.status) {
+						if (current === this.currentPageCode) {
+							e.preventDefault()
+							e.stopPropagation()
+							$$('.page-selector-bg').click()
+						} else {
+							this.currentPageCode = current
+						}
+					}
+				})(current))
       }
 			ObjectAssign(this, {
 				pageCodeElements,
