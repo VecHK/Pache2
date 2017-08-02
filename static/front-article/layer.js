@@ -86,7 +86,7 @@ class Split {
     $(this.splitContainer).css({
       height: `0px`,
     })
-    $(this.jackContainer).css('height', `0px`)
+    $(this.jackContainer).css('height', `1em`)
 
     await waitting(this.jackTransitionDuration)
     $(this.jackContainer).css('display', 'none').classRemove('slidedowned')
@@ -113,15 +113,17 @@ class Split {
     this.clearArrow()
   }
   setResize() {
-    let lastWidth = document.body.offsetWidth
-    const resizeHandle = async e => {
-      if (lastWidth === document.body.offsetWidth) {
+    const off_width = () => document.body.offsetWidth
+    let lastWidth = off_width()
+    const lthis = this
+    const resizeHandle = async function(e) {
+      if (lastWidth === off_width()) {
         return
-      } else if (this.status) {
-        await this.slideUp()
-        this.slideDown()
+      } else if (lthis.status) {
+        await lthis.slideUp()
+        lthis.slideDown()
       }
-      lastWidth = document.body.offsetWidth
+      lastWidth = off_width()
     }
     window.addEventListener('resize', resizeHandle)
     resizeHandle()
@@ -181,5 +183,10 @@ const Layer = {
 
 // layer 優秀的功能
 pa_init(async () => {
-  window.layer = Layer.init($$('#article'), $$('#article section.footnotes'))
+  try {
+    window.layer = Layer.init($$('#article'), $$('#article section.footnotes'))
+  } catch (e) {
+    $(document.body).css('color', '#CB1B45').text(`【${e.name}】${e.message}
+      ${e.stack}`)
+  }
 })
