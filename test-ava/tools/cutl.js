@@ -82,3 +82,25 @@ test('色 OR 運算', t => {
   const 結果 = Cutl.or(color1, color2).getColorCode()
   t.is(結果, 已經運算過的顏色)
 })
+
+test('轉換為 HSL 對象', t => {
+  const hsl_assert = (c, hv, sv, lv) => {
+    const {h, s, l} = Cutl.RGB2HSL(c.r, c.g, c.b)
+    t.is(Math.round(h), hv)
+    t.is(Math.round(s * 100), Math.round(sv * 100))
+    t.is(Math.round(l * 100), Math.round(lv * 100))
+  }
+  hsl_assert(Cutl.init(255, 0, 0), 0, 1, 0.5)
+  hsl_assert(Cutl.init(255, 255, 0), 60, 1, 0.5)
+
+  hsl_assert(Cutl.init(0, 255, 0), 120, 1, 0.5)
+  hsl_assert(Cutl.init(0, 255, 255), 180, 1, 0.5)
+
+  hsl_assert(Cutl.init(0, 0, 255), 240, 1, 0.5)
+  hsl_assert(Cutl.init(255, 255, 255), 0, 0, 1)
+
+  hsl_assert(Cutl.init(128, 0, 0), 0, 1, 0.25)
+
+  hsl_assert(Cutl.init(48, 103, 133), 201, 0.47, 0.35)
+  hsl_assert(Cutl.init(151, 160, 45), 65, 0.56, 0.40)
+})

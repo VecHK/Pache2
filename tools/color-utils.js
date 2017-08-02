@@ -33,6 +33,9 @@
 
         return '#' + color_code
       },
+      toHSL() {
+        return Cutl.RGB2HSL(this,r, this.g, this.b)
+      },
       // 灰度處理
       // 灰度的計算公式是 Gray = 0.299R + 0.587G + 0.144B
       // 計算出的數值 Gray 需要四捨五入
@@ -41,6 +44,40 @@
         let g = Math.round(gray)
         return this.parent.init(g, g, g)
       },
+    },
+
+    // RGB 轉 HSL
+    RGB2HSL(r, g, b) {
+      r /= 255
+      g /= 255
+      b /= 255
+      let h, s, l
+      const max = Math.max(r, g, b)
+      const min = Math.min(r, g, b)
+
+      if (max === min) {
+        h = 0
+      } else if ((max === r) && (g >= b)) {
+        h = 60 * ((g - b) / (max - min)) + 0
+      } else if ((max === r) && (g < b)) {
+        h = 60 * ((g - b) / (max - min)) + 360
+      } else if (max === g) {
+        h = 60 * ((b - r) / (max - min)) + 120
+      } else if (max === b) {
+        h = 60 * ((r - g) / (max - min)) + 240
+      }
+
+      l = (max + min) / 2
+
+      if ((l === 0) || max === min) {
+        s = 0
+      } else if ((0 < l) && (l <= 0.5)) {
+        s = (max - min) / (2 * l)
+      } else if (l > (0.5)) {
+        s = (max - min) / (2 - 2 * l)
+      }
+
+      return { h, s, l }
     },
 
     // 色值 OR 位運算
