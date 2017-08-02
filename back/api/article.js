@@ -50,6 +50,7 @@ router.get('/articles/:pagecode', async (ctx, next) => {
 router.patch('/article/:id', async (ctx, next) => {
   let {id} = ctx.params
   let fields = ctx.request.body
+  Object.assign(fields, { mod: new Date })
 
   let apiBack = ctx.apiBack
   apiBack = await Model.Article.update(
@@ -62,9 +63,9 @@ router.patch('/article/:id', async (ctx, next) => {
 })
 router.patch('/articles', async (ctx, next) => {
   let {ids, fields} = ctx.request.body
+  Object.assign(fields, { mod: new Date })
 
-  let apiBack = ctx.apiBack
-
+  let {apiBack} = ctx
   apiBack.result = await Model.Article.update(
     { _id: {$in: ids} },
     fields,

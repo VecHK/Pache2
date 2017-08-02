@@ -92,9 +92,10 @@ const repost_color_middle = async function (opts) {
 		set.fusion_color = '#CCC'
 	} else if (category && is_repost) {
 		// 有分類的轉載文章
-		const c_color = Cutl.init(category.color)
-		const f_color = Cutl.or(c_color, repost_color)
-		set.fusion_color = f_color.getColorCode()
+		// const c_color = Cutl.init(category.color)
+		// const f_color = Cutl.or(c_color, repost_color)
+		// set.fusion_color = f_color.getColorCode()
+		set.fusion_color = category.color
 	} else if (category && !is_repost) {
 		// 有分類的非轉載文章
 		set.fusion_color = category.color
@@ -327,7 +328,7 @@ ArticleSchema.pre('update', mhook(async function () {
 		set.category = null
 	}
 
-	set.mod = new Date
+	// set.mod = new Date
 
 	let result_list = await this.find({_id: this._conditions._id})
 	for (let result of result_list) {

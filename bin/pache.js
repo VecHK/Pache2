@@ -74,6 +74,14 @@ const yargs = require('yargs')
 			process.exit(0)
 		})
 	})
+	.command(['refresh [configpath]'], '（實驗）刷新全部文章', {}, argv => {
+		const envir = require('../envir')
+		let sucPath = argv.configpath || path.join(__dirname, '../config.suc')
+		envir.CONFIG_PATH = sucPath
+		envir.reload()
+
+		require('../cli/refresh')(argv)
+	})
 	.command(['version'], '查看 Pache 版本', {}, argv => {
 		console.info(package.version)
 		process.exit(0)
