@@ -22,9 +22,8 @@ class Split {
 
     $(this.splitContainer).css('display', '')
     $(this.jackContainer).css('display', '')
-    await waitting(1000 / 30)
+    // await waitting(1000 / 30)
 
-    console.warn(document.body.offsetWidth, this.splitContainer.parentNode.offsetLeft);
     $(this.splitContainer).css({
       width: `${document.body.offsetWidth}px`,
       left: `-${this.splitContainer.parentNode.offsetLeft}px`,
@@ -36,9 +35,8 @@ class Split {
     } else {
       $(this.contentContainer).removeCss('padding')
     }
-    await waitting(1000 / 10)
 
-    const speed = 0.3
+    const speed = 0.35
     const contentEle = this.getSplitContentElement()
     const {scrollHeight} = contentEle
     const {parentNode} = this.jackContainer
@@ -47,31 +45,23 @@ class Split {
     const refParentLineHeight = getComputedStyle(refParent).lineHeight
 
     this.jackTransitionDuration = (scrollHeight + parseFloat(parentLineHeight)) / speed
-    $(this.jackContainer).css({
+    $([this.jackContainer, this.splitContainer]).css({
       transitionDuration: `${this.jackTransitionDuration}ms`,
+    })
+
+    await waitting(1000 / 60)
+
+    $(this.jackContainer).css({
       height: `${scrollHeight + parseFloat(parentLineHeight)}px`,
     })
 
-    await waitting(parseFloat(parentLineHeight) / speed)
+    // await waitting(parseFloat(parentLineHeight) / speed)
     this.splitTransitionDuration = scrollHeight / speed
     let splitContainerTop;
 
-    if ($.browser.core === 'ms') {
-      splitContainerTop = refParent.offsetTop
-      // splitContainerTop = this.refContainer.offsetTop + refParent.offsetHeight
-      // splitContainerTop = refParent.offsetTop + parseFloat(getComputedStyle(this.refContainer).lineHeight)
-      console.info(this.refContainer.offsetTop, refParent.offsetTop, this.refContainer.offsetHeight)
-      // splitContainerTop = this.refContainer.offsetTop + refParent.offsetHeight + parseFloat(refParentLineHeight)
-    } else if ($.browser.core === 'webkit') {
-      splitContainerTop = this.refContainer.offsetTop + parseFloat(getComputedStyle(refParent.parentNode).lineHeight)
-    } else if ($.browser.core === 'moz') {
-      splitContainerTop = this.refContainer.offsetTop + parseFloat(getComputedStyle(refParent.parentNode).lineHeight)
-    } else {
-      splitContainerTop = this.refContainer.offsetTop + parseFloat(getComputedStyle(refParent.parentNode).lineHeight)
-    }
+    splitContainerTop = this.jackContainer.offsetTop
 
     $(this.splitContainer).css({
-      transitionDuration: `${this.splitTransitionDuration}ms`,
       height: `${scrollHeight}px`,
       top: `${splitContainerTop}px`,
     })
@@ -86,7 +76,7 @@ class Split {
     $(this.splitContainer).css({
       height: `0px`,
     })
-    $(this.jackContainer).css('height', `1em`)
+    $(this.jackContainer).css('height', `1.8em`)
 
     await waitting(this.jackTransitionDuration)
     $(this.jackContainer).css('display', 'none').classRemove('slidedowned')
