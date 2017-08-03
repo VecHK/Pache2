@@ -20,6 +20,7 @@ class Split {
   async slideDown() {
     this.status = true
 
+    $('.split-content', this.splitContainer).css('display', '')
     $(this.splitContainer).css('display', '')
     $(this.jackContainer).css('display', '')
     // await waitting(1000 / 30)
@@ -80,7 +81,8 @@ class Split {
 
     await waitting(this.jackTransitionDuration)
     $(this.jackContainer).css('display', 'none').classRemove('slidedowned')
-    $(this.splitContainer).css('display', 'none').classRemove('slidedowned')
+    $(this.splitContainer).classRemove('slidedowned')
+    $('.split-content', this.splitContainer).css('display', 'none')
     await waitting(1000 / 30)
   }
   constructor(ref, html) {
