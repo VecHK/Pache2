@@ -104,3 +104,26 @@ test('轉換為 HSL 對象', t => {
   hsl_assert(Cutl.init(48, 103, 133), 201, 0.47, 0.35)
   hsl_assert(Cutl.init(151, 160, 45), 65, 0.56, 0.40)
 })
+
+test('HSL 轉 RGB', t => {
+  const rgb_assert = (h, s, l, rv, gv, bv) => {
+    const {r, g, b} = Cutl.HSL2RGB(h, s, l)
+    t.is(r, rv)
+    t.is(g, gv)
+    t.is(b, bv)
+  }
+
+  rgb_assert(0, 1, 0.5, 255, 0, 0)
+  rgb_assert(60, 1, 0.5, 255, 255, 0)
+
+  rgb_assert(120, 1, 0.5, 0, 255, 0)
+  rgb_assert(180, 1, 0.5, 0, 255, 255)
+
+  rgb_assert(240, 1, 0.5, 0, 0, 255)
+  rgb_assert(0, 0, 1, 255, 255, 255)
+
+  rgb_assert(0, 1, 0.25, 128, 0, 0)
+
+  rgb_assert(201, 0.47, 0.35, 47, 102, 131)
+  rgb_assert(65, 0.56, 0.40, 150, 159, 45)
+})

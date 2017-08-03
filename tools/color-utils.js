@@ -80,6 +80,60 @@
       return { h, s, l }
     },
 
+    HSL2RGBRAW(h, s, l) {
+      let c = {}
+      if (s === 0) {
+        // 如果 h 為 0，則說明顏色是非彩色或者是灰色的，r=l，g=l，b=l
+        c.r = c.g = c.b = l
+      } else {
+        let q, p, hk
+
+        if (l < 0.5) {
+          q = l * (1 + s)
+        } else {
+          q = l + s - (l * s)
+        }
+
+        p = 2 * l - q
+
+        hk = h / 360 // h值域轉為 [0, 1]
+
+        c.r = hk + (1 / 3)
+        c.g = hk
+        c.b = hk - (1 / 3)
+
+        for (let prop in c) {
+          let tc = c[prop]
+          if (tc < 0) {
+            tc += 1
+          } else if (c[prop] > 1) {
+            tc -= 1
+          }
+
+          if (tc < (1 / 6)) {
+            tc = p + ((q - p) * 6 * tc)
+          } else if (((1 / 6) <= tc) && (tc < (1 / 2))) {
+            tc = q
+          } else if (((1 / 2) <= tc) && (tc < (2 / 3))) {
+            tc = p + ((q - p) * 6 * ((2 / 3) - tc))
+          } else {
+            tc = p
+          }
+          c[prop] = tc
+        }
+      }
+      return c
+    },
+
+    // HSL 轉 RGB
+    HSL2RGB(h, s, l) {
+      const c = this.HSL2RGBRAW(h, s, l)
+      for(let p in c) {
+        c[p] = Math.round(c[p] * 255)
+      }
+      return c
+    },
+
     // 色值 OR 位運算
     or(c1, c2) {
       return this.init(c1.r | c2.r, c1.g | c2.g, c1.b | c2.b)
