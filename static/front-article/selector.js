@@ -135,19 +135,26 @@ const PageSelector = {
         'content': $$('.page-selector-content', this.container)
       })
       ele['content'].addEventListener('click', e => {
+				e.preventDefault()
+				e.stopPropagation()
         this.status || this.open()
       })
 
-      const bg = $('.page-selector-bg')
-      bg[0].addEventListener('click', e => {
+      // const bg = $('.page-selector-bg')
+			const $body = $(document.body)
+      document.body.addEventListener('click', e => {
 				this.submitPage()
-        this.status && this.close()
+				if (this.status) {
+					e.preventDefault()
+					e.stopPropagation()
+					this.close()
+				}
       })
       this.on('open', () => {
-        bg.css('display', 'block')
+        $body.css('cursor', 'pointer')
       })
       this.on('close', () => {
-        bg.removeCss('display')
+        $body.removeCss('cursor')
       })
 
       // const scrollHandle = e => {
@@ -287,10 +294,10 @@ const PageSelector = {
       const pageItem = $$('.page-selector-item', this.container)
       if (this.status) {
         // pageItem 的 padding 值，以及 pageItem 的線寬
-        var base_offset = `matrix(1, 0, 0, 1, 0, 0) translate3d(0, 0, 0) translateY(${pageItem.offsetHeight}px) translateY(-1px)`
+        var base_offset = `translateY(${pageItem.offsetHeight}px) translateY(-1px)`
       } else {
         // pageItem 的 padding 值，以及 pageItem 的線寬
-        var base_offset = `matrix(1, 0, 0, 1, 0, 0) translate3d(0, 0, 0) translateY(-0.5em) translateY(-1px)`
+        var base_offset = `translateY(-0.5em) translateY(-1px)`
       }
       var add_offset = ` translateY(-${pageItem.offsetHeight * value}px)`
 
@@ -308,10 +315,10 @@ const PageSelector = {
         this.ele.get('list').append(itemEle)
 				itemEle.addEventListener('click', (current => e => {
 					if (this.status) {
+						e.preventDefault()
+						e.stopPropagation()
 						if (current === this.currentPageCode) {
-							e.preventDefault()
-							e.stopPropagation()
-							$$('.page-selector-bg').click()
+							document.body.click()
 						} else {
 							this.currentPageCode = current
 						}
