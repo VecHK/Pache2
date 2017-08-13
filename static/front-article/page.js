@@ -1,3 +1,14 @@
+const wait_step = (timeout, fn) => {
+  setTimeout(fn, timeout)
+  return function (timeout_c, fn_c) {
+    if (arguments.length === 1) {
+      fn_c = timeout_c
+      timeout_c = 20
+    }
+    return wait_step(timeout + timeout_c, fn_c)
+  }
+}
+
 // 分頁的一些策略
 // 該功能需要後端支持（預渲染
 // 先將 .page 元素隱藏（頁
@@ -118,6 +129,39 @@ const Page = {
       return (this.__pageCode = value)
     },
 
+    previousAction_short(current, previous) {
+      const waitTime = parseFloat(getComputedStyle(current).transitionDuration) * 1000
+
+      previous.style.transform = 'translateY(-1em)'
+      previous.style.display = 'none'
+
+      current.style.bottom = '0'
+      current.style.position = 'fixed'
+
+      return wait_step(20, () => {
+        previous.style.display = ''
+      })(20, () => {
+        current.style.opacity = '0'
+        current.style.bottom = '-1em'
+
+        previous.style.opacity = 1
+        previous.style.transform = 'translateY(0em)'
+      })(waitTime + 20, () => {
+        this.emit('action', current, previous)
+
+        this.setCurrent(previous)
+        previous.style.transform = ''
+
+        current.style.position = ''
+        current.style.opacity = ''
+        current.style.bottom = ''
+
+        this.__actionType = 'waitting'
+        this.__operator = null
+        this.__current = null
+        console.timeEnd('frame_time')
+      })
+    },
     /**
       上一頁
       @param {Object} current 當前頁的元素
@@ -131,41 +175,80 @@ const Page = {
       })
       console.time('frame_time')
       // $([current, previous]).class('switching')
+
+      previous.style.display = ''
+      const previous_height = previous.scrollHeight
+      if (this.isViewportInArticleContainer() && previous_height < window.innerHeight) {
+        console.log('下一頁太短')
+        return this.previousAction_short(current, previous)
+      }
+
       if (this.isViewportInArticleContainer()) {
         previous.style.top = '0em'
         previous.style.position = 'fixed'
       }
 
-      previous.style.display = ''
-
       current.style.opacity = '1'
       current.style.position = 'absolute'
 
       current.style.top = '0em'
-      setTimeout(() => {
+
+      const waitTime = parseFloat(getComputedStyle(current).transitionDuration) * 1000
+      return wait_step(20, () => {
         this.emit('action', current, previous)
 
         current.style.top = '1em'
         current.style.opacity = '0'
         previous.style.opacity = '1'
+      })(waitTime + 20, () => {
+        if (this.isViewportInArticleContainer()) {
+          scrollTo(document.body, this.container.offsetTop)
+          previous.style.position = ''
+        }
+        this.setCurrent(previous)
+        previous.style.top = ''
+        previous.style.height = ''
 
-        const waitTime = parseFloat(getComputedStyle(current).transitionDuration) * 1000
-        setTimeout(() => {
-          if (this.isViewportInArticleContainer()) {
-            scrollTo(document.body, this.container.offsetTop)
-            previous.style.position = ''
-          }
-          this.setCurrent(previous)
-          $(previous).removeCss('top', 'height')
-          $(current).removeCss('position', 'opacity', 'top')
+        current.style.position = ''
+        current.style.opacity = ''
+        current.style.top = ''
 
-          ObjectAssign(this, {
-            __actionType: 'waitting',
-            __operator: null,
-            __current: null,
-          })
-        }, waitTime)
-      }, 18)
+        this.__actionType = 'waitting'
+        this.__operator = null
+        this.__current = null
+        console.timeEnd('frame_time')
+      })
+    },
+
+
+    nextAction_short(current, next) {
+      current.style.bottom = '0'
+      current.style.position = 'fixed'
+
+      const waitTime = parseFloat(getComputedStyle(current).transitionDuration) * 1000
+      return wait_step(20, () => {
+        next.style.top = '0em'
+        next.style.opacity = '1'
+
+        current.style.bottom = '1em'
+        current.style.opacity = '0'
+        scrollTo(document.body, 0)
+      })(waitTime + 20, () => {
+        this.emit('action', current, next)
+        this.setCurrent(next)
+        current.style.bottom = ''
+        current.style.position = ''
+
+        next.style.position = ''
+        next.style.height = ''
+        next.style.top = ''
+        next.style.opacity = ''
+
+        this.__actionType = 'waitting'
+        this.__operator = null
+        this.__current = null
+        console.timeEnd('frame_time')
+      })
     },
     /**
       下一頁
@@ -181,36 +264,47 @@ const Page = {
       console.time('frame_time')
 
       // this.removeHidden(next)
-      next.style.display = ''
       next.style.position = 'absolute'
       next.style.top = '1em'
       next.style.opacity = '0'
-      setTimeout(() => {
+      next.style.display = ''
+
+      const next_height = next.scrollHeight
+      if (this.isViewportInArticleContainer() && next_height < window.innerHeight) {
+        console.log('下一頁太短')
+        return this.nextAction_short(current, next)
+      }
+
+      next.style.height = '100vh'
+      const waitTime = parseFloat(getComputedStyle(current).transitionDuration) * 1000
+      return wait_step(20, () => {
         this.emit('action', current, next)
         if (this.isViewportInArticleContainer()) {
+          console.log('isViewportInArticleContainer')
           next.style.position = 'fixed'
         }
-        $(next).css({
-          top: '0em',
-          opacity: 1,
-        })
-        $(current).css('opacity', 0)
-        setTimeout(() => {
-          if (this.isViewportInArticleContainer()) {
-            next.style.position = ''
-            scrollTo(document.body, this.container.offsetTop)
-          }
-          this.setCurrent(next)
-          $(next).removeCss('height', 'position', 'top', 'opacity')
 
-          ObjectAssign(this, {
-            __actionType: 'waitting',
-            __operator: null,
-            __current: null,
-          })
-          console.timeEnd('frame_time')
-        }, 618 + 32)
-      }, 18)
+        next.style.top = '0em'
+        next.style.opacity = '1'
+
+        current.style.opacity = '0'
+      })(waitTime + 20, () => {
+        if (this.isViewportInArticleContainer()) {
+          next.style.position = ''
+          scrollTo(document.body, this.container.offsetTop)
+        }
+        this.setCurrent(next)
+
+        next.style.position = ''
+        next.style.height = ''
+        next.style.top = ''
+        next.style.opacity = ''
+
+        this.__actionType = 'waitting'
+        this.__operator = null
+        this.__current = null
+        console.timeEnd('frame_time')
+      })
     },
   }),
   _prototypeInit() {
@@ -231,11 +325,8 @@ const Page = {
     onscroll()
 
     const onResize = e => {
-      this.container.style.minHeight = `${
-        window.innerHeight -
-        $$('.top-block').offsetHeight -
-        $$('.page-selector').offsetHeight
-      }px`
+      this.articleMinHeight = window.innerHeight - $$('.top-block').offsetHeight - $$('.page-selector').offsetHeight
+      this.container.style.minHeight = `${this.articleMinHeight}px`
     }
     onResize()
     window.addEventListener('resize', onResize)
