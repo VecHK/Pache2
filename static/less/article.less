@@ -8,21 +8,15 @@
 @pache-article-line-height: 1.8em;
 @pache-article-letter-spacing: .1em;
 
-body, html {
-	padding: 0;
-	margin: 0;
-	//font-family: @pache-article-font-family;
-	//height: 100%;
-	//overflow: auto;
-	position: relative;
-	// height: 100%;
-	-webkit-tap-highlight-color: transparent;
-}
 html {
 	overflow-y: scroll;
-	// height: 100%;
 }
-body {
+body, html {
+	position: relative;
+	padding: 0;
+	margin: 0;
+	min-height: 100%;
+	-webkit-tap-highlight-color: transparent;
 }
 
 h-char {
@@ -61,7 +55,9 @@ article, .info {
 	width: 100%;
 	font-size: 1em;
 	font-family: @pache-article-font-family;
-	// padding-bottom: 5em;
+
+	transition: height 618ms;
+	overflow: hidden;
 }
 
 .error-message {
@@ -126,6 +122,9 @@ article, .info {
 			font-family: "黑体", @pache-article-font-family;
 			margin: 0 .1em;
 		}
+	}
+	p:last-child {
+		margin-bottom: 0;
 	}
 	p {
 		line-height: @pache-article-line-height;
@@ -362,8 +361,8 @@ section.footnotes {
 	}
 	.info, .page, section.footnotes {
 		padding: 0;
-		width: 760px;
-		padding: ~"0em calc(50% - (760px / 2)) 0em";
+		width: 100%;
+		padding: ~"0em calc((100% - 760px) / 2) 0em";
 		font-size: 1.2em;
 	}
 	.article-details {
@@ -380,6 +379,7 @@ section.footnotes {
 		font-size: 1em;
 	}
 	.page {
+		padding-bottom: 5em;
 		pre.source-code {
 			width: 100%;
 			// position: static;

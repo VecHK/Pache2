@@ -156,6 +156,7 @@ const Page = {
         current.style.opacity = ''
         current.style.bottom = ''
 
+        this.emit('action-completed', this.__action)
         this.__actionType = 'waitting'
         this.__operator = null
         this.__current = null
@@ -168,56 +169,69 @@ const Page = {
       @param {Object} previous 上一頁的元素
     */
     previousAction(current, previous) {
-      ObjectAssign(this, {
+      const actionObj = {
         __actionType: 'previous',
         __operator: previous,
         __current: current,
-      })
-      console.time('frame_time')
+      }
+      ObjectAssign(this, actionObj)
+      this.__action = actionObj
+
       // $([current, previous]).class('switching')
 
+      // previous.style.zIndex = 999
+      const clearZIndex = () => { previous.style.zIndex = '' }
       previous.style.display = ''
-      const previous_height = previous.scrollHeight
-      if (this.isViewportInArticleContainer() && previous_height < window.innerHeight) {
+      this.emit('pre-action', actionObj)
+      this.emit(`pre-${actionObj.__actionType}`, actionObj)
+      console.time('frame_time')
+
+      if (this.isViewportInArticleContainer() && this.pageEleTooShort(previous)) {
         console.log('下一頁太短')
-        return this.previousAction_short(current, previous)
+        return this.previousAction_short(current, previous)(16, clearZIndex)
       }
 
       if (this.isViewportInArticleContainer()) {
-        previous.style.top = '0em'
         previous.style.position = 'fixed'
+      } else {
+        previous.style.position = 'absolute'
       }
+      previous.style.top = '0em'
+      previous.style.display = ''
 
       current.style.opacity = '1'
-      current.style.position = 'absolute'
+      current.style.transform = 'translateY(0em)'
 
-      current.style.top = '0em'
+      // return;
 
       const waitTime = parseFloat(getComputedStyle(current).transitionDuration) * 1000
       return wait_step(20, () => {
         this.emit('action', current, previous)
 
-        current.style.top = '1em'
+        current.style.transform = 'translateY(1em)'
         current.style.opacity = '0'
         previous.style.opacity = '1'
       })(waitTime + 20, () => {
         if (this.isViewportInArticleContainer()) {
           scrollTo(document.body, this.container.offsetTop)
-          previous.style.position = ''
         }
-        this.setCurrent(previous)
+
         previous.style.top = ''
         previous.style.height = ''
+        previous.style.position = ''
+        this.setCurrent(previous)
 
         current.style.position = ''
         current.style.opacity = ''
+        current.style.transform = ''
         current.style.top = ''
 
+        this.emit('action-completed', this.__action)
         this.__actionType = 'waitting'
         this.__operator = null
         this.__current = null
         console.timeEnd('frame_time')
-      })
+      })(16, clearZIndex)
     },
 
 
@@ -244,23 +258,33 @@ const Page = {
         next.style.top = ''
         next.style.opacity = ''
 
+        this.emit('action-completed', this.__action)
         this.__actionType = 'waitting'
         this.__operator = null
         this.__current = null
         console.timeEnd('frame_time')
       })
     },
+
+    pageEleTooShort(ele) {
+      console.warn('page short?', ele.scrollHeight)
+      const ele_height = ele.scrollHeight
+      return ele_height < window.innerHeight
+    },
+
     /**
       下一頁
       @param {Object} current 當前頁的元素
       @param {Object} next 下一頁的元素
     */
     nextAction(current, next) {
-      ObjectAssign(this, {
+      const actionObj = {
         __actionType: 'next',
         __operator: next,
         __current: current,
-      })
+      }
+      ObjectAssign(this, actionObj)
+
       console.time('frame_time')
 
       // this.removeHidden(next)
@@ -268,11 +292,14 @@ const Page = {
       next.style.top = '1em'
       next.style.opacity = '0'
       next.style.display = ''
+      const clearZIndex = () => { next.style.zIndex = '' }
 
-      const next_height = next.scrollHeight
-      if (this.isViewportInArticleContainer() && next_height < window.innerHeight) {
+      this.emit('pre-action', actionObj)
+      this.emit(`pre-${actionObj.__actionType}`, actionObj)
+
+      if (this.isViewportInArticleContainer() && this.pageEleTooShort(next)) {
         console.log('下一頁太短')
-        return this.nextAction_short(current, next)
+        return this.nextAction_short(current, next)(16, clearZIndex)
       }
 
       next.style.height = '100vh'
@@ -300,13 +327,18 @@ const Page = {
         next.style.top = ''
         next.style.opacity = ''
 
+        this.emit('action-completed',this.__action)
         this.__actionType = 'waitting'
         this.__operator = null
         this.__current = null
         console.timeEnd('frame_time')
-      })
+      })(16, clearZIndex)
     },
   }),
+  // minHeightCompute() {
+  //   this.articleMinHeight = window.innerHeight - $$('.top-block').offsetHeight
+  //   this.container.style.minHeight = `calc(${this.articleMinHeight}px - 16px)`
+  // },
   _prototypeInit() {
     const pages = $('.page', this.container)
     this.pages = pages
@@ -324,27 +356,18 @@ const Page = {
     window.addEventListener('scroll', onscroll)
     onscroll()
 
-    const onResize = e => {
-      this.articleMinHeight = window.innerHeight - $$('.top-block').offsetHeight - $$('.page-selector').offsetHeight
+    const resize_handle = e => {
+      this.articleMinHeight = window.innerHeight - $$('.top-block').offsetHeight
       this.container.style.minHeight = `${this.articleMinHeight}px`
+      // this.container.style.height = `${this.container.scrollHeight}px`
+      $('.page', this.container).forEach(ele => {
+        ele.style.minHeight = `${this.articleMinHeight}px`
+      })
     }
-    onResize()
-    window.addEventListener('resize', onResize)
-
-    // this.container.style.transition = 'min-height 618ms'
-    // this.on('action', (current, operator) => {
-    //   console.warn(operator.offsetHeight)
-    //   if (current.offsetHeight > operator.offsetHeight) {
-    //     // this.container.style.minHeight = `${current.offsetHeight}px`
-    //   } else if (current.offsetHeight < operator.offsetHeight){
-    //     // this.container.style.minHeight = `${operator.offsetHeight}px`
-    //   }
-    //   this.container.style.minHeight = `${operator.offsetHeight}px`
-    //
-    //   // if (operator.offsetHeight < window.innerHeight) {
-    //   //   this.container.style.minHeight = `${window.innerHeight - $$('.top-block').offsetHeight - $$('.page-selector').offsetHeight}px`
-    //   // }
-    // })
+    resize_handle()
+    window.addEventListener('resize', resize_handle)
+    // console.warn(this.minHeightCompute)
+    // this.minHeightCompute()
 
     $(this.container).class('page-standby')
 
@@ -362,11 +385,10 @@ const Page = {
 
 pa_init(async () => {
   window.page = Page.init($$('#article'))
-
   window.sourcode = new SourceCode(window.page.container)
+  window.metaImage = new MetaImageFrame(document.getElementById('article'))
 
-  window.metaImage = new MetaImageFrame(window.page.container)
-
+  window.selector = PageSelector.init($$('.page-selector'), window.page)
 
   window.topSwitcher = new Switcher(
     window.page,
@@ -374,5 +396,13 @@ pa_init(async () => {
     $$('.top.page-btn-panel .next')
   )
 
-  window.selector = PageSelector.init($$('.page-selector'), window.page)
+	window.topSwitcher
+  .on('next', () => {
+		window.selector.status = true
+		window.page.pageCode = ++window.selector.currentPageCode
+	})
+	.on('previous', () => {
+		window.selector.status = false
+		window.page.pageCode = --window.selector.currentPageCode
+	})
 })

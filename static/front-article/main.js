@@ -8,12 +8,27 @@ var EventLite = {
     }
     return this._evPool[name]
   },
+  fetchAfter: [],
+  once(names, fn) {
+    if (!Array.isArray(names)) {
+      names = [names]
+    }
+    names.forEach(ev_name => {
+      const that = this
+      const h_fn = function () {
+        this.fetchAfter.push(() => that.remove(names, h_fn))
+        return fn.apply(that, arguments)
+      }
+      this.on(ev_name, h_fn)
+    })
+  },
   get on() { return this.addListener },
   addListener(names, fn) {
     if (Array.isArray(names)) {
       names.forEach(name => this.addOneListener(name, fn))
+      return this
     } else {
-      this.addListener([names], fn)
+      return this.addListener([names], fn)
     }
   },
   addOneListener(name, fn) { this._checkEv(name).push(fn) },
@@ -21,6 +36,21 @@ var EventLite = {
     const args = Array.prototype.slice.apply(arguments)
     const evs = this._checkEv(args.shift())
     evs.forEach(fn => fn.apply(this, args))
+    this.fetchAfter.forEach(fn => fn())
+    this.fetchAfter.splice(0, this.fetchAfter.length)
+  },
+  remove(names, fn) {
+    if (Array.isArray(names)) {
+      names.forEach(name => {
+        const ev_list = this._checkEv(name)
+        const index = this._checkEv(name).indexOf(fn)
+        if (index !== -1) {
+          ev_list.splice(index, 1)
+        }
+      })
+    } else {
+      return this.remove([names], fn)
+    }
   },
   create(obj) {
     obj.__proto__ = this

@@ -5,11 +5,12 @@
 }
 
 .page-selector {
-	position: relative;
+	position: absolute;
 	bottom: 0em;
 
 	width: 100%;
-  transition: bottom .618s;
+	transform: translateY(0px);
+  transition: transform .618s, bottom .618s;
 }
 .page-selector-bg {
 	display: none;

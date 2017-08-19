@@ -28,17 +28,27 @@
 }
 
 .page-shadow {
-	z-index: -1;
-	position: absolute;
-	left: 0;
+	z-index: 3000;
+	position: fixed;
+	left: -5%;
 	top: -32px;
-
-	width: 100%;
+	width: ~"calc(110%)";
 	height: 32px;
-
-
 	box-shadow: 0px 0px 12px #999;
 }
+
+@media screen and (min-width: 800px) {
+	.page-shadow {
+		left: 6px;
+		top: -32px;
+		width: ~"calc(100% - 12px)";
+	}
+}
+
+#main {
+	min-height: 100vh;
+}
+
 .flex-frame(
 	@justify-c: center,
 	@align-i: center,

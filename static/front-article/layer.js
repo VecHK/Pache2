@@ -156,7 +156,7 @@ const Layer = {
     },
     init() {
       if (!this.footnoteParent) {
-        console.info('layer: 無腳註')
+        console.info('不啟用優秀的功能，文章中似乎沒有可用腳註')
       } else {
         this.hideSourceFoonote()
         this.insertSplitElement()
@@ -165,6 +165,9 @@ const Layer = {
   },
   init(refParent, footnoteParent) {
     const instance = Object.create(this.prototype)
+
+    // 清除 .page 元素尾部的 .footnotes-sep
+    $('.footnotes-sep').remove()
     instance.self = this
     instance.refParent = refParent
     instance.footnoteParent = footnoteParent

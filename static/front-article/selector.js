@@ -99,22 +99,16 @@ const PageSelector = {
       const previous = $$('.previous', this.container)
       const next = $$('.next', this.container)
       this.ele.set({previous, next})
+
       const switcher = new Switcher(this.page, previous, next)
-			switcher.on('click', type => {
-				this.container.style.opacity = '0'
-				setTimeout(() => {
-					this.container.style.opacity = ''
-				}, 700)
-				if (this.__openAfterCurrentPageCode === this.currentPageCode) {
-					// 頁碼沒有變化
-				} else if (this.page.isViewportInArticleContainer() || (page.__operator.offsetHeight >= innerHeight)) {
-					// 視口在文章容器內 或者 換頁 operator 元素的高度大於等於視口瀏覽器內容框高度
 
-				} else if (false && page.__operator.offsetHeight > innerHeight) {
-				} else {
-
-				}
-
+			switcher.on('next', () => {
+				this.status = true
+				this.page.pageCode = ++this.currentPageCode
+			})
+			switcher.on('previous', () => {
+				this.status = false
+				this.page.pageCode = --this.currentPageCode
 			})
 
       let lastPageCode = this.currentPageCode
@@ -123,7 +117,6 @@ const PageSelector = {
         await waitting(618)
       })
       this.on('close', async () => {
-        await waitting(618)
         $([previous, next]).removeCss('opacity')
       })
     },
@@ -157,6 +150,10 @@ const PageSelector = {
         $body.removeCss('cursor')
       })
 
+			this.page.on('pre-action', () => {
+				this.close()
+			})
+
       // const scrollHandle = e => {
       //   if (window.pageYOffset + screen.height >= document.body.offsetHeight) {
       //     this.show()
@@ -185,13 +182,17 @@ const PageSelector = {
       })
       this.setPageCode()
 
-      this.on('status-change', () => { this.currentPageCode = this.currentPageCode })
+      this.on('status-change', status => {
+				if (status) {
+					this.currentPageCode = this.currentPageCode
+				}
+			})
 
       /* 跳頁對話框開啟狀態時不會應用頁碼改變的事件 */
       this.page.on('change', pageCode => {
         if (!this.status) {
           console.warn('!!');
-          this.currentPageCode = pageCode
+          // this.currentPageCode = pageCode
         }
       })
 			const currentPageCodeChangeHandle = pageCode => {
@@ -240,29 +241,50 @@ const PageSelector = {
       this.status = false
 			const {ele} = this
 			if (this.__openAfterCurrentPageCode === this.currentPageCode) {
+				// 不跳轉
 				ele.get('frame').removeCss('height')
+				this.currentPageCode = this.currentPageCode
 				setTimeout(() => {
 					ele.get('container').removeCss('position')
 					this.emit('close')
-				}, 700)
-			} else if (this.page.isViewportInArticleContainer() || (page.__operator.offsetHeight >= innerHeight)) {
-				ele.get('frame').css('height', '0em')
-				setTimeout(() => {
-					ele.get('container').removeCss('position')
+				}, 630)
+
+			} else if (this.page.__operator.offsetHeight <= page.articleMinHeight) {
+				// 操作頁的高度不比 articleMinHeight 高
+				page.container.style.height = `${page.container.scrollHeight}px`
+				wait_step(16, () => {
+					page.container.style.height = `${page.articleMinHeight}px`
 					ele.get('frame').removeCss('height')
-					this.emit('close')
-				}, 700)
-			} else if (false && page.__operator.offsetHeight > innerHeight) {
+					this.currentPageCode = this.currentPageCode
+					page.once('action-completed', () => {
+						page.container.style.height = ``
+						this.currentPageCode = this.currentPageCode
+						ele.get('container').removeCss('position')
+						this.emit('close')
+					})
+				})
+			} else if (this.page.pageEleTooShort(this.page.__operator)
+				&& this.page.__operator.offsetHeight > page.articleMinHeight
+			) {
+				// 寬度沒有大於 innerHeight 但又比 articleMinHeight 高
+				const offset = this.page.__operator.offsetHeight - page.articleMinHeight
 
-
-			} else {
 				ele.get('frame').removeCss('height')
-				setTimeout(() => {
-					ele.get('container').removeCss('position')
+				ele.get('container').css('bottom', `${-offset}px`)
+				page.once('action-completed', () => {
+					this.currentPageCode = this.currentPageCode
+					ele.get('container').removeCss('position', 'bottom')
 					this.emit('close')
-				}, 700)
+				})
+			} else {
+				ele.get('frame').css('height', '')
+				ele.get('container').css('bottom', '-2em')
+				page.once('action-completed', () => {
+					this.currentPageCode = this.currentPageCode
+					ele.get('container').removeCss('position', 'bottom')
+					this.emit('close')
+				})
 			}
-
     },
     show() {
       // $(this.container).css('bottom', '0em')
@@ -277,34 +299,32 @@ const PageSelector = {
     get currentPageCode() { return this.__currentPageCode },
     /* 頁碼變換時會重新計算位置 */
     set currentPageCode(value) {
+			console.log('set current page code')
       if (parseInt(value) !== value) {
         console.warn('this:', this)
         console.warn('value:', value)
         throw new Error('設定的 currentPageCode 不是一個整數')
-      }
-      if (value < 0) {
+      } else if (value < 0) {
         return console.warn(`設定的 currentPageCode(${value}) 不能小於 0`)
-      }
-
-      if (value >= (this.page.pages.length)) {
+      } else if (value >= (this.page.pages.length)) {
         return console.warn(`設定的 currentPageCode(${value}) 大於等於最大頁碼限制(${this.page.pages.length})`)
-      }
-
-      const list = this.ele.get('list')
-      const pageItem = $$('.page-selector-item', this.container)
-      if (this.status) {
-        // pageItem 的 padding 值，以及 pageItem 的線寬
-        var base_offset = `translateY(${pageItem.offsetHeight}px) translateY(-1px)`
       } else {
-        // pageItem 的 padding 值，以及 pageItem 的線寬
-        var base_offset = `translateY(-0.5em) translateY(-1px)`
-      }
-      var add_offset = ` translateY(-${pageItem.offsetHeight * value}px)`
+				const list = this.ele.get('list')
+	      const pageItem = $$('.page-selector-item', this.container)
+	      if (this.status) {
+	        // pageItem 的 padding 值，以及 pageItem 的線寬
+	        var base_offset = `translateY(${pageItem.offsetHeight}px) translateY(-1px)`
+	      } else {
+	        // pageItem 的 padding 值，以及 pageItem 的線寬
+	        var base_offset = `translateY(-0.5em) translateY(-1px)`
+	      }
+	      var add_offset = ` translateY(-${pageItem.offsetHeight * value}px)`
 
-			list.css('transform', base_offset + add_offset)
+				list.css('transform', base_offset + add_offset)
 
-      this.__currentPageCode = value
-			this.emit('currentPageCode-change', this.__currentPageCode)
+	      this.__currentPageCode = value
+				this.emit('currentPageCode-change', this.__currentPageCode)
+			}
     },
     setPageCode() {
 			const pageCodeElements = []
@@ -360,7 +380,7 @@ const PageSelector = {
     this._prototypeInit(instance, ...arguments)
 
 		if (page.pages.length <= 1) {
-			console.info('不足二頁的情況自動隱藏 Selector')
+			console.info('不足二頁的情況自動隱藏跳頁對話框相關模塊')
 			instance.container.style.display = 'none'
 		}
 

@@ -11,16 +11,18 @@ class Switcher {
     this.next = next
 
     previous.addEventListener('click', e => {
+      e.preventDefault()
+      e.stopPropagation()
       if (!this.isPause) {
-        this.emit('previous-click')
-        --page.pageCode
+        this.emit('previous')
         this.emit('click', 'previous', previous)
       }
     })
     next.addEventListener('click', e => {
+      e.preventDefault()
+      e.stopPropagation()
       if (!this.isPause) {
-        this.emit('next-click')
-        ++page.pageCode
+        this.emit('next')
         this.emit('click', 'next', next)
       }
     })
