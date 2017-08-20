@@ -324,6 +324,14 @@
 				this.core = 'unknown'
 			}
 
+			this.is_crios = !!navigator.userAgent.match(/crios/i)
+			this.is_chrome = !!navigator.userAgent.toLowerCase().match(/chrome/i)
+			if (this.is_chrome) {
+				this.is_safari = false
+			} else {
+				this.is_safari = !!navigator.userAgent.match(/safari/i) && !this.is_crios
+			}
+
 			return this.core
 		},
 	}
