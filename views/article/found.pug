@@ -16,44 +16,54 @@ html
 			!=appendString
 
 	body
-		div(class="page-shadow")
-		div(class="top-block")
-			div(class="top page-btn-panel")
-				button.previous.page-btn()="<"
-				a.page-code.page-btn(href="/")="首頁"
-				button.next.page-btn()=">"
+		div#main
+			div(class="top-block")
+				div(class="page-control")
+					button.previous()=""
+					a.main-button.page-btn(href="/")="首頁"
+					button.next()=""
 
-			div(class="article-details")
-				div(class="title")=article.title
-				time=article.date.toLocaleDateString()
+				div(class="article-details")
+					div(class="title")=article.title
+					time=article.date.toLocaleDateString()
 
-		script(class="execable").
-			var cssStyle = document.createElement('style')
-			cssStyle.classList.add('execable-css')
-			cssStyle.innerHTML = '#article > .page:not(.current-page) { position: fiexed; visibility: hidden } #article section.footnotes { display: none }'
-			document.body.appendChild(cssStyle)
+			script(class="execable").
+				var cssStyle = document.createElement('style')
+				cssStyle.classList.add('execable-css')
+				cssStyle.innerHTML = '#article > .page:not(.current-page) { position: fiexed; visibility: hidden } #article section.footnotes { display: none }'
+				document.body.appendChild(cssStyle)
 
-		noscript
-			style.
-				[id^="meta-"] { box-shadow: 0px 0px 0px transparent !important }
-				[id^="meta-"] aside { display: none }
-				.page-selector {
-					display: none !important;
+			noscript
+				style.
+					[id^="meta-"] { box-shadow: 0px 0px 0px transparent !important }
+					[id^="meta-"] aside { display: none }
+					.page-selector {
+						display: none !important;
+					}
+
+			article(id="article" class="article")
+				!=article.format
+			
+			div(class="page-selector-bg page-selector-disable")
+			div(class="page-selector page-selector-disable")
+				div(class="page-selector-frame page-control")
+					button.previous()
+					div(class="page-selector-content main-button disable-main-button")
+						div(class="selector-triangle")
+						ul(class="page-selector-list")
+					button.next()
+
+		//- 判断是否有第二页
+		script.
+			if (document.querySelectorAll('#article .page').length > 1) {
+				var pageSelectorDisable = document.querySelectorAll('.page-selector-disable')
+				
+				for (var cursor = 0; cursor < pageSelectorDisable.length; cursor++) {
+					pageSelectorDisable[cursor].className = pageSelectorDisable[cursor].className.replace('page-selector-disable')
 				}
-
-		article(id="article" class="article")
-			!=article.format
-
-		div(class="page-selector-bg")
-
-		div(class="page-selector")
-			div(class="page-selector-frame")
-				div(class="previous")="<"
-				div(class="page-selector-content")
-					div(class="selector-triangle")
-					ul(class="page-selector-list")
-				div(class="next")=">"
-
+			}
+			
+		div(class="page-shadow")
 		//- script(src="/han/han.min.js")
 		//- script(src="/vools.js")
 		//- script(src="/requirejs/require.min.js")

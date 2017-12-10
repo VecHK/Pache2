@@ -68,13 +68,41 @@ class SourceCode {
         inlineEle.style.minWidth = `${maxWidth}px`
       })
 
-      $('code > .copy', this.container).forEach(copy_button => {
-        copy_button.style.minWidth = `${maxWidth}px`
-      })
+      this.resizeCopyButton()
     }
     window.addEventListener('resize', resizeHandle)
     resizeHandle()
   }
+
+  'resizeCopyButton' (pre_modelStart) {
+    if (this.lastModel) {
+      const {lineCode_list} = this
+      let {modelStart, modelEnd} = this.lastModel
+      if (pre_modelStart !== undefined) {
+        modelStart = pre_modelStart
+      }
+      if (modelStart !== undefined) {
+        const top = lineCode_list[modelStart].offsetTop
+        return this.copyButton.positing(top)
+      }
+    }
+  }
+  'slideCopyButton' (ignore_change) {
+    const {copyButton, lastRuntime, runtime} = this
+    const {firstLineCodeIndex, modelStart, modelEnd} = runtime
+
+    const 有变动 = (modelStart !== lastRuntime.modelStart) || (modelEnd !== lastRuntime.modelEnd)
+    if (copyButton.status && (有变动 || ignore_change)) {
+      // console.log(runtime)
+      if (firstLineCodeIndex > modelStart) {
+        return this.resizeCopyButton(modelStart)
+      } else {
+        return this.resizeCopyButton(modelEnd)
+      }
+    }
+  }
+
+
   getSelectedLine() {
     const selected_list = []
     const code_list = $('.codeline-frame > .linecode', this.container)
@@ -89,155 +117,102 @@ class SourceCode {
   constructor(container) {
     this.container = container
 
-    const sourceCodeContainer_list = $('.source-code', this.container)
-    sourceCodeContainer_list.forEach((sourceCodeContainer, cursor) => {
-      window.lineSelector = new LineSelector(sourceCodeContainer)
-      const lineCode_list = $('.codeline-frame > .linecode', sourceCodeContainer)
-      const codelines = $('code > .inline', sourceCodeContainer)
+    // const sourceCodeContainer_list = $('.source-code', this.container)
+    this.sourceCodeContainer = container
+    const {sourceCodeContainer} = this
 
-      let ScrollInterval = 3
-      let scrollDirect = 0
-      let scrollContext = null
-      let scrollingElement
-      if (document.scrollingElement) {
-        scrollingElement = document.scrollingElement
-      } else {
-        scrollingElement = $$('html')
+    this.copyButton = new SourceCodeCopyButton(sourceCodeContainer)
+
+    this.lineSelector = new LineSelector(sourceCodeContainer)
+    const lineCode_list = $('.codeline-frame > .linecode', sourceCodeContainer)
+    this.lineCode_list = lineCode_list
+
+    const codelines = $('code > .inline', sourceCodeContainer)
+
+    let ScrollInterval = 3
+    let scrollDirect = 0
+    let scrollContext = null
+    let scrollingElement = getScrollingElement()
+    // 定時判斷
+    setInterval(() => {
+      if (!scrollContext) { return }
+      else if (scrollDirect === 0) { return }
+      else if (scrollDirect < 0) {
+        var setScrollInterval = ScrollInterval
+        scrollingElement.scrollTop += setScrollInterval
+        const {clientY, pageY} = scrollContext
+        touchMiddle({
+          clientY,
+          pageY: pageY + setScrollInterval,
+        })
+      } else if (scrollDirect > 0) {
+        var setScrollInterval = -ScrollInterval
+        scrollingElement.scrollTop += setScrollInterval
+        const {clientY, pageY} = scrollContext
+        touchMiddle({
+          clientY,
+          pageY: pageY + setScrollInterval,
+        })
       }
-      // 定時判斷
-      setInterval(() => {
-        if (!scrollContext) { return }
-        else if (scrollDirect === 0) { return }
-        else if (scrollDirect < 0) {
-          var setScrollInterval = ScrollInterval
-          scrollingElement.scrollTop += setScrollInterval
-          const {clientY, pageY} = scrollContext
-          touchMiddle({
-            clientY,
-            pageY: pageY + setScrollInterval,
-          })
-        } else if (scrollDirect > 0) {
-          var setScrollInterval = -ScrollInterval
-          scrollingElement.scrollTop += setScrollInterval
-          const {clientY, pageY} = scrollContext
-          touchMiddle({
-            clientY,
-            pageY: pageY + setScrollInterval,
-          })
-        }
-      }, 17)
+    }, 17)
 
-      let slideDirect = 0
-      let firstLineCodeIndex = null
-      let lastLineCode = null
-      let lastLineCodeIndex = -1
-      let modelStart = null
-      let modelEnd = 0
-      function touchMiddle(tap_point) {
-        const {clientY, pageY} = tap_point
+    const 边缘范围 = 48
 
-        ArrayForEach(lineCode_list, (lineCodeEle, cursor) => {
-          const linePageY = getElementPageY(lineCodeEle)
-          if ((pageY >= linePageY) && (pageY < (linePageY + lineCodeEle.offsetHeight))) {
-            if (lastLineCode === lineCodeEle) {
-              return
-            } else {
-              lastLineCode = lineCodeEle
+    let slideDirect = 0
+    let firstLineCodeIndex = null
+    let lastLineCode = null
+    let lastLineCodeIndex = -1
+    let modelStart = null
+    let modelEnd = 0
 
-              if (cursor > firstLineCodeIndex) {
-                slideDirect = -1
-              } else {
-                slideDirect = 1
-              }
+    this.lastRuntime = {}
+    this.runtime = {}
+    const {lastRuntime, runtime} = this
 
-              lastLineCodeIndex = cursor
-            }
+    const touchMiddle = tap_point => {
+      ObjectAssign(lastRuntime, runtime)
 
-            if (firstLineCodeIndex === null) firstLineCodeIndex = cursor
+      const {clientY, pageY} = tap_point
 
-            if (cursor < firstLineCodeIndex) {
-              // 在觸摸初始位置的上面
-              modelStart = cursor
-            } else if (cursor > firstLineCodeIndex) {
-              // ~下面
-              modelEnd = cursor + 1
-            } else {
-              // 同個位置
-              modelStart = cursor
-              modelEnd = cursor + 1
-            }
-          }
-
-          const lineStyle = codelines[cursor].style
-          if ((cursor >= modelStart) && (cursor < modelEnd)) {
-            lineSelector.select(codelines[cursor])
+      ArrayForEach(lineCode_list, (lineCodeEle, cursor) => {
+        const linePageY = getElementPageY(lineCodeEle)
+        if ((pageY >= linePageY) && (pageY < (linePageY + lineCodeEle.offsetHeight))) {
+          if (lastLineCode === lineCodeEle) {
+            return
           } else {
-            lineSelector.unselect(codelines[cursor])
+            lastLineCode = lineCodeEle
+
+            if (cursor > firstLineCodeIndex) {
+              slideDirect = -1
+            } else {
+              slideDirect = 1
+            }
+
+            lastLineCodeIndex = cursor
           }
-        })
 
-        if (clientY < 48) {
-          // 手指在上邊緣
-          scrollContext = tap_point
-          scrollDirect = 1
-        } else if (clientY > window.innerHeight - 48) {
-          //~下邊緣
-          scrollContext = tap_point
-          scrollDirect = -1
-        } else {
-          scrollContext = null
+          if (firstLineCodeIndex === null) firstLineCodeIndex = cursor
+
+          if (cursor < firstLineCodeIndex) {
+            // 在觸摸初始位置的上面
+            modelStart = cursor
+          } else if (cursor > firstLineCodeIndex) {
+            // ~下面
+            modelEnd = cursor + 1
+          } else {
+            // 同個位置
+            modelStart = cursor
+            modelEnd = cursor + 1
+          }
         }
-      }
 
-      const codelineFrame = $$('.codeline-frame', sourceCodeContainer)
-      let isTouch = false
-      let touchMoved = false
-      let touchEnded = false
-      let touchTargetIsSelected = false
-      codelineFrame.addEventListener('touchstart', e => {
-        isTouch = true
-        e.preventDefault()
-
-        lineSelector.unselectAll()
-
-        touchMiddle(e.touches[0])
-        console.info('touchstart', e)
-      })
-
-      let mouseIsDown = false
-      codelineFrame.addEventListener('mousedown', e => {
-        mouseIsDown = true
-        copy_button.style.display = 'none'
-        mouse_copy_button && hide_mouse_copy_button()
-        e.preventDefault()
-
-        // 觸摸開始，清除掉所有的 selected
-        lineSelector.unselectAll()
-
-        touchMiddle({
-          pageY: e.pageY,
-          clientY: e.clientY,
-        })
-      })
-
-      codelineFrame.addEventListener('touchmove', e => {
-        e.preventDefault()
-        touchMoved = true
-        touchMiddle(e.touches[0])
-      })
-      document.body.addEventListener('mousemove', e => {
-        if (!mouseIsDown) { return }
-        e.preventDefault()
-        touchMiddle({
-          pageY: e.pageY,
-          clientY: e.clientY,
-        })
-      })
-
-      const lastModel = {}
-      const end_handle = e => {
-        e.preventDefault()
-        ObjectAssign(lastModel, {
+        const lineStyle = codelines[cursor].style
+        if ((cursor >= modelStart) && (cursor < modelEnd)) {
+          this.lineSelector.select(codelines[cursor])
+        } else {
+          this.lineSelector.unselect(codelines[cursor])
+        }
+        ObjectAssign(runtime, {
           scrollDirect,
           scrollContext,
           firstLineCodeIndex,
@@ -245,137 +220,163 @@ class SourceCode {
           modelEnd,
           slideDirect,
         })
+      })
 
-        touchEnded = true
-        scrollDirect = 0
+      if (clientY < 边缘范围) {
+        // 手指在上邊緣
+        scrollContext = tap_point
+        scrollDirect = 1
+      } else if (clientY > window.innerHeight - 边缘范围) {
+        //~下邊緣
+        scrollContext = tap_point
+        scrollDirect = -1
+      } else {
         scrollContext = null
-
-        // console.info('start:', lineCode_list[modelStart].offsetTop)
-        // console.info('end:', lineCode_list[modelEnd].offsetTop)
-        console.warn(lastModel)
-        const top = lineCode_list[modelStart].offsetTop
-        const height = lineCode_list[modelEnd - 1].offsetTop + lineCode_list[modelEnd - 1].offsetHeight - top
-        positingCopyButton(top, height)
-
-        firstLineCodeIndex = null
-        lastLineCode = null
-        lastLineCodeIndex = -1
-
-        modelStart = null
-        modelEnd = 0
-        console.warn('touchend', e)
-        // console.info(this.getSelectedLine())
       }
-      codelineFrame.addEventListener('touchend', e => {
-        // copy_button.style.display = ''
+    }
+
+    const codelineFrame = $$('.codeline-frame', sourceCodeContainer)
+    let isTouch = false
+    let touchMoved = false
+    let touchEnded = false
+    let touchTargetIsSelected = false
+    document.body.addEventListener('touchstart', () => {
+      isTouch = true
+    }, true)
+
+    codelineFrame.addEventListener('touchstart', e => {
+      e.preventDefault()
+
+      this.lineSelector.unselectAll()
+
+      touchMiddle(e.touches[0])
+      console.info('touchstart', e)
+    })
+
+    let mouseIsDown = false
+    codelineFrame.addEventListener('mousedown', e => {
+      mouseIsDown = true
+
+      e.preventDefault()
+
+      // 觸摸開始，清除掉所有的 selected
+      this.lineSelector.unselectAll()
+      // this.copyButton.hide()
+
+      touchMiddle({
+        pageY: e.pageY,
+        clientY: e.clientY,
+      })
+
+      setTimeout(() => {
+        if (mouseIsDown && this.copyButton.status) {
+          this.copyButton.setLeft()
+          this.copyButton.positing()
+
+          waitting(182).then(res => {
+            isTouch || this.slideCopyButton(true)
+          })
+        }
+      }, 200)
+    })
+
+    codelineFrame.addEventListener('touchmove', e => {
+      e.preventDefault()
+      touchMoved = true
+      touchMiddle(e.touches[0])
+    })
+    document.body.addEventListener('mousemove', e => {
+      if (!mouseIsDown) { return }
+      e.preventDefault()
+      touchMiddle({
+        pageY: e.pageY,
+        clientY: e.clientY,
+      })
+
+      isTouch || this.slideCopyButton()
+    })
+
+    const lastModel = {}
+    this.lastModel = lastModel
+    const end_handle = e => {
+      e.preventDefault()
+      ObjectAssign(lastModel, {
+        scrollDirect,
+        scrollContext,
+        firstLineCodeIndex,
+        modelStart,
+        modelEnd,
+        slideDirect,
+      })
+
+      touchEnded = true
+      scrollDirect = 0
+      scrollContext = null
+
+      // console.info('start:', lineCode_list[modelStart].offsetTop)
+      // console.info('end:', lineCode_list[modelEnd].offsetTop)
+      console.log(firstLineCodeIndex, modelStart, modelEnd)
+
+      this.copyButton.clearLeft()
+
+      if (firstLineCodeIndex > modelStart) {
+        isTouch || this.resizeCopyButton(modelStart)
+      } else {
+        isTouch || this.resizeCopyButton(modelEnd)
+      }
+
+      firstLineCodeIndex = null
+      lastLineCode = null
+      lastLineCodeIndex = -1
+
+      modelStart = null
+      modelEnd = 0
+
+      Object.keys(lastRuntime).forEach(key => {
+        delete lastRuntime[key]
+        delete runtime[key]
+      })
+      // console.warn('touchend', e)
+    }
+    codelineFrame.addEventListener('touchend', e => {
+      end_handle(e)
+      isTouch = false
+    })
+
+
+    document.body.addEventListener('mouseup', e => {
+      if (!isTouch && mouseIsDown) {
         end_handle(e)
-      })
-
-      let mouse_copy_button
-      const show_mouse_copy_button = () => {
-        const {style} = mouse_copy_button;
-        style.opacity = 1;
-        if ('filter' in style) {
-          style.filter = 'blur(0px)'
-        } else if ('webkitFilter' in style) {
-          style.webkitFilter = 'blur(0px)'
-        } else if ('mozFilter' in style) {
-          style.mozFilter = 'blur(0px)'
-        }
       }
-      const hide_mouse_copy_button = () => {
-        const {style} = mouse_copy_button
-        style.opacity = ''
-
-        if (style.filter) {
-          style.filter = ''
-        } else if (style.webkitFilter) {
-          style.webkitFilter = ''
-        } else if (style.mozFilter) {
-          style.mozFilter = ''
-        }
-      }
-      document.body.addEventListener('mouseup', e => {
-        if (!copyWasPress && !isTouch && mouseIsDown) {
-          end_handle(e)
-        }
+      mouseIsDown = false
+    })
+    document.body.addEventListener('mouseenter', e => {
+      if (mouseIsDown && e.buttons !== 1) {
+        // 不是按著左鍵進入
         mouseIsDown = false
-      })
-      document.body.addEventListener('mouseenter', e => {
-        if (mouseIsDown && e.buttons !== 1) {
-          // 不是按著左鍵進入
-          mouseIsDown = false
-          end_handle(e)
-        }
-      })
-
-      const sourceCode_frame = $$('code', sourceCodeContainer)
-      const copy_button = document.createElement('button')
-      copy_button.classList.add('copy')
-      sourceCode_frame.appendChild(copy_button)
-      if (!copy_button.haveResizeHandle) {
-        copy_button.haveResizeHandle = true
-        window.addEventListener('resize', e => {
-          const {modelStart, modelEnd} = lastModel
-          console.warn(modelStart, modelEnd)
-          if (typeof(modelStart) === 'number') {
-            const top = lineCode_list[modelStart].offsetTop
-            const height = lineCode_list[modelEnd - 1].offsetTop + lineCode_list[modelEnd - 1].offsetHeight - top
-            positingCopyButton(top, height)
-          } else {
-            return
-          }
-        })
-      }
-      let copyWasPress = false
-      copy_button.onmousedown = e => { copyWasPress = true }
-      copy_button.onclick = e => {
-        copyWasPress = false
-        lineSelector.copy()
-        // console.warn(lastModel.modelStart)
-        // const {modelStart, modelEnd, slideDirect} = lastModel
-        // copyEffect(lineCode_list, codelines, modelStart, modelEnd, slideDirect)
-        // copy2clip(this.getSelectedLine())
-        copy_button.style.display = 'none'
-      }
-      copy_button.style.display = 'none'
-      const positingCopyButton = (top, height) => {
-        $(copy_button).css({
-          top: `${parseFloat(top)}px`,
-          height: `${parseFloat(height)}px`,
-        })
-
-        if (isTouch) {
-          return
-        }
-
-        if (!mouse_copy_button) {
-          mouse_copy_button = $.create('div').class('mouse-copy')[0]
-          $(mouse_copy_button).html(`<div class="copy-icon"><div class="back"></div><div class="front"></div></div>`)
-          mouse_copy_button.id = `mouse-copy-${cursor}`
-          $(document.body).append(mouse_copy_button)
-
-          mouse_copy_button.onclick = e => {
-            lineSelector.copy()
-            hide_mouse_copy_button()
-          }
-        }
-
-        let mouseButtonTop = getElementPageY(sourceCodeContainer) + top - mouse_copy_button.offsetHeight
-        let mouseButtonLeft = getElementPageX(sourceCodeContainer) + sourceCodeContainer.offsetWidth - mouse_copy_button.offsetWidth
-
-        if (scrollingElement.scrollTop > mouseButtonTop) {
-          mouseButtonTop = mouseButtonTop + (scrollingElement.scrollTop - mouseButtonTop)
-        }
-        console.warn(scrollingElement.scrollTop, mouseButtonTop)
-        $(mouse_copy_button).css({
-          top: `${mouseButtonTop + mouse_copy_button.offsetHeight / 2}px`,
-          left: `${mouseButtonLeft - mouse_copy_button.offsetHeight / 2}px`,
-        })
-        show_mouse_copy_button()
+        end_handle(e)
       }
     })
 
+    this.lineSelector.on('click-unselected', line => {
+      isTouch || this.resizeCopyButton(line.__LINE_CURSOR__)
+    })
+    this.lineSelector.on('copy', () => {
+      this.copyButton.hide()
+    })
+    this.copyButton.on('click', () => {
+      this.lineSelector.copy()
+      this.copyButton.hide()
+    })
+
     this.setSize()
+  }
+}
+
+class SourceCodeFrame {
+  constructor(container) {
+    this.list = $('.source-code', container).map(sourceCodeEle => {
+      return new SourceCode(sourceCodeEle)
+    })
   }
 }

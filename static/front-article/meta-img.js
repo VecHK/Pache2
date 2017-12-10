@@ -38,6 +38,25 @@ class LoadImage {
 }
 LoadImage.prototype.__proto__ = Object.create(EventLite)
 
+function 获取元素真实宽度(ele) {
+  const css = getComputedStyle(ele)
+
+  const c = p => parseInt(css[p])
+
+  const container_width = c('width')
+  const paddingLeft = c('padding-left')
+  const paddingRight = c('padding-right')
+  const borderLeft = c('border-left-width')
+  const borderRight = c('border-right-width')
+
+  const isBorderBox = /border-box/.test(css['box-sizing'])
+  if (isBorderBox) {
+    return container_width - paddingLeft - paddingRight - borderLeft - borderRight
+  } else {
+    return container_width
+  }
+}
+
 class MetaImage {
   setSize(width, height) {
     $(this.container).css({
@@ -47,12 +66,12 @@ class MetaImage {
   }
   calcSize() {
     // 所有分頁的寬度都是一樣的，介於隱藏頁的寬度高度都無法獲取，故採取獲取當前分頁的寬度的策略
-    const currentSplitPage = page.getPage()
-    this.limitWidth = parseInt(getComputedStyle(currentSplitPage).width)
+    this.limitWidth = 获取元素真实宽度(page.current)
 
     const {availHeight} = screen
 
     let imgHeight = parseInt(availHeight * 0.8)
+    // console.log(`limitWidth: ${this.limitWidth}, imgHeight: ${imgHeight}, height: ${this.height}`)
 
     if (imgHeight > this.height) {
       imgHeight = this.height

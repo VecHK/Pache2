@@ -37,7 +37,7 @@ class Split {
       $(this.contentContainer).removeCss('padding')
     }
 
-    const speed = 0.35
+    const speed = 0.25
     const contentEle = this.getSplitContentElement()
     const {scrollHeight} = contentEle
     const {parentNode} = this.jackContainer

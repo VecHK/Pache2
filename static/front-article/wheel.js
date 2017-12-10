@@ -72,3 +72,24 @@ function Delay(d_handle, e_handle) {
 
   return prom
 }
+
+function ObjectAssign(source, ...objs) {
+  objs.forEach(obj => {
+    for(let key in obj) {
+      if (obj.hasOwnProperty(key)) source[key] = obj[key]
+    }
+  })
+  return source
+}
+
+function waitting(ms = 20) {
+  return new Promise(res => setTimeout(res, ms))
+}
+
+function getScrollingElement() {
+  if (document.scrollingElement) {
+    return document.scrollingElement
+  } else {
+    return $$('html')
+  }
+}

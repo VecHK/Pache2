@@ -55,6 +55,14 @@ try {
 	    return this._findev(ev_name).push(handle)
 	  },
 
+		once: function (ev_name, handle) {
+			var h_handle = function () {
+				this.remove(ev_name, h_handle)
+				return handle.apply(this, arguments)
+			}
+			this.on(ev_name, h_handle)
+		},
+
 		/* 判斷曾經是否發佈，未發佈則返回 FALSE，並且執行 callback（如果有） */
 		isEmited: function (ev_name, callback) {
 			var result = this._findEmited()[ev_name]
@@ -103,37 +111,4 @@ try {
 			window.EventModel = EventModel
 		}
 	} catch (e) {}
-
-
-	var StorageModel = {
-	  reload: function () {
-	    try {
-	      this.source = JSON.parse(localStorage.storage_source)
-	    } catch (e) {
-	      this.source = {}
-	    }
-	    this.emit('reload', this.source)
-	  },
-	  set: function (name, value) {
-	    return this.source[name] = value
-	  },
-	  get: function (name) {
-	    return this.source[name] || null
-	  },
-	  remove: function (name) {
-	    return (delete this.source[name])
-	  },
-	  save: function () {
-	    localStorage.storage_source = JSON.stringify(this.source)
-	    this.emit('saved', localStorage.storage_source)
-	  },
-	  clear: function () {
-	    localStorage.removeItem('storage_source')
-	    var remove_source = this.source;
-	    this.source = {}
-	    this.emit('clear', remove_source)
-	  },
-	}
-
-	StorageModel.__proto__ = Object.create(EventModel)
 })()

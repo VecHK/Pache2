@@ -5,12 +5,14 @@ class LineSelectorConstructor {
     @param Container Element
   */
   constructor(container) {
-    this.cotainer = container
+    this.container = container
     this._initLines()
     this._initLineNumber()
     this._initSelected()
   }
 }
+EventLite.create(LineSelectorConstructor.prototype)
+
 class LineSelectorInit extends LineSelectorConstructor {
   _initLines() {
     this.linesContainer = $$('code', this.container)
@@ -18,7 +20,10 @@ class LineSelectorInit extends LineSelectorConstructor {
     ArrayForEach(this.lines, (line, cursor) => {
       line.__LINE_CURSOR__ = cursor
       line.addEventListener('click', e => {
-        if (!line.__isSelected__) {
+        if (line.__isSelected__) {
+          this.emit('click-selected', line)
+        } else {
+          this.emit('click-unselected', line)
           this.select(line)
         }
       })
@@ -121,13 +126,17 @@ class LineSelectorCopy extends LineSelectorEffect {
     }
     return text
   }
-  copy(diffusion_point) {
+  'copy' (diffusion_point) {
     const text = this.getSelectedText()
     copy2clip(text)
     this.copyEffect(diffusion_point)
+
+    this.emit('copy', text)
+
     return text
   }
 }
+
 class LineSelector extends LineSelectorCopy {
   selectedIndexOf(line) {
     return this.selected.indexOf(line)
