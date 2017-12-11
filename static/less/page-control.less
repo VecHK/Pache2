@@ -23,7 +23,23 @@
     padding-left: 10px !important;
     padding-right: 12px !important;
   }
+  .next:before, .previous:before {
+    position: absolute;
+    content: " ";
+    height: 140%;
+    top: 0%;
+    // background: rgba(255, 0, 0, .1);
+  }
+  .next:before {
+    width: 140%;
+    right: -20%;
+  }
+  .previous:before {
+    width: 140%;
+    left: -20%;
+  }
   .next, .previous {
+    position: relative;
     background-color: transparent;
     border: 0;
     outline: none;
