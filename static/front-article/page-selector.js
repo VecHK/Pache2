@@ -126,8 +126,6 @@ const PageSelectorClass = () => {
 
       const pageControlBus = $pageControl.SELF.bus
 
-      pageControlBus.on('next-click-before', () => {
-      })
       pageControlBus.on('click', (clickType, status) => {
 
         status.on('created', status => {
@@ -313,12 +311,12 @@ const PageSelectorClass = () => {
       const list = this.$('.page-selector-list')
       const pageItem = this.$$('.page-selector-item')
 
-      const listHeight = parseFloat(getComputedStyle(list[0]).height)
+      const triangleHeight = $$('.selector-triangle').offsetHeight
       const itemHeight = parseFloat(getComputedStyle(pageItem).height)
 
       if (this.status) {
         // pageItem 的 padding 值，以及 pageItem 的線寬
-        var base_offset = `translateY(${listHeight / 3 - itemHeight - itemHeight / 2}px)`
+        var base_offset = `translateY(${itemHeight + (triangleHeight / 2)}px)`
       } else {
         // pageItem 的 padding 值，以及 pageItem 的線寬
         var base_offset = `translateY(-0.5em) translateY(-1px)`
