@@ -92,6 +92,17 @@
 		// transform: translate3d(0, 0, 0);
 	}
 }
+
+.mouse-copy.positing {
+	@transition-value: -webkit-filter 500ms, opacity 382ms, top 382ms, left 182ms;
+
+	transition: @transition-value;
+}
+.mouse-copy.is-show {
+	// opacity: 1;
+	filter: blur(0px);
+	-webkit-filter: blur(0px);
+}
 .mouse-copy {
 	.flex-frame();
 	transform: translate3d(0, 0, 0);
@@ -114,9 +125,9 @@
 	outline: none;
 
 	opacity: 0;
+	filter: blur(4px);
 	-webkit-filter: blur(4px);
-	transition: -webkit-filter 500ms, opacity 382ms;
-
+	transition: opacity 500ms, filter 500ms, -webkit-filter 500ms;
 
 	.copy-icon {
 		height: 18px;

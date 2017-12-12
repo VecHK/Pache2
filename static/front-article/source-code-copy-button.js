@@ -10,16 +10,9 @@ class SourceCodeCopyButton {
     const {style} = copy_button
 
     style.display = ''
-
     return waitting().then(() => {
-      style.opacity = 1;
-      if ('filter' in style) {
-        style.filter = 'blur(0px)'
-      } else if ('webkitFilter' in style) {
-        style.webkitFilter = 'blur(0px)'
-      } else if ('mozFilter' in style) {
-        style.mozFilter = 'blur(0px)'
-      }
+      copy_button.classList.add('is-show')
+      style.opacity = 1
     })
   }
 
@@ -29,26 +22,19 @@ class SourceCodeCopyButton {
 
     const {copy_button} = this
     const {style} = copy_button
-    style.opacity = ''
-    style.transition = ''
 
-    if (style.filter) {
-      style.filter = ''
-    } else if (style.webkitFilter) {
-      style.webkitFilter = ''
-    } else if (style.mozFilter) {
-      style.mozFilter = ''
-    }
-    console.log(getComputedStyle(copy_button).transitionDuration)
-    const total_time = getComputedStyle(copy_button).transitionDuration.split(',').map(dur => {
-      const dur_ms = parseFloat(dur.trim()) * 1000
-      return waitting(dur_ms)
-    })
-    this.hidding = Promise.all(total_time).then(() => {
+    copy_button.classList.remove('positing')
+    return waitting().then(() => {
+      copy_button.classList.remove('is-show')
+      style.opacity = 0
+      return waitting()
+    }).then(() => {
+      this.hidding = transitionDurationWait(copy_button)
+      return this.hidding
+    }).then(() => {
       copy_button.style.display = 'none'
+      return this.hidding
     })
-
-    return this.hidding
   }
 
   'setLeft' () {
@@ -77,13 +63,8 @@ class SourceCodeCopyButton {
       left: `${mouseButtonLeft - copy_button.offsetHeight / 2}px`,
     })
 
-    let total_time = getComputedStyle(copy_button).transitionDuration.split(',')
-    total_time.map(dur => {
-      const dur_ms = parseFloat(dur.trim()) * 1000
-      return waitting(dur_ms)
-    })
-    await Promise.all(total_time)
-    this.copy_button.style.transition = '-webkit-filter 500ms, opacity 382ms, top 382ms, left 182ms'
+    await transitionDurationWait(copy_button)
+    this.copy_button.classList.add('positing')
   }
 
   constructor() {
