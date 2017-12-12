@@ -193,11 +193,6 @@ const PageSelectorClass = () => {
               } else if (ctx.heightMoreThanMinHeight(operate)) { // 中 => 中
               } else if (!ctx.heightMoreThanMinHeight(operate)) { // 中 => 小
                 if (getScrollingElement().scrollTop > 0) {
-                  status.on('transform-done', () => {
-                    $(this.container).css({ position: 'fixed' })
-                  })
-                  status.on('done', () => $(this.container).removeCss('position'))
-                } else {
                   this.fxied('', status)
                 }
               }
@@ -266,15 +261,13 @@ const PageSelectorClass = () => {
               }
             } else if (!ctx.heightMoreThanMinHeight(current)) {
               $(this.container).css({ position: 'fixed' })
-              if (ctx.heightMoreThanWindow(operate)) { // 小 => 大
-                this.$(this.container).css('transform', `translateY(4em)`)
-                this.$('.page-selector-frame').removeCss('height')
+              if (ctx.heightMoreThanMinHeight(operate)) { // 小 => 大 和 小 => 中
+                status.on('apply-effect', () => {
+                  this.$(this.container).css('transform', `translateY(4em)`)
+                })
                 status.on('done', () => {
                   this.$(this.container).removeCss('transform', 'position')
                 })
-              } else if (ctx.heightMoreThanMinHeight(operate)) { // 小 => 中
-
-              } else if (!ctx.heightMoreThanMinHeight(operate)) { // 小 => 小
               }
               status.on('done', () => $(this.container).removeCss('position'))
             } else {
