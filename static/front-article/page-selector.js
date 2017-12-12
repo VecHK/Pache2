@@ -151,28 +151,32 @@ const PageSelectorClass = () => {
           if (status.type === 'next') {
             if (ctx.heightMoreThanWindow(current)) {
               if (ctx.heightMoreThanWindow(operate)) { // 大 => 大
+                $(this.container).css({ display: 'none' })
+                status.on('all-done', () => {
+                  $(this.container).removeCss('display')
+                })
               } else if (ctx.heightMoreThanMinHeight(operate)) { // 大 => 中
+                $(this.container).css({ display: 'none' })
+                status.on('all-done', () => {
+                  $(this.container).removeCss('display')
+                })
               } else if (!ctx.heightMoreThanMinHeight(operate)) { // 大 => 小
                 console.log('大 => 小')
-                if (is_safari) {
+                this.$(this.container).css({
+                  position: 'fixed',
+                  transform: `translateY(4em)`,
+                  transitionDuration: `0s`,
+                })
+                status.on('start-transform', () => {
                   this.applyPageCode()
-                } else {
                   this.$(this.container).css({
-                    position: 'fixed',
-                    transform: `translateY(4em)`,
-                    transitionDuration: `0s`,
+                    transitionDuration: ``,
+                    transform: 'translateY(0em)',
                   })
-                  status.on('start-transform', () => {
-                    this.applyPageCode()
-                    this.$(this.container).css({
-                      transitionDuration: ``,
-                      transform: 'translateY(0em)',
-                    })
-                  })
-                  status.on('done', () => {
-                    this.$(this.container).removeCss('position', 'transform', 'translateDuration')
-                  })
-                }
+                })
+                status.on('done', () => {
+                  this.$(this.container).removeCss('position', 'transform', 'translateDuration')
+                })
               }
             } else if (ctx.heightMoreThanMinHeight(current)) {
               if (ctx.heightMoreThanWindow(operate)) { // 中 => 大
@@ -180,6 +184,11 @@ const PageSelectorClass = () => {
                   $(this.container).css({ position: 'fixed' })
                   this.slideHide('', status)
                   status.on('done', () => $(this.container).removeCss('position'))
+                } else {
+                  $(this.container).css({ display: 'none' })
+                  status.on('all-done', () => {
+                    $(this.container).removeCss('display')
+                  })
                 }
               } else if (ctx.heightMoreThanMinHeight(operate)) { // 中 => 中
               } else if (!ctx.heightMoreThanMinHeight(operate)) { // 中 => 小
@@ -188,11 +197,13 @@ const PageSelectorClass = () => {
                     $(this.container).css({ position: 'fixed' })
                   })
                   status.on('done', () => $(this.container).removeCss('position'))
+                } else {
+                  this.fxied('', status)
                 }
               }
             } else if (!ctx.heightMoreThanMinHeight(current)) {
               $(this.container).css({ position: 'fixed' })
-              if (ctx.heightMoreThanWindow(operate)) { // 小 => 大
+              if (ctx.heightMoreThanWindow(operate)) { // 大 => 小
                 this.slideHide('', status)
               } else if (ctx.heightMoreThanMinHeight(operate)) { // 小 => 中
 
@@ -207,7 +218,15 @@ const PageSelectorClass = () => {
           else if (status.type === 'previous') {
             if (ctx.heightMoreThanWindow(current)) {
               if (ctx.heightMoreThanWindow(operate)) { // 大 => 大
+                $(this.container).css({ display: 'none' })
+                status.on('all-done', () => {
+                  $(this.container).removeCss('display')
+                })
               } else if (ctx.heightMoreThanMinHeight(operate)) { // 大 => 中
+                $(this.container).css({ display: 'none' })
+                status.on('all-done', () => {
+                  $(this.container).removeCss('display')
+                })
               } else if (!ctx.heightMoreThanMinHeight(operate)) { // 大 => 小
                 $(this.container).css({
                   'display': 'none',
@@ -231,6 +250,11 @@ const PageSelectorClass = () => {
                   $(this.container).css({ position: 'fixed' })
                   this.slideHide('', status)
                   status.on('done', () => $(this.container).removeCss('position'))
+                } else {
+                  $(this.container).css({ display: 'none' })
+                  status.on('all-done', () => {
+                    $(this.container).removeCss('display')
+                  })
                 }
               } else if (ctx.heightMoreThanMinHeight(operate)) { // 中 => 中
               } else if (!ctx.heightMoreThanMinHeight(operate)) { // 中 => 小

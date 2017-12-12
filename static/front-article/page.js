@@ -101,6 +101,26 @@ class PageAction extends PageUtils {
     return this.page_code
   }
 
+  containerScaleBack(pageEle) {
+    const {container} = this
+    const $container = $(container)
+
+    if (!this.elementHeightMoreThanWindow(pageEle)) {
+      $container.css('transitionDuration', '0s')
+      return wait_step(20, () => {
+        $container.css('height', `${container.scrollHeight}px`)
+      })(20, () => {
+        $container.css('transitionDuration', '')
+      })(20, () => {
+        if (this.elementHeightMoreThanMinHeight(pageEle)) {
+          $container.css('height', `${pageEle.scrollHeight}px`)
+        } else {
+          $container.css('height', container.style.minHeight)
+        }
+      })
+    }
+  }
+
   getWaitTime(ele) {
     return (parseFloat(getComputedStyle(ele).transitionDuration) * 1000) + 20
   }
@@ -187,10 +207,6 @@ class PageAction extends PageUtils {
         status.effect_type = '滚动高度不大于容器且操作页高度不大于视口高度且操作页高度不大于容器最小高度'
         status.emit('effect-type', status.effect_type, status)
         positionValue = 'absolute'
-        this.container.style.height = `${this.container.scrollHeight}px`
-        status.once('apply-effect', () => {
-          this.container.style.height = this.container.style.minHeight
-        })
       }
       else if (this.elementHeightMoreThanMinHeight(previous) && !this.elementHeightMoreThanMinHeight(current)) {
         current.style.height = this.container.style.minHeight
@@ -216,15 +232,13 @@ class PageAction extends PageUtils {
       })
       $previous.css({
         position: positionValue,
-        height: '150vh',
         top: 0,
       })
 
-      if (!this.scrollTopMoreThanContainer() && !this.elementHeightMoreThanWindow(previous)) {
-        this.container.style.height = `${this.container.scrollHeight}px`
-        return wait_step(16.7, () => {
-          this.container.style.height = this.container.style.minHeight
-        })
+      if (!this.elementHeightMoreThanWindow(previous)) {
+        return this.containerScaleBack(previous)
+      } else {
+        $previous.css('height', '150vh')
       }
     })(20, () => {
       status.emit('apply-effect')
@@ -235,7 +249,6 @@ class PageAction extends PageUtils {
       $previous.css({
         opacity: 1,
       })
-
     })(wait_time + 20, () => {
       if (this.scrollTopMoreThanContainer()) {
         this.scrollBackContainerTop()
@@ -243,15 +256,18 @@ class PageAction extends PageUtils {
       status.emit('transform-done')
     })
     (20, () => {
+      $([$previous[0], this.container]).css('transitionDuration', '0s')
       $previous.removeCss('height', 'opacity', 'background', 'position', 'top')
-      $previous.removeCss('height')
       $(this.container).removeCss('height')
     })(20, () => {
+      $([$previous[0], this.container]).removeCss('transitionDuration')
       $current.css('display', 'none')
-    })(200, () => {
+    })(20, () => {
       $current.removeCss('transform', 'height', 'opacity')
       this.operating = false
       status.emit('done')
+    })(20, () => {
+      status.emit('all-done')
     })
 
     return status
@@ -315,12 +331,11 @@ class PageAction extends PageUtils {
 
     wait_step(20, () => {
       status.emit('created', status)
+      next.style.top = '1em'
+      next.style.opacity = '0'
     })(20, () => {
-      $(next).css({
-        opacity: '0',
-        display: '',
-      })
-    })(() => {
+      next.style.display = ''
+    })(20, () => {
       status.emit('pre-transform', status)
     })(20, () => {
       status.emit('start-transform', status)
@@ -354,36 +369,29 @@ class PageAction extends PageUtils {
         status.effect_type = '滚动高度不大于容器'
         status.emit('effect-type', status.effect_type, status)
         positionValue = 'absolute'
-        $(this.container).css('height', '150vh')
+        // $(this.container).css('height', '150vh')
         $(next).css('height', '150vh')
       }
 
       $(next).css({
         position: positionValue,
-        top: '1em',
         background: 'white',
         'z-index': 9,
-      })
-      $(current).css({
-        opacity: 1
       })
     })(20, () => {
       $(next).css({
         top: '0em',
-        opacity: 1,
+        opacity: '1',
       })
       $(current).css({
-        opacity: 0
+        opacity: '0'
       })
 
       if (!this.elementHeightMoreThanWindow(next)) {
-        this.container.style.height = `${this.container.scrollHeight}px`
-        return wait_step(32, () => {
-          this.container.style.height = this.container.style.minHeight
-        })
+        return this.containerScaleBack(next)
       }
-
     })(wait_time + 17, () => {
+      console.log('transform-done')
       if (this.scrollTopMoreThanContainer()) {
         this.scrollBackContainerTop()
       }
@@ -391,11 +399,17 @@ class PageAction extends PageUtils {
     })(30, () => {
       $(next).removeCss('position', 'top', 'background')
       $(current).css('display', 'none')
-    })(200, () => {
+    })(20, () => {
       $(this.container).removeCss('height')
       $(next).removeCss('height', 'z-index')
+
+      $([next, this.container]).css('transitionDuration', '0s')
+
       status.emit('done')
       this.operating = false
+    })(getTransitionDuration(this.container) + 20, () => {
+      $([next, this.container]).removeCss('transitionDuration')
+      status.emit('all-done')
     })
 
     return status
