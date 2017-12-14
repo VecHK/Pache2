@@ -8,8 +8,8 @@ define(function (require) {
       viewer() {
         const form = document.createElement('form')
         $(form).class('normal').html(`
-          <input name="color" value="${this.model.color}" placeholder="color"/>
           <input name="name" value="${this.model.name}" placeholder="name"/>
+          <input name="color" value="${this.model.color}" placeholder="color"/>
           <button style="display:none"></button>
         `)
 
@@ -28,8 +28,8 @@ define(function (require) {
       viewer() {
         const form = document.createElement('form')
         $(form).class('links').html(`
-          <input name="value" value="${this.model.value}" placeholder="value" />
           <input name="name" value="${this.model.name}" placeholder="name" />
+          <input name="value" value="${this.model.value}" placeholder="value" />
           <button style="display:none"></button>
         `)
         $(this.container).append(form)
@@ -48,8 +48,8 @@ define(function (require) {
       viewer() {
         const form = document.createElement('form')
         $(form).class('articles').html(`
-          <input name="value" value="${this.model.value}" placeholder="文章 id" />
           <input name="name" value="${this.model.name}" placeholder="name" />
+          <input name="value" value="${this.model.value}" placeholder="文章 id" />
           <button style="display:none"></button>
         `)
         $(this.container).append(form)
@@ -66,6 +66,14 @@ define(function (require) {
   }
   const Inputer = Controller.create().include({
     attachFormEvent(form = this.form) {
+      $('input', form).forEach(input => {
+        input.onblur = e => {
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+          this.setModel()
+          this.emit('blur', this.getModel())
+        }
+      })
       form.addEventListener('submit', e => {
         e.preventDefault()
         this.setModel()

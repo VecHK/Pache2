@@ -6,7 +6,9 @@ define(function (require) {
 
   const Creator = Controller.create().include({
     viewer() {
-      $(this.container).html(`
+      const $container = $(this.container)
+      $container.html(`
+        <div class="create">＋</div>
         <select>
           <option value="category">普通</option>
           <option value="article">文章</option>
@@ -18,8 +20,7 @@ define(function (require) {
 
       this.inputer.render()
 
-      const create_button = document.createElement('div')
-      $(create_button).class('create').text('創建')
+      const create_button = $$('.create', $container[0])
 
       create_button.onclick = async e => {
         const {inputer} = this
@@ -28,8 +29,6 @@ define(function (require) {
         await CategoryModel.refresh()
         this.refresh()
       }
-
-      $(this.container).append(create_button)
     },
     refresh(type = this.selectEle.value) {
       this.model = CategoryModel.init({ type, color: '', name: '', value: '' })

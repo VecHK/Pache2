@@ -7,11 +7,10 @@ define(function (require) {
   const Submiter = Controller.create().include({
     viewer() {
       $(this.container).html('')
-      this.inputer.viewer()
 
       const 上移按鈕 = document.createElement('div')
       $(上移按鈕).class('moveup').text('↑')
-      $(this.container).append(上移按鈕)
+
       上移按鈕.onclick = async e => {
         const {records} = CategoryModel
         const cate = this.inputer.getModel()
@@ -41,7 +40,10 @@ define(function (require) {
         await this.inputer.getModel().remove()
         this.onRemove()
       }
+
       $(this.container).append(del_button)
+      $(this.container).append(上移按鈕)
+      this.inputer.viewer()
     },
     onRemove() {
       this.emit('remove')
@@ -51,7 +53,9 @@ define(function (require) {
       this.inputer = Inputer.init(container, model)
       this.inputer.on('submit', async model => {
         await model.save()
-
+      })
+      this.inputer.on('blur', async model => {
+        await model.save()
       })
     },
   })
