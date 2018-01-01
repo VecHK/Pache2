@@ -1,12 +1,15 @@
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 const envir = require('../../envir')
-const Model = require('../../model');
-const Router = require('koa-router');
+const Model = require('../../model')
+const Router = require('koa-router')
 const cli = require('../../lib/redis-cache.js')
 
-const router = new Router;
+const PugETag = require('../../lib/pug-etag')
 
-const 合法的文章ID = /^[a-z0-9]{24}$/;
+const router = new Router
+
+const 合法的文章ID = /^[a-z0-9]{24}$/
 router.get('/:articleid', async (ctx, next) => {
   if (合法的文章ID.test(ctx.params.articleid)) {
     ctx.getConditions = { _id: ctx.params.articleid }
@@ -20,7 +23,7 @@ router.get('/:articleid', async (ctx, next) => {
   let article = await Model.Article.findOne(ctx.getConditions)
 
   if (article && article.is_draft) {
-    ctx.status = 403;
+    ctx.status = 403
     Object.assign(article, {
       title: '拒絕',
       format: `<div class="page current-page solid-page">
@@ -55,24 +58,30 @@ router.get('/:articleid', async (ctx, next) => {
       date: article.date,
       mod: article.mod,
     })
-    await ctx.render('article/found', {article}, true);
+    await ctx.render('article/found', {article}, true)
   } else if (article) {
     ctx.article = article
     await next()
   } else {
-    ctx.status = 404;
-    await ctx.render('article/nofound', {}, true);
+    ctx.status = 404
+    await ctx.render('article/nofound', {}, true)
   }
 })
 
 router.get('/:articleid', async (ctx, next) => {
   const {header} = ctx.request
   const modProp = 'if-modified-since'
-  if (header[modProp] && (header[modProp] === ctx.article.mod.toGMTString())) {
+  // console.log('If-None-Match:', header['if-none-match'])
+
+  if (
+    (header['if-none-match'] === PugETag.ETag)
+    &&
+    (header[modProp] && (header[modProp] === ctx.article.mod.toGMTString()))
+  ) {
     ctx.status = 304
-    return
+  } else {
+    await next()
   }
-  await next()
 })
 
 envir.PUG_CACHE && router.get('/:articleid', async (ctx, next) => {
@@ -109,8 +118,10 @@ envir.PUG_CACHE && router.get('/:articleid', async (ctx, next) => {
 router.get('/:articleid', async ctx => {
   // 緩存
   ctx.response.set('Last-Modified', ctx.article.mod.toGMTString())
-  await ctx.render('article/found', {article: ctx.article}, true)
+
+  ctx.response.set('ETag', PugETag.ETag)
+  await ctx.render('article/found', { article: ctx.article }, true)
 })
 
 
-module.exports = router;
+module.exports = router

@@ -6,6 +6,7 @@ const Router = require('koa-router')
 const convert = require('koa-convert')
 const compress = require('koa-compress')
 const koa_static = require('koa-static')
+const pache_static = require('./lib/pache-static')
 const koa_session = require('koa-session-redis')
 
 const npmPackage = require('./package')
@@ -86,9 +87,11 @@ app.use(async (ctx, next) => {
 
 // 是否強制跳轉到主域名
 envir.force_redirect_to_master_domain && app.use(async (ctx, next) => {
-  if (ctx.host.trim() !== envir.master_domain.trim()) {
+  console.warn(ctx.hostname, envir.master_domain)
+  if (ctx.hostname.trim() !== envir.master_domain.trim()) {
     let protocol = envir.force_https ? 'https' : ctx.protocol
-    return ctx.redirect(`${protocol}://${envir.master_domain}${ctx.url}`)
+    let port = envir.force_https ? envir.https_port : envir.port
+    return ctx.redirect(`${protocol}://${envir.master_domain}:${envir.port}${ctx.url}`)
   }
   await next()
 })
@@ -101,8 +104,21 @@ app.use(async (ctx, next) => {
     await next()
   }
 })
-app.use(koa_static(path.join(__dirname, 'static/')))
-app.use(koa_static(path.join(__dirname, 'public/')))
+
+// app.use(koa_static(path.join(__dirname, 'static/')))
+app.use(pache_static({
+  path: path.join(__dirname, 'static/'),
+
+  enable_modified_cache: true,
+}))
+
+// app.use(koa_static(path.join(__dirname, 'public/')))
+app.use(pache_static({
+  path: path.join(__dirname, 'public/'),
+
+  enable_modified_cache: true,
+}))
+
 
 const pug = new Views({
   viewPath: path.join(__dirname, '/views'),
@@ -144,7 +160,7 @@ app.use(async (ctx, next) => {
 })
 envir.ESD_ENABLE && app.use(async (ctx, next) => {
   for (let esd_path of envir.ESD_LIST) {
-    const filePath = path.join(esd_path, ctx.path)
+    const filePath = path.join(esd_path, decodeURIComponent(ctx.path))
     if (await fs.exists(filePath)) {
       const {dir, base} = path.parse(filePath)
       await send(ctx, base, { root: dir })

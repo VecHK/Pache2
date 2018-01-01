@@ -63,8 +63,8 @@ process.on('message', (message) => {
 
 				if (envir.force_redirect_to_master_domain) {
 					app.use(async (ctx, next) => {
-						if (ctx.host.trim() !== envir.master_domain.trim()) {
-					    return ctx.redirect(`https://${envir.master_domain}${ctx.url}`)
+						if (ctx.hostname.trim() !== envir.master_domain.trim()) {
+					    return ctx.redirect(`https://${envir.master_domain}:${envir.port}${ctx.url}`)
 					  }
 						await next()
 					})
