@@ -1,36 +1,39 @@
-const path = require('path');
-const Model = require('../../model');
-const libCategory = require('../../lib/category');
-const libArticle = require('../../lib/article');
+const path = require('path')
+const Model = require('../../model')
+const libCategory = require('../../lib/category')
+const libArticle = require('../../lib/article')
 const envir = require('../../envir')
-const Router = require('koa-router');
+const Router = require('koa-router')
 const cli = require('../../lib/redis-cache')
 
-const router = new Router;
+// const PugETag = require('../../lib/pug-etag')
+// PugETag.ETag
+
+const router = new Router
 
 router.use(async (ctx, next) => {
-  ctx.conditions = {};
+  ctx.conditions = {}
   await next()
 })
 
 router.get(['*/category/:category/*', '*/category/:category'], async (ctx, next) => {
-  let category = await Model.Category.findOne({ name: ctx.params.category});
+  let category = await Model.Category.findOne({ name: ctx.params.category})
 
   if (category === null) {
-    ctx.status = 404;
+    ctx.status = 404
     ctx.body = '分類不存在'
-    return;
+    return
   }
 
-  ctx.conditions.category_name = category.name;
-  ctx.conditions.category_id = category.id.toString();
-  ctx.conditions.category = category;
+  ctx.conditions.category_name = category.name
+  ctx.conditions.category_id = category.id.toString()
+  ctx.conditions.category = category
   await next()
 })
 
 router.get(['*/tag/:tag_raw/*', '*/tag/:tag_raw'], async (ctx, next) => {
   let tag_arr = ctx.params.tag_raw.split(',').map(tag => tag.trim())
-  ctx.conditions.tags = tag_arr;
+  ctx.conditions.tags = tag_arr
   await next()
 })
 
@@ -41,8 +44,8 @@ router.get([
   '/tag/*/category/*/',
   '/category/*/tag/*/',
 ], async (ctx, next) => {
-  ctx.conditions.pagecode = 1;
-  await next();
+  ctx.conditions.pagecode = 1
+  await next()
 })
 
 router.get([
@@ -57,7 +60,7 @@ router.get([
   if (Number.isInteger(pagecode) && pagecode > 0) {
     ctx.conditions.pagecode = pagecode
   } else if ('tags' in ctx.conditions || 'category' in ctx.conditions) {
-    ctx.conditions.pagecode = 1;
+    ctx.conditions.pagecode = 1
   }
 
   await next()
@@ -92,7 +95,7 @@ router.get('*', async (ctx, next) => {
   let count = await Model.Article.find(con).count()
   ctx.categories = await libCategory.getAll()
 
-  let cacheKey = `list-${ctx.conditions.pagecode}`;
+  let cacheKey = `list-${ctx.conditions.pagecode}`
   if (ctx.conditions.category) {
     cacheKey += `-${ctx.conditions.category.name}`
   }
@@ -141,10 +144,11 @@ async function PugCache(ctx, cacheKey, list) {
   }
 
   // 命中 redis 緩存
-  if (check_result)
+  if (check_result) {
     return (await cli.HMGET(cacheKey, 'complied')).pop()
-  else
+  } else {
     return null
+  }
 }
 
-module.exports = router;
+module.exports = router
