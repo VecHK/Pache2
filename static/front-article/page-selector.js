@@ -1,14 +1,10 @@
 function getTransitionDuration (ele) {
   return getComputedStyle(ele)['transition-duration'].split(',').map(time =>
     parseFloat(time) * 1000
-  ).sort((a, b) => a > b).pop()
+  ).sort((a, b) => a < b).pop()
 }
 function transitionDurationWait (ele) {
-  return Promise.all(
-    getComputedStyle(ele)['transition-duration'].split(',').map(time =>
-      waitting( time * 1000 )
-    )
-  )
+  return waitting(getTransitionDuration(ele))
 }
 
 const PageSelectorClass = () => {
@@ -163,8 +159,9 @@ const PageSelectorClass = () => {
               } else if (!ctx.heightMoreThanMinHeight(operate)) { // 大 => 小
                 console.log('大 => 小')
                 this.$(this.container).css({
+                  opacity: '0',
                   position: 'fixed',
-                  transform: `translateY(4em)`,
+                  transform: `translateY(1em)`,
                   transitionDuration: `0s`,
                 })
                 status.on('start-transform', () => {
@@ -172,10 +169,11 @@ const PageSelectorClass = () => {
                   this.$(this.container).css({
                     transitionDuration: ``,
                     transform: 'translateY(0em)',
+                    opacity: 1,
                   })
                 })
                 status.on('done', () => {
-                  this.$(this.container).removeCss('position', 'transform', 'translateDuration')
+                  this.$(this.container).removeCss('position', 'transform', 'opacity', 'translateDuration')
                 })
               }
             } else if (ctx.heightMoreThanMinHeight(current)) {
@@ -201,10 +199,8 @@ const PageSelectorClass = () => {
               if (ctx.heightMoreThanWindow(operate)) { // 大 => 小
                 this.slideHide('', status)
               } else if (ctx.heightMoreThanMinHeight(operate)) { // 小 => 中
-
                 this.adaptSlide('', status)
-              }/* else if (!ctx.heightMoreThanMinHeight(operate)) { // 小 => 小
-              }*/
+              }
               status.on('done', () => $(this.container).removeCss('position', 'bottom', 'top'))
             } else {
               console.warn('???')

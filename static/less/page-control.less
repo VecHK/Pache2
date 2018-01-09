@@ -1,5 +1,11 @@
 @import "base.less";
 
+.debug .page-control {
+  .next:before, .previous:before {
+    background: rgba(0, 0, 0, .1);
+  }
+}
+
 .page-control {
   .flex-frame(center, center);
   display: flex;
@@ -28,7 +34,6 @@
     content: " ";
     height: 140%;
     top: 0%;
-    // background: rgba(255, 0, 0, .1);
   }
   .next:before {
     width: 140%;
