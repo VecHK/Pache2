@@ -8,19 +8,33 @@
     transition-timing-function: ease !important;
   }
 }
+.debug .jack {
+  background: grey !important;
+  width: 1px !important;
+}
 .jack {
   display: inline-block;
-  vertical-align: top;
-  height: 1.8em;
+  vertical-align: text-top;
+  // vertical-align: top;
+  // vertical-align: 100%;
+  // height: 1.8em;
   width: 0px;
   transition-property: height;
   transform: translate3d(0, 0, 0);
 }
 .footnote-ref {
-  /* display: inline-block; */
-  height: 10px;
   transition-property: height;
-  vertical-align: 6px;
+  // vertical-align: unset;
+  vertical-align: 0px;
+  font-size: 1em;
+  line-height: 0em !important;
+
+  position: relative;
+
+  a {
+    vertical-align: 1ex;
+    font-size: .9em;
+  }
 }
 
 .split {
@@ -31,7 +45,7 @@
   height: 0px;
 
   background: rgba(128, 128, 128, 0.18);
-  transform: translateY(1.8em);
+  // transform: translateY(1.8em);
 
   &:before { top: -2px }
   &:after { top: 100% }
@@ -55,7 +69,7 @@
   text-align: justify;
   font-size: .8em;
   color: @pache-color;
-  text-shadow: 0px 1px 0px white;
+  text-shadow: 0px .8px 0px rgb(245, 245, 245);
 
   & > *:first-child { margin-top: 0; padding-top: 0 }
   & > *:last-child { margin-bottom: 0; padding-bottom: 0; }

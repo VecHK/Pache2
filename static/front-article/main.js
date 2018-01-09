@@ -9,6 +9,13 @@ window.main = async function () {
     await fn_arr[cursor]()
   }
 
+  try {
+    window.layer = Layer.init($$('#article'), $$('#article section.footnotes'))
+  } catch (e) {
+    $(document.body).css('color', '#CB1B45').text(`【${e.name}】${e.message}
+      ${e.stack}`)
+  }
+
   // 防止露陷的 CSS 要刪除掉了
   $('.execable-css').remove()
 }
