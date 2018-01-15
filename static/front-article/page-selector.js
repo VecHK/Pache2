@@ -1,11 +1,3 @@
-function getTransitionDuration (ele) {
-  return getComputedStyle(ele)['transition-duration'].split(',').map(time =>
-    parseFloat(time) * 1000
-  ).sort((a, b) => a < b).pop()
-}
-function transitionDurationWait (ele) {
-  return waitting(getTransitionDuration(ele))
-}
 
 const PageSelectorClass = () => {
   class Constructor extends ClassConstruct() {

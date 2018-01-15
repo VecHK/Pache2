@@ -24,6 +24,12 @@ function ArrayForEach(arr, cb) {
     cb(arr[cursor], cursor, arr)
   }
 }
+async function AsyncForEach(arr, cb) {
+  const LEN = arr.length
+  for (let cursor = 0; cursor < LEN; ++cursor) {
+    await cb(arr[cursor], cursor, arr)
+  }
+}
 
 const fetchElementText = (() => {
   const TEXT_NODETYPE = 3
@@ -42,6 +48,18 @@ const fetchElementText = (() => {
     return str
   }
 })()
+
+
+/* 元素是否隐藏（包括它的父元素） */
+function elementIsHidden (ele) {
+  if (ele.style && (getComputedStyle(ele).display === 'none')) {
+    return ele
+  } else if (ele.parentNode) {
+    return elementIsHidden(ele.parentNode)
+  } else {
+    return false
+  }
+}
 
 function copyArray(arr) {
   const newArray = []
@@ -92,4 +110,13 @@ function getScrollingElement() {
   } else {
     return $$('html')
   }
+}
+
+function getTransitionDuration (ele) {
+  return getComputedStyle(ele)['transition-duration'].split(',').map(time =>
+    parseFloat(time) * 1000
+  ).sort((a, b) => a < b).pop()
+}
+function transitionDurationWait (ele) {
+  return waitting(getTransitionDuration(ele))
 }

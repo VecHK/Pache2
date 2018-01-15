@@ -35,7 +35,9 @@ const md = MarkdownIt({
 		if (lang && hljs.getLanguage(lang)) {
 			try {
 				return `<pre class="hljs source-code"><code>${hljs.highlight(lang, str, true).value}</code></pre>`;
-			} catch (__) {}
+			} catch (e) {
+
+			}
 		}
 
 		return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
@@ -95,7 +97,7 @@ const repost_color_middle = async function (opts) {
 		// const c_color = Cutl.init(category.color)
 		// const f_color = Cutl.or(c_color, repost_color)
 		// set.fusion_color = f_color.getColorCode()
-		set.fusion_color = category.color
+		set.fusion_color = repost_color.getColorCode()
 	} else if (category && !is_repost) {
 		// 有分類的非轉載文章
 		set.fusion_color = category.color
@@ -154,13 +156,35 @@ const contentFormat = async function () {
 	}
 
 	/* 分頁處理 */
-	const splited = this.format.split(`<div class="split-page"></div>`);
-	this.format = splited.map(eleHTML => `<div class="page">${eleHTML}</div>`).join('\n');
+	const splited = this.format.split(`<div class="split-page"></div>`)
+	this.format = `<script>var __PAGE_CODE_COUNT__ = ${splited.length}</script>` + splited.map(eleHTML => `<div class="page">${eleHTML}</div>`).join('\n')
 
-	/* 將首頁固定 */
+
+	/* 首字下沉 */
 	let $ = cheerio.load(this.format, {
 		decodeEntities: envir.markdown_entitles ? true : false,
-	});
+	})
+	$('.page > p:first-child').each((idx, el) => {
+		let elHtml = $(el).html().trimLeft()
+
+		let initial_char = ''
+		if (elHtml[0] === '&') {
+			elHtml = elHtml.replace(/^&([a-z]|[A-Z]|[0-9]|\#){1,};/, match_str => {
+				initial_char = match_str
+				return ''
+			})
+		} else {
+			initial_char = elHtml[0]
+			elHtml = elHtml.slice(1, elHtml.length)
+		}
+
+		$(el).html(`<span class="initial">${initial_char}</span>` + elHtml)
+	})
+
+	// $ = cheerio.load(this.format, {
+	// 	decodeEntities: envir.markdown_entitles ? true : false,
+	// });
+	/* 將首頁固定 */
 	$($('.page')[0]).addClass('current-page').addClass('solid-page');
 
 	/* 取出腳註 */

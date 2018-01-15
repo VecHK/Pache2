@@ -91,9 +91,6 @@ article, .info {
 		color: hsl(200, 50%, 35%);
 		text-decoration: none;
 	}
-	a[href^="#"]:link {
-		color: #777;
-	}
 	a:not([href^="#"]):visited {
 		color: hsl(200, 30%, 60%);
 	}
@@ -119,14 +116,13 @@ article, .info {
 		text-justify: inter-ideographic;
 	}
 	.initial {
-		&::first-letter {
-			color: hsla(240, 9%, 25%, 0.9);
-			float: left;
-			font-size: 3.5em;
-			line-height: 1em;
-			font-family: "黑体", @pache-article-font-family;
-			margin: 0 .1em 0 0;
-		}
+		color: hsla(240, 9%, 25%, 0.9);
+		float: left;
+		font-size: 3.2em;
+		line-height: 3.5rem;
+		height: 3.5rem;
+		font-family: "黑体", @pache-article-font-family;
+		margin: 0 1mm 0 0;
 	}
 	p:last-child {
 		margin-bottom: 0;
@@ -151,9 +147,9 @@ article, .info {
 		margin-bottom: 3em;
 	}
 
-	&:not(.split-content) {
-		> p:first-child { .initial; }
-		> *:first-child { margin-top: 0; padding-top: 0 }
+	&:not(.split-content), &:not(.initial-split) {
+		// > p:first-child { .initial; }
+		> *:first-child:not(.initial-split) { margin-top: 0; padding-top: 0 }
 	}
 
 	// 代码框
@@ -384,6 +380,12 @@ section.footnotes {
 		font-size: 1em;
 	}
 	.page {
+		.initial {
+			font-size: 3.1em;
+			line-height: 4.2rem;
+			height: 3.5rem;
+		}
+
 		pre.source-code {
 			width: 100%;
 			// position: static;
