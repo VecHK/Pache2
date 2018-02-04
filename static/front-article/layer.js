@@ -300,8 +300,8 @@ class Split {
     // splitEle.parentNode.insertBefore(jack, splitEle)
 
     /* 锚后面如果是标点符号（Han 的 h-char 元素表示），则加到 ref 中 */
-    const nextSibling = ref.parentNode.nextSibling
-    if (nextSibling && (nextSibling.tagName.toLowerCase() === 'h-char')) {
+    const nextSibling = ref.parentNode.nextElementSibling
+    if (nextSibling && (nextSibling.nodeType === 1) && (nextSibling.tagName.toLowerCase() === 'h-char')) {
       $(nextSibling).remove()
       ref.parentNode.appendChild(nextSibling)
       console.warn(nextSibling)
